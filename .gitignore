@@ -2,4 +2,21 @@
 uml/
 *.png
 *.uxf
+.agents/
+
+# Secrets / configuration locale
+.env
+.env.local
+*.log
+
+# Dependances des services
+node_modules/
+target/
+__pycache__/
+.venv/
+dist/
+build/
+
+md/
+*.md
 
