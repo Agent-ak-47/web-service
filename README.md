@@ -1,78 +1,104 @@
-# Projet : Agence de Voyage en Ligne (Web Service)
+# Project: Online Travel Agency (Web Service)
 
-## 1. Vue d'ensemble du Projet
+## 1. Project overview
 
-* **Équipe :** 8 
-* **Domaine :** E-commerce / Tourisme & Voyage
-* **Fonctionnalités principales :** Gestion des forfaits, vols, excursions et système de paiement sécurisé.
-* **Entités du domaine :** Forfait, Vol, Excursion, Réservation.
-* **Stack technique & Outils :** Architecture REST, Docker pour la conteneurisation, Git / GitHub pour le versioning et le déploiement par branches.
+* **Team:** 4 members
+* **Domain:** E-commerce / Tourism & Travel
+* **Main features:** management of packages, flights, excursions and a secure payment system.
+* **Domain entities:** Package, Flight, Excursion, Reservation.
+* **Tech stack & tools:** REST architecture, Docker for containerisation, Git / GitHub for versioning and branch-based deployment.
 
 ---
 
-## 2. Répartition des Tâches et Branches Git
+## 2. Task assignment and Git branches
 
-Pour garantir un travail collaboratif fluide, chaque membre ou sous-groupe dispose d'une **branche dédiée** pour développer, tester et fusionner (via Pull Request) son code vers la branche principale (`main` ou `develop`).
+To guarantee smooth collaborative work, each member or sub-group has a **dedicated branch**
+to develop, test and merge (via Pull Request) their code into the main branch (`main` or `develop`).
 
-| Membre | Rôle / Fonctionnalité | Entité Associée | Branche Git Dédiée |
+| Member | Role / Feature | Associated entity | Dedicated Git branch |
 | --- | --- | --- | --- |
-| **Mohammad** | Gestion des Vols (API REST & Services) | `Vol` | `mohammed` |
-| **Youssef** | Gestion des Forfaits Touristiques | `Forfait` | `youssef` |
-| **Kamal** | Gestion des Réservations & Paiement | `Réservation` | `kamal` |
-| **Marwan** | Gestion des Excursions & Conteneurisation | `Excursion` | `marwan` |
----
-
-## 3. Modélisation des Entités Principales
-
-### A. Entité `Vol` (Mohammad)
-
-* **Attributs :** `id`, `origine`, `destination`, `date_depart`, `date_arrivee`, `prix`, `places_disponibles`.
-* **Endpoints REST :**
-* `GET /api/vols` : Rechercher des vols.
-* `POST /api/vols` : Ajouter un vol (Admin).
-
-
-
-### B. Entité `Forfait` (Youssef)
-
-* **Attributs :** `id`, `titre`, `description`, `destination`, `prix_total`, `date_debut`, `date_fin`.
-* **Endpoints REST :**
-* `GET /api/forfaits` : Lister tous les forfaits disponibles.
-* `GET /api/forfaits/{id}` : Afficher les détails d'un forfait.
-
-
-
-### C. Entité `Excursion` (Marwan)
-
-* **Attributs :** `id`, `nom`, `lieu`, `description`, `tarif`, `duree`.
-* **Endpoints REST :**
-* `GET /api/excursions` : Lister les excursions proposées.
-
-
-
-### D. Entité `Réservation` & Paiement (Kamal)
-
-* **Attributs :** `id`, `utilisateur_id`, `type_item` (Vol/Forfait/Excursion), `item_id`, `statut`, `date_reservation`, `montant_total`.
-* **Endpoints REST :**
-* `POST /api/reservations` : Créer une réservation.
-* `POST /api/paiement` : Traiter le paiement sécurisé.
-
-
+| **Mohammed** | Flight management (REST API & services) | `Flight` | `mohammed` |
+| **Youssef** | Travel package management | `Package` | `youssef` |
+| **Kamal** | Reservations & payment | `Reservation` | `kamal` |
+| **Marwan** | Excursion management & containerisation | `Excursion` | `marwan` |
 
 ---
 
-## 4. Stratégie DevOps & Workflow Git
+## 3. Modelling of the main entities
 
-### Workflow des Branches
+### A. `Flight` entity (Mohammed)
 
-1. **`main` / `master` :** Code de production stable et testé.
-2. **`develop` :** Branche d'intégration pour regrouper toutes les fonctionnalités.
-3. **Branches de Fonctionnalités (`feature/*`) :** Chaque développeur travaille exclusivement sur sa branche dédiée (`feature/use-case-vol`, etc.) et pousse son code pour le déployer ou le tester en isolation.
+* **Attributes:** `id`, `origin`, `destination`, `departureDate`, `arrivalDate`, `price`, `availableSeats`.
+* **REST endpoints:**
+* `GET /api/flights` : search for flights.
+* `POST /api/flights` : add a flight (Admin).
+
+### B. `Package` entity (Youssef)
+
+* **Attributes:** `id`, `title`, `description`, `destination`, `totalPrice`, `startDate`, `endDate`.
+* **REST endpoints:**
+* `GET /api/packages` : list all available packages.
+* `GET /api/packages/{id}` : display the details of a package.
+
+### C. `Excursion` entity (Marwan)
+
+* **Attributes:** `id`, `name`, `location`, `description`, `price`, `duration`.
+* **REST endpoints:**
+* `GET /api/excursions` : list the proposed excursions.
+
+### D. `Reservation` & Payment entities (Kamal)
+
+* **Attributes:** `id`, `userId`, `itemType` (Flight/Package/Excursion), `itemId`, `status`, `reservationDate`, `totalAmount`.
+* **REST endpoints:**
+* `POST /api/reservations` : create a reservation.
+* `POST /api/payments` : process the secure payment.
+
+---
+
+## 4. DevOps strategy & Git workflow
+
+### Branch workflow
+
+1. **`main` / `master` :** stable, tested production code.
+2. **`develop` :** integration branch that gathers all features.
+3. **Feature branches (`feature/*`) :** each developer works exclusively on their dedicated branch (`feature/use-case-flight`, etc.) and pushes their code to deploy or test it in isolation.
 
 ### Docker & Docker Compose
 
-Chaque service ou l'application complète sera conteneurisée via **Docker** pour garantir l'uniformité des environnements de développement et de production :
+Every service or the complete application is containerised with **Docker** to guarantee
+uniform development and production environments:
 
-* Un fichier `Dockerfile` par microservice / module.
-* Un fichier `docker-compose.yml` pour orchestrer l'application web, la base de données (ex. PostgreSQL / MySQL) et les services annexes.
+* One `Dockerfile` per microservice / module.
+* One `docker-compose.yml` orchestrating the web application, the database (e.g. PostgreSQL / MySQL) and the ancillary services.
 
+---
+
+## 5. Documentation & database
+
+The full technical documentation is in **[`md/`](md/README.md)**: UML diagrams (Mermaid),
+data model, REST API contract, sequence diagram, Docker architecture and Git workflow.
+
+The shared MySQL database is already in place and running:
+
+```bash
+cp .env.example .env      # local configuration (never committed)
+docker compose up -d      # starts MySQL 8.4 + phpMyAdmin
+docker compose ps         # mysql must report "healthy"
+```
+
+| Database | MySQL account | Used by |
+|----------|---------------|---------|
+| `travel_agency` | `app_user` | all four services |
+
+| Tables | Owner |
+|--------|-------|
+| `users`, `sessions` | Kamal |
+| `flights`, `flight_seat_movements` | Mohammed |
+| `packages`, `package_flights`, `package_excursions` | Youssef |
+| `excursions`, `excursion_capacity_movements` | Marwan |
+| `reservations`, `payments`, `reservation_history` | Kamal |
+
+phpMyAdmin: <http://localhost:8080> — MySQL reachable on port **3307**.
+
+> The whole project is in English: documentation, code comments, API routes, database
+> tables and columns, JSON keys and status values.

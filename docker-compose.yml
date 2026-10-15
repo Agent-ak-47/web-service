@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------------------
+# Shared infrastructure of the "Online Travel Agency" project.
+# This file is the SINGLE source of truth for the database.
+# Every member runs `docker compose up -d` at the repository root and gets the
+# same database, whatever their operating system.
+#
+#   docker compose up -d          start MySQL (+ phpMyAdmin)
+#   docker compose ps             check the status
+#   docker compose logs -f mysql  follow the logs
+#   docker compose down           stop (data is preserved)
+#   docker compose down -v        FULL RESET (re-runs the db/init scripts)
+# ---------------------------------------------------------------------------
+
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.4}
+    container_name: travel_agency_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is missing from .env}
+      TZ: UTC
+    ports:
+      - "${MYSQL_EXTERNAL_PORT:-3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
+    networks:
+      - travel_agency
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: travel_agency_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is missing from .env}
+      PMA_ARBITRARY: 1
+    ports:
+      - "${PHPMYADMIN_EXTERNAL_PORT:-8080}:80"
+    networks:
+      - travel_agency
+
+volumes:
+  mysql_data:
+    name: travel_agency_mysql_data
+
+networks:
+  travel_agency:
+    name: travel_agency_net
+    driver: bridge
