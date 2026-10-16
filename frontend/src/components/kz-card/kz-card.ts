@@ -74,6 +74,11 @@ export class KzCard {
     }
 
 
+    stop(event: Event): void {
+        event.stopPropagation();
+    }
+
+
     onOpen(): void {
         if (this.loading()) {
             return;

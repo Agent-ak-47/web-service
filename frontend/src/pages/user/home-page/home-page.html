@@ -25,7 +25,7 @@
                 @else {
                     <div class="kz-grid-cards">
                         @for (card of section.cards; track card.id) {
-                            <kz-card [data]="card" (opened)="onOpen($event)" />
+                            <kz-card [data]="card" (opened)="onOpen($event)" (reserved)="onOpen($event)" />
                         }
                     </div>
                 }

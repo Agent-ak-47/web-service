@@ -30,7 +30,7 @@
             <span class="price-value">{{ data().price | kzMoney }}</span>
             <span class="price-unit">{{ data().unitLabel }}</span>
         </div>
-        <kz-btn [label]="buttonLabel" [disabled]="data().disabled" [loading]="loading()"
+        <kz-btn [label]="buttonLabel" [disabled]="data().disabled" [loading]="loading()" (click)="stop($event)"
             (clicked)="onReserve()" />
     </footer>
 </article>
