@@ -120,7 +120,7 @@ export class HomePage implements OnInit {
     }
 
 
-    onReserve(card: KzItemCardData): void {
+    onOpen(card: KzItemCardData): void {
         this.router.navigateByUrl(this.detailPath(card));
     }
 

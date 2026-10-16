@@ -1,4 +1,4 @@
-<article class="kz-card" tabindex="0" (click)="onAction()" (keydown.enter)="onAction()">
+<article [class]="hostClasses" [attr.tabindex]="tabIndex" (click)="onOpen()" (keydown.enter)="onOpen()">
     <header class="card-head">
         <kz-icon [img]="iconImage" [size]="iconSize" [tone]="ICON_TONE" [withBackground]="true" />
         <div class="head-text">
@@ -30,7 +30,7 @@
             <span class="price-value">{{ data().price | kzMoney }}</span>
             <span class="price-unit">{{ data().unitLabel }}</span>
         </div>
-        <kz-btn [label]="buttonLabel" [disabled]="data().disabled" (click)="stop($event)"
-            (clicked)="onAction()" />
+        <kz-btn [label]="buttonLabel" [disabled]="data().disabled" [loading]="loading()"
+            (clicked)="onReserve()" />
     </footer>
 </article>

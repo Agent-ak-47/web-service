@@ -25,6 +25,10 @@
     cursor: pointer;
 }
 
+.kz-card.is-busy {
+    cursor: progress;
+}
+
 .card-head {
     display: flex;
     align-items: flex-start;

@@ -22,7 +22,9 @@ export class KzCard {
     readonly ICON_TONE = KzTone.NEUTRAL;
 
     readonly data = input.required<KzItemCardData>();
-    readonly action = output<KzItemCardData>();
+    readonly loading = input<boolean>(false);
+    readonly opened = output<KzItemCardData>();
+    readonly reserved = output<KzItemCardData>();
 
     private readonly globalService = inject(GlobalService);
 
@@ -57,17 +59,35 @@ export class KzCard {
     }
 
 
+    get hostClasses(): string {
+        return this.loading() ? 'kz-card is-busy' : 'kz-card';
+    }
+
+
+    get tabIndex(): number {
+        return this.loading() ? -1 : 0;
+    }
+
+
     get buttonLabel(): string {
         return this.data().disabled ? this.data().disabledLabel : this.data().actionLabel;
     }
 
 
-    stop(event: Event): void {
-        event.stopPropagation();
+    onOpen(): void {
+        if (this.loading()) {
+            return;
+        }
+
+        this.opened.emit(this.data());
     }
 
 
-    onAction(): void {
-        this.action.emit(this.data());
+    onReserve(): void {
+        if (this.data().disabled) {
+            return;
+        }
+
+        this.reserved.emit(this.data());
     }
 }
