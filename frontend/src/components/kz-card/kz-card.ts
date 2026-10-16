@@ -22,7 +22,6 @@ export class KzCard {
     readonly ICON_TONE = KzTone.NEUTRAL;
 
     readonly data = input.required<KzItemCardData>();
-    readonly loading = input<boolean>(false);
     readonly action = output<KzItemCardData>();
 
     private readonly globalService = inject(GlobalService);
@@ -63,11 +62,12 @@ export class KzCard {
     }
 
 
-    onAction(): void {
-        if (this.data().disabled) {
-            return;
-        }
+    stop(event: Event): void {
+        event.stopPropagation();
+    }
 
+
+    onAction(): void {
         this.action.emit(this.data());
     }
 }

@@ -121,7 +121,7 @@ export class HomePage implements OnInit {
 
 
     onReserve(card: KzItemCardData): void {
-        this.router.navigateByUrl(this.sectionPath(card.type));
+        this.router.navigateByUrl(this.detailPath(card));
     }
 
 
@@ -257,14 +257,14 @@ export class HomePage implements OnInit {
     }
 
 
-    private sectionPath(type: KzItemType): string {
-        switch (type) {
+    private detailPath(card: KzItemCardData): string {
+        switch (card.type) {
             case KzItemType.PACKAGE:
-                return this.globalService.pages.packages;
+                return this.globalService.pages.packageDetail(card.id);
             case KzItemType.EXCURSION:
-                return this.globalService.pages.excursions;
+                return this.globalService.pages.excursionDetail(card.id);
             default:
-                return this.globalService.pages.flights;
+                return this.globalService.pages.flightDetail(card.id);
         }
     }
 }

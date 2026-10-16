@@ -15,14 +15,26 @@ export const routes: Routes = [
         loadComponent: () => import('../pages/user/packages-page/packages-page').then((module) => module.PackagesPage),
     },
     {
+        path: 'forfaits/:id',
+        loadComponent: () => import('../pages/user/package-detail-page/package-detail-page').then((module) => module.PackageDetailPage),
+    },
+    {
         path: 'vols',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/flights-page/flights-page').then((module) => module.FlightsPage),
     },
     {
+        path: 'vols/:id',
+        loadComponent: () => import('../pages/user/flight-detail-page/flight-detail-page').then((module) => module.FlightDetailPage),
+    },
+    {
         path: 'excursions',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/excursions-page/excursions-page').then((module) => module.ExcursionsPage),
+    },
+    {
+        path: 'excursions/:id',
+        loadComponent: () => import('../pages/user/excursion-detail-page/excursion-detail-page').then((module) => module.ExcursionDetailPage),
     },
     {
         path: 'mes-reservations',

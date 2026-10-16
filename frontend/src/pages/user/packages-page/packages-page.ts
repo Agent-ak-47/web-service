@@ -10,7 +10,6 @@ import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzPackage } from '../../../models/kz_package.interface';
-import { KzReservation } from '../../../models/kz_reservation.interface';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
@@ -21,7 +20,6 @@ import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import {
     DEFAULT_KZ_PACKAGE_FILTER,
-    DEFAULT_KZ_PACKAGE_QUANTITY,
     KzPackageFilter,
 } from './models/kz_package_filter.interface';
 
@@ -39,9 +37,8 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     readonly DESTINATION_LABEL = 'Destination';
     readonly DATE_LABEL = 'Date de depart';
     readonly MAX_PRICE_LABEL = 'Prix maximum';
-    readonly QUANTITY_LABEL = 'Participants';
     readonly DESTINATION_PLACEHOLDER = 'Marrakech';
-    readonly RESERVE_LABEL = 'Reserver';
+    readonly DISCOVER_LABEL = 'Decouvrir';
     readonly SOLD_OUT_LABEL = 'Complet';
     readonly PRICE_UNIT = 'par personne';
     readonly DATES_LABEL = 'Dates';
@@ -59,8 +56,6 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     cards: KzItemCardData[] = [];
     filter: KzPackageFilter = { ...DEFAULT_KZ_PACKAGE_FILTER };
     isLoading = true;
-    isReserving = false;
-    reservingId = 0;
     errorMessage = '';
     filtersTouched = false;
 
@@ -93,14 +88,6 @@ export class PackagesPage implements KzGuardedForm, OnInit {
                 label: this.MAX_PRICE_LABEL,
                 type: KzFieldType.NUMBER,
                 value: this.filter.maxPrice,
-                placeholder: '',
-                options: [],
-            },
-            {
-                name: 'quantity',
-                label: this.QUANTITY_LABEL,
-                type: KzFieldType.NUMBER,
-                value: this.filter.quantity,
                 placeholder: '',
                 options: [],
             },
@@ -181,7 +168,6 @@ export class PackagesPage implements KzGuardedForm, OnInit {
             destination: values['destination'] ?? this.filter.destination,
             startDate: values['startDate'] ?? this.filter.startDate,
             maxPrice: values['maxPrice'] ?? this.filter.maxPrice,
-            quantity: values['quantity'] ?? this.filter.quantity,
         };
 
         this.cards = this.buildCards(this.filterPackages(this.packages));
@@ -189,14 +175,7 @@ export class PackagesPage implements KzGuardedForm, OnInit {
 
 
     onReserve(card: KzItemCardData): void {
-        if (!this.authService.isSignedIn) {
-            this.authService.rememberPage(this.globalService.pages.packages);
-            this.router.navigateByUrl(this.globalService.pages.signIn);
-
-            return;
-        }
-
-        this.createReservation(card);
+        this.router.navigateByUrl(this.globalService.pages.packageDetail(card.id));
     }
 
 
@@ -243,69 +222,9 @@ export class PackagesPage implements KzGuardedForm, OnInit {
                         : this.NO_DISCOUNT_LABEL,
                 },
             ],
-            actionLabel: this.RESERVE_LABEL,
+            actionLabel: this.DISCOVER_LABEL,
             disabled: !item.available,
             disabledLabel: this.SOLD_OUT_LABEL,
         }));
-    }
-
-
-    private get requestedQuantity(): number {
-        const quantity = Number(this.filter.quantity);
-
-        return quantity > 0 ? quantity : DEFAULT_KZ_PACKAGE_QUANTITY;
-    }
-
-
-    private async createReservation(card: KzItemCardData): Promise<void> {
-        if (this.isReserving) {
-            return;
-        }
-
-        this.isReserving = true;
-        this.reservingId = card.id;
-        this.errorMessage = '';
-
-        try {
-            const response = await fetch(this.globalService.routes.reservations, {
-                method: 'POST',
-                credentials: 'include',
-                headers: this.authService.authHeaders,
-                body: JSON.stringify({
-                    typeItem: KzItemType.PACKAGE,
-                    itemId: card.id,
-                    quantity: this.requestedQuantity,
-                }),
-            });
-            const raw: unknown = await response.json();
-            console.log(raw);
-
-            const parsed = parseResponse<KzReservation>(raw, response.status);
-
-            if (parsed.redirect.length > 0) {
-                this.authService.clearSession();
-                this.router.navigateByUrl(parsed.redirect);
-
-                return;
-            }
-
-            if (parsed.error !== null || parsed.data === null) {
-                this.errorMessage = parsed.error?.message ?? KZ_LABELS.unexpectedError;
-
-                return;
-            }
-
-            this.authService.savePendingReservation(parsed.data);
-            this.filtersTouched = false;
-            this.router.navigateByUrl(this.globalService.pages.payment);
-        }
-        catch (error: unknown) {
-            console.error(error);
-            this.errorMessage = KZ_LABELS.unexpectedError;
-        }
-        finally {
-            this.isReserving = false;
-            this.reservingId = 0;
-        }
     }
 }

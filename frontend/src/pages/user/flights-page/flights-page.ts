@@ -10,7 +10,6 @@ import { KzItemCardData } from '../../../models/kz_item_card_data.interface';
 import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
-import { KzReservation } from '../../../models/kz_reservation.interface';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
@@ -21,7 +20,6 @@ import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import {
     DEFAULT_KZ_FLIGHT_FILTER,
-    DEFAULT_KZ_FLIGHT_QUANTITY,
     KzFlightFilter,
 } from './models/kz_flight_filter.interface';
 
@@ -40,10 +38,9 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     readonly ARRIVAL_LABEL = 'Ville d arrivee';
     readonly DATE_LABEL = 'Date de depart';
     readonly MAX_PRICE_LABEL = 'Prix maximum';
-    readonly QUANTITY_LABEL = 'Places';
     readonly DEPARTURE_PLACEHOLDER = 'Casablanca';
     readonly ARRIVAL_PLACEHOLDER = 'Paris';
-    readonly RESERVE_LABEL = 'Reserver';
+    readonly DISCOVER_LABEL = 'Decouvrir';
     readonly SOLD_OUT_LABEL = 'Complet';
     readonly INACTIVE_LABEL = 'Indisponible';
     readonly PRICE_UNIT = 'par passager';
@@ -63,8 +60,6 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     cards: KzItemCardData[] = [];
     filter: KzFlightFilter = { ...DEFAULT_KZ_FLIGHT_FILTER };
     isLoading = true;
-    isReserving = false;
-    reservingId = 0;
     errorMessage = '';
     filtersTouched = false;
 
@@ -105,14 +100,6 @@ export class FlightsPage implements KzGuardedForm, OnInit {
                 label: this.MAX_PRICE_LABEL,
                 type: KzFieldType.NUMBER,
                 value: this.filter.maxPrice,
-                placeholder: '',
-                options: [],
-            },
-            {
-                name: 'quantity',
-                label: this.QUANTITY_LABEL,
-                type: KzFieldType.NUMBER,
-                value: this.filter.quantity,
                 placeholder: '',
                 options: [],
             },
@@ -194,7 +181,6 @@ export class FlightsPage implements KzGuardedForm, OnInit {
             arrivalCity: values['arrivalCity'] ?? this.filter.arrivalCity,
             departureDate: values['departureDate'] ?? this.filter.departureDate,
             maxPrice: values['maxPrice'] ?? this.filter.maxPrice,
-            quantity: values['quantity'] ?? this.filter.quantity,
         };
 
         this.cards = this.buildCards(this.filterFlights(this.flights));
@@ -202,14 +188,7 @@ export class FlightsPage implements KzGuardedForm, OnInit {
 
 
     onReserve(card: KzItemCardData): void {
-        if (!this.authService.isSignedIn) {
-            this.authService.rememberPage(this.globalService.pages.flights);
-            this.router.navigateByUrl(this.globalService.pages.signIn);
-
-            return;
-        }
-
-        this.createReservation(card);
+        this.router.navigateByUrl(this.globalService.pages.flightDetail(card.id));
     }
 
 
@@ -251,69 +230,9 @@ export class FlightsPage implements KzGuardedForm, OnInit {
                 { label: this.NUMBER_LABEL, value: flight.flightNumber },
                 { label: this.SEATS_LABEL, value: String(flight.availableSeats) },
             ],
-            actionLabel: this.RESERVE_LABEL,
-            disabled: !flight.active || flight.availableSeats < this.requestedQuantity,
+            actionLabel: this.DISCOVER_LABEL,
+            disabled: !flight.active || flight.availableSeats === 0,
             disabledLabel: flight.availableSeats === 0 ? this.SOLD_OUT_LABEL : this.INACTIVE_LABEL,
         }));
-    }
-
-
-    private get requestedQuantity(): number {
-        const quantity = Number(this.filter.quantity);
-
-        return quantity > 0 ? quantity : DEFAULT_KZ_FLIGHT_QUANTITY;
-    }
-
-
-    private async createReservation(card: KzItemCardData): Promise<void> {
-        if (this.isReserving) {
-            return;
-        }
-
-        this.isReserving = true;
-        this.reservingId = card.id;
-        this.errorMessage = '';
-
-        try {
-            const response = await fetch(this.globalService.routes.reservations, {
-                method: 'POST',
-                credentials: 'include',
-                headers: this.authService.authHeaders,
-                body: JSON.stringify({
-                    typeItem: KzItemType.FLIGHT,
-                    itemId: card.id,
-                    quantity: this.requestedQuantity,
-                }),
-            });
-            const raw: unknown = await response.json();
-            console.log(raw);
-
-            const parsed = parseResponse<KzReservation>(raw, response.status);
-
-            if (parsed.redirect.length > 0) {
-                this.authService.clearSession();
-                this.router.navigateByUrl(parsed.redirect);
-
-                return;
-            }
-
-            if (parsed.error !== null || parsed.data === null) {
-                this.errorMessage = parsed.error?.message ?? KZ_LABELS.unexpectedError;
-
-                return;
-            }
-
-            this.authService.savePendingReservation(parsed.data);
-            this.filtersTouched = false;
-            this.router.navigateByUrl(this.globalService.pages.payment);
-        }
-        catch (error: unknown) {
-            console.error(error);
-            this.errorMessage = KZ_LABELS.unexpectedError;
-        }
-        finally {
-            this.isReserving = false;
-            this.reservingId = 0;
-        }
     }
 }

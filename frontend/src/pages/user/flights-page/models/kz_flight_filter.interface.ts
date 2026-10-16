@@ -3,7 +3,6 @@ export interface KzFlightFilter {
     arrivalCity: string;
     departureDate: string;
     maxPrice: string;
-    quantity: string;
 }
 
 
@@ -12,8 +11,4 @@ export const DEFAULT_KZ_FLIGHT_FILTER: KzFlightFilter = {
     arrivalCity: '',
     departureDate: '',
     maxPrice: '',
-    quantity: '1',
 };
-
-
-export const DEFAULT_KZ_FLIGHT_QUANTITY = 1;

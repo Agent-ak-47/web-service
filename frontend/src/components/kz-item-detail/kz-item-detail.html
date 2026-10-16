@@ -1,0 +1,81 @@
+<article class="kz-item-detail">
+    <header class="detail-head">
+        @if (hasBack) {
+            <a [class]="BACK_CLASS" [routerLink]="backPath()">{{ backLabel() }}</a>
+        }
+
+        <div class="head-row">
+            <kz-icon [img]="iconImage" [size]="iconSize" [tone]="ICON_TONE" [withBackground]="true" />
+            <div class="head-text">
+                <h1 class="detail-title">{{ data().title }}</h1>
+                <p class="detail-subtitle">{{ data().subtitle }}</p>
+            </div>
+            @if (hasBadge) {
+                <span [class]="badgeClasses">{{ data().badge }}</span>
+            }
+        </div>
+    </header>
+
+    @if (hasCover) {
+        <img class="detail-cover" [src]="coverUrl" [alt]="data().title" />
+    }
+
+    <div class="detail-body">
+        <div class="detail-main">
+            @if (hasDescription) {
+                <section class="detail-block">
+                    <h2 class="block-title">{{ DESCRIPTION_TITLE }}</h2>
+                    <p class="detail-description">{{ data().description }}</p>
+                </section>
+            }
+
+            @if (data().rows.length > 0) {
+                <section class="detail-block">
+                    <ul class="detail-rows">
+                        @for (row of data().rows; track row.label) {
+                            <li class="detail-row">
+                                <span class="row-label">{{ row.label }}</span>
+                                <span class="row-value">{{ row.value }}</span>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+
+            @for (section of data().sections; track section.id) {
+                <section class="detail-block">
+                    <h2 class="block-title">{{ section.title }}</h2>
+                    <ul class="detail-rows">
+                        @for (row of section.rows; track row.label) {
+                            <li class="detail-row">
+                                <span class="row-label">{{ row.label }}</span>
+                                <span class="row-value">{{ row.value }}</span>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+
+        <aside class="detail-aside">
+            <div class="price-box">
+                <span class="price-value">{{ data().price | kzMoney }}</span>
+                <span class="price-unit">{{ data().unitLabel }}</span>
+            </div>
+
+            @if (hasQuantity) {
+                <kz-field [label]="quantityLabel()" [type]="QUANTITY_TYPE" [value]="quantityValue"
+                    [min]="QUANTITY_MIN" [max]="quantityMax" [step]="QUANTITY_STEP" [disabled]="reserving()"
+                    (valueChange)="onQuantityInput($event)" />
+
+                <div class="total-box">
+                    <span class="total-label">{{ totalLabel }}</span>
+                    <span class="total-value">{{ totalPrice | kzMoney }}</span>
+                </div>
+            }
+
+            <kz-btn [label]="buttonLabel" [fullWidth]="true" [disabled]="data().disabled" [loading]="reserving()"
+                (clicked)="onAction()" />
+        </aside>
+    </div>
+</article>

@@ -20,7 +20,7 @@
     @else {
         <div class="kz-grid-cards">
             @for (card of cards; track card.id) {
-                <kz-card [data]="card" [loading]="reservingId === card.id" (action)="onReserve($event)" />
+                <kz-card [data]="card" (action)="onReserve($event)" />
             }
         </div>
     }

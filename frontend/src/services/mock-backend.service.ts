@@ -475,8 +475,8 @@ export class MockBackendService {
         action: string,
         token: KzMockToken | null,
     ): Response {
-        if (method === 'GET' && id === 0) {
-            return this.page(read());
+        if (method === 'GET') {
+            return this.readCatalog(read(), id, action);
         }
 
         const denied = this.requireAdmin(token);
@@ -487,16 +487,6 @@ export class MockBackendService {
 
         const items = read();
         const index = items.findIndex((entry) => entry.id === id);
-
-        if (method === 'GET' && action === 'availability') {
-            return this.ok({ itemId: id, available: index >= 0 });
-        }
-
-        if (method === 'GET') {
-            return index < 0
-                ? this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.')
-                : this.ok(items[index]);
-        }
 
         if (method === 'POST' && id === 0) {
             const created = { ...body, id: this.nextIdOf(items) } as unknown as T;
@@ -525,6 +515,25 @@ export class MockBackendService {
         }
 
         return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Methode non supportee.');
+    }
+
+
+    private readCatalog<T extends KzMockIdentified>(items: T[], id: number, action: string): Response {
+        const index = items.findIndex((entry) => entry.id === id);
+
+        if (id === 0) {
+            return this.page(items);
+        }
+
+        if (action === 'availability') {
+            return this.ok({ itemId: id, available: index >= 0 });
+        }
+
+        if (index < 0) {
+            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.');
+        }
+
+        return this.ok(items[index]);
     }
 
 

@@ -21,6 +21,10 @@
     transform: translateY(-2px);
 }
 
+.kz-card {
+    cursor: pointer;
+}
+
 .card-head {
     display: flex;
     align-items: flex-start;

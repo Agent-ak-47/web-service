@@ -1,0 +1,181 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { KzExcursion } from '../../../models/kz_excursion.interface';
+import { KzIconName } from '../../../models/kz_icon_name.enum';
+import { KzItemDetailData, KzItemDetailRow } from '../../../models/kz_item_detail_data.interface';
+import { KzItemType } from '../../../models/kz_item_type.enum';
+import { KzLabels } from '../../../models/kz_labels.interface';
+import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { KzTone } from '../../../models/kz_tone.enum';
+import { KzDatePipe } from '../../../pipes/kz-date.pipe';
+import { AuthService } from '../../../services/auth.service';
+import { GlobalService } from '../../../services/global.service';
+import { ItemDetailService } from '../../../services/item-detail.service';
+import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail';
+import { KzLoading } from '../../../components/kz-loading/kz-loading';
+
+
+@Component({
+    selector: 'kz-excursion-detail-page',
+    standalone: true,
+    imports: [KzItemDetail, KzLoading],
+    templateUrl: './excursion-detail-page.html',
+    styleUrl: './excursion-detail-page.css',
+})
+export class ExcursionDetailPage implements OnInit {
+    readonly BACK_LABEL = 'Retour aux excursions';
+    readonly RESERVE_LABEL = 'Reserver';
+    readonly SOLD_OUT_LABEL = 'Complet';
+    readonly QUANTITY_LABEL = 'Participants';
+    readonly PRICE_UNIT = 'par personne';
+    readonly LOCATION_LABEL = 'Lieu';
+    readonly DATE_LABEL = 'Date';
+    readonly TIME_LABEL = 'Heure';
+    readonly DURATION_LABEL = 'Duree';
+    readonly GUIDE_LABEL = 'Guide';
+    readonly CAPACITY_LABEL = 'Capacite';
+    readonly AVAILABLE_SEATS_LABEL = 'Places disponibles';
+    readonly EMPTY_LABEL = KZ_LABELS.noResult;
+    readonly MINUTES_IN_HOUR = 60;
+
+    private readonly globalService = inject(GlobalService);
+    private readonly authService = inject(AuthService);
+    private readonly datePipe = inject(KzDatePipe);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly detailService = inject(ItemDetailService);
+
+    detail: KzItemDetailData | null = null;
+    item: KzExcursion | null = null;
+    quantity = 1;
+    isLoading = true;
+    isReserving = false;
+    errorMessage = '';
+
+
+    get labels(): KzLabels {
+        return KZ_LABELS;
+    }
+
+
+    get backPath(): string {
+        return this.globalService.pages.excursions;
+    }
+
+
+    ngOnInit(): void {
+        this.load();
+    }
+
+
+    onQuantityChanged(quantity: number): void {
+        this.quantity = quantity;
+    }
+
+
+    async onReserve(): Promise<void> {
+        if (this.item === null || this.isReserving) {
+            return;
+        }
+
+        this.isReserving = true;
+        this.errorMessage = '';
+
+        try {
+            this.authService.rememberPage(this.router.url);
+            const result = await this.detailService.reserve(
+                KzItemType.EXCURSION,
+                this.item.id,
+                this.quantity,
+            );
+
+            if (result.signedOut) {
+                this.router.navigateByUrl(this.globalService.pages.signIn);
+
+                return;
+            }
+
+            if (result.error.length > 0) {
+                this.errorMessage = result.error;
+
+                return;
+            }
+
+            this.router.navigateByUrl(result.path);
+        }
+        finally {
+            this.isReserving = false;
+        }
+    }
+
+
+    private async load(): Promise<void> {
+        this.isLoading = true;
+        this.errorMessage = '';
+
+        const id = Number(this.route.snapshot.paramMap.get('id') ?? '0');
+        const result = await this.detailService.load<KzExcursion>(this.globalService.routes.excursion(id));
+
+        if (result.signedOut) {
+            this.router.navigateByUrl(this.globalService.pages.signIn);
+
+            return;
+        }
+
+        if (result.item === null) {
+            this.errorMessage = result.error.length > 0 ? result.error : KZ_LABELS.noResult;
+            this.isLoading = false;
+
+            return;
+        }
+
+        this.item = result.item;
+        this.detail = this.buildDetail(result.item);
+        this.isLoading = false;
+    }
+
+
+    private buildDetail(item: KzExcursion): KzItemDetailData {
+        return {
+            id: item.id,
+            type: KzItemType.EXCURSION,
+            title: item.title,
+            subtitle: item.location,
+            icon: KzIconName.COMPASS,
+            imageUrl: '',
+            description: item.description,
+            price: item.price,
+            unitLabel: this.PRICE_UNIT,
+            badge: '',
+            badgeTone: KzTone.NEUTRAL,
+            rows: this.buildRows(item),
+            sections: [],
+            actionLabel: this.RESERVE_LABEL,
+            disabled: !item.available,
+            disabledLabel: this.SOLD_OUT_LABEL,
+            maxQuantity: Math.max(1, item.availableSeats),
+        };
+    }
+
+
+    private buildRows(item: KzExcursion): KzItemDetailRow[] {
+        return [
+            { label: this.LOCATION_LABEL, value: item.location },
+            { label: this.DATE_LABEL, value: this.datePipe.transform(item.date) },
+            { label: this.TIME_LABEL, value: item.startTime },
+            { label: this.DURATION_LABEL, value: this.formatDuration(item.dureeMinutes) },
+            { label: this.GUIDE_LABEL, value: item.guide },
+            { label: this.CAPACITY_LABEL, value: String(item.capacity) },
+            { label: this.AVAILABLE_SEATS_LABEL, value: String(item.availableSeats) },
+        ];
+    }
+
+
+    private formatDuration(minutes: number): string {
+        const hours = Math.floor(minutes / this.MINUTES_IN_HOUR);
+        const rest = minutes % this.MINUTES_IN_HOUR;
+
+        return `${hours}h${rest > 0 ? ` ${rest}min` : ''}`;
+    }
+}

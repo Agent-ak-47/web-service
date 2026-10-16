@@ -24,8 +24,11 @@ export class GlobalService {
     readonly pages = {
         home: '/',
         packages: '/forfaits',
+        packageDetail: (id: number): string => `/forfaits/${id}`,
         flights: '/vols',
+        flightDetail: (id: number): string => `/vols/${id}`,
         excursions: '/excursions',
+        excursionDetail: (id: number): string => `/excursions/${id}`,
         reservations: '/mes-reservations',
         payment: '/paiement',
         signIn: '/connexion',
