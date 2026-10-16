@@ -18,7 +18,7 @@
 
         <div class="header-account">
             @if (isSignedIn) {
-                <span class="user-name">{{ userName }}</span>
+                <kz-avatar [initial]="avatarInitial" [label]="userEmail" [variant]="avatarVariant" />
                 <kz-btn [label]="signOutLabel" [kind]="GHOST_KIND" [icon]="LOGOUT_ICON" [hasIcon]="true"
                     [onDark]="true" [loading]="isSigningOut" (clicked)="signOut()" />
             }

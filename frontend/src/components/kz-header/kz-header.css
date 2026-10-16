@@ -70,14 +70,6 @@
     margin-left: auto;
 }
 
-.user-name {
-    font-size: var(--font-size-sm);
-    max-width: 140px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 @media (max-width: 900px) {
     .menu-toggle {
         display: inline-flex;
