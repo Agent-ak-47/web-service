@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { KzApiError } from '../models/kz_api_error.interface';
 import { KzAuthSession } from '../models/kz_auth_session.interface';
 import { KzExcursion } from '../models/kz_excursion.interface';
 import { KzFlight } from '../models/kz_flight.interface';
 import { KzItemType } from '../models/kz_item_type.enum';
-import { { DEFAULT_KZ_MOCK_DATASET, KzMockDataset } from '../models/kz_mock_dataset.interface';
+import { KzMockDataset } from '../models/kz_mock_dataset.interface';
 import { KzMockToken, KzMockUserAccount } from '../models/kz_mock_user_account.interface';
 import { KzPackage } from '../models/kz_package.interface';
 import { KzPayment } from '../models/kz_payment.interface';
@@ -13,14 +13,8 @@ import { KzPaymentMethod } from '../models/kz_payment_method.enum';
 import { KzPaymentStatus } from '../models/kz_payment_status.enum';
 import { KzReservation } from '../models/kz_reservation.interface';
 import { KzReservationStatus } from '../models/kz_reservation_status.enum';
-import { KzUser } from '../models/kz_user.interface';
 import { KzUserRole } from '../models/kz_user_role.enum';
-
-
-interface KzMockCatalogFile {
-    flights: KzFlight[];
-    excursions: KzExcursion[];
-}
+import { GlobalService } from './global.service';
 
 
 interface KzMockBody {
@@ -28,10 +22,17 @@ interface KzMockBody {
 }
 
 
+interface KzMockIdentified {
+    id: number;
+}
+
+
 @Injectable({ providedIn: 'root' })
 export class MockBackendService {
     readonly DATASET_KEY = 'kz_mock_dataset';
+    readonly VERSION_KEY = 'kz_mock_version';
     readonly USERS_KEY = 'kz_mock_users';
+    readonly DATASET_VERSION = '1';
     readonly TOKEN_PREFIX = 'kzmock.';
     readonly TOKEN_LIFETIME_HOURS = 12;
     readonly DEMO_PASSWORD = 'Password123!';
@@ -40,6 +41,7 @@ export class MockBackendService {
     readonly REFERENCE_PREFIX = 'RES-2026-';
     readonly REFERENCE_PADDING = 6;
     readonly MIN_PASSWORD_LENGTH = 8;
+    readonly PACKAGE_CAPACITY = 10;
     readonly JSON_HEADERS = { 'Content-Type': 'application/json' };
     readonly OK = 200;
     readonly CREATED = 201;
@@ -50,10 +52,11 @@ export class MockBackendService {
     readonly NOT_FOUND = 404;
     readonly CONFLICT = 409;
 
-    dataset: KzMockDataset = { ...DEFAULT_KZ_MOCK_DATASET };
+    dataset: KzMockDataset = { flights: [], packages: [], excursions: [], reservations: [] };
     users: KzMockUserAccount[] = [];
     payments: KzPayment[] = [];
 
+    private readonly globalService = inject(GlobalService);
     private isInstalled = false;
 
 
@@ -71,7 +74,8 @@ export class MockBackendService {
     reset(): void {
         sessionStorage.removeItem(this.DATASET_KEY);
         sessionStorage.removeItem(this.USERS_KEY);
-        this.dataset = { ...DEFAULT_KZ_MOCK_DATASET };
+        sessionStorage.removeItem(this.VERSION_KEY);
+        this.dataset = { flights: [], packages: [], excursions: [], reservations: [] };
         this.users = [];
         this.payments = [];
     }
@@ -83,24 +87,28 @@ export class MockBackendService {
             this.readAsset<KzPackage[]>('packages.json'),
             this.readAsset<KzExcursion[]>('excursions.json'),
             this.readAsset<KzReservation[]>('reservations.json'),
-            this.readAsset<KzUser>('admin.json'),
-            this.readAsset<KzUser>('client.json'),
+            this.readAsset<KzMockUserAccount>('admin.json'),
+            this.readAsset<KzMockUserAccount>('client.json'),
         ]);
 
-        const accounts: KzMockUserAccount[] = [
+        const demoAccounts: KzMockUserAccount[] = [
             { ...client, password: this.DEMO_PASSWORD },
             { ...admin, password: this.DEMO_PASSWORD },
         ];
 
         this.dataset = this.restoreDataset({ flights, packages, excursions, reservations });
-        this.users = this.restoreUsers(accounts);
+        this.users = this.restoreUsers(demoAccounts);
     }
 
 
     private restoreDataset(fresh: KzMockDataset): KzMockDataset {
         const stored = sessionStorage.getItem(this.DATASET_KEY);
+        const version = sessionStorage.getItem(this.VERSION_KEY);
 
-        if (stored === null) {
+        if (stored === null || version !== this.DATASET_VERSION) {
+            this.reset();
+            sessionStorage.setItem(this.VERSION_KEY, this.DATASET_VERSION);
+
             return fresh;
         }
 
@@ -109,34 +117,35 @@ export class MockBackendService {
         }
         catch (error: unknown) {
             console.error(error);
+            this.reset();
 
             return fresh;
         }
     }
 
 
-    private restoreUsers(accounts: KzMockUserAccount[]): KzMockUserAccount[] {
+    private restoreUsers(demoAccounts: KzMockUserAccount[]): KzMockUserAccount[] {
         const stored = sessionStorage.getItem(this.USERS_KEY);
 
         if (stored === null) {
-            return accounts;
+            return demoAccounts;
         }
 
         try {
             const created = JSON.parse(stored) as KzMockUserAccount[];
 
-            return [...accounts, ...created];
+            return [...demoAccounts, ...created];
         }
         catch (error: unknown) {
             console.error(error);
 
-            return accounts;
+            return demoAccounts;
         }
     }
 
 
     private async readAsset<T>(fileName: string): Promise<T> {
-        const response = await fetch(`data/${fileName}`);
+        const response = await fetch(`${this.globalService.MOCK_DATA_FOLDER}${fileName}`);
         const raw: unknown = await response.json();
         console.log(raw);
 
@@ -161,14 +170,17 @@ export class MockBackendService {
         await this.delay();
 
         const parts = path.split('/').filter((part) => part.length > 0);
-        const token = this.readToken(init);
-        const body = this.readBody(init);
 
-        return this.route(parts, method, body, token);
+        return this.route(parts, method, this.readBody(init), this.readToken(init));
     }
 
 
-    private route(parts: readonly string[], method: string, body: KzMockBody, token: KzMockToken | null): Response {
+    private route(
+        parts: readonly string[],
+        method: string,
+        body: KzMockBody,
+        token: KzMockToken | null,
+    ): Response {
         const resource = parts[1] ?? '';
         const id = Number(parts[2] ?? '0');
         const action = parts[3] ?? '';
@@ -186,15 +198,24 @@ export class MockBackendService {
         }
 
         if (resource === 'flights') {
-            return this.routeCatalog<KzFlight>(this.dataset.flights, method, body, id, action, token);
+            return this.routeCatalog(
+                () => this.dataset.flights,
+                (items: KzFlight[]) => this.writeFlights(items),
+                method, body, id, action, token);
         }
 
         if (resource === 'packages') {
-            return this.routeCatalog<KzPackage>(this.dataset.packages, method, body, id, action, token);
+            return this.routeCatalog(
+                () => this.dataset.packages,
+                (items: KzPackage[]) => this.writePackages(items),
+                method, body, id, action, token);
         }
 
         if (resource === 'excursions') {
-            return this.routeCatalog<KzExcursion>(this.dataset.excursions, method, body, id, action, token);
+            return this.routeCatalog(
+                () => this.dataset.excursions,
+                (items: KzExcursion[]) => this.writeExcursions(items),
+                method, body, id, action, token);
         }
 
         return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Ressource inconnue.');
@@ -271,25 +292,16 @@ export class MockBackendService {
         action: string,
         token: KzMockToken | null,
     ): Response {
-        const denied = this.requireUser(token);
-
-        if (denied !== null) {
-            return denied;
+        if (token === null) {
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.');
         }
 
-        const user = this.requireUser(token);
-        const userId = user?.id ?? 0;
-
         if (method === 'GET' && action.length === 0) {
-            const visible = token?.role === KzUserRole.ADMIN
-                ? this.dataset.reservations
-                : this.dataset.reservations.filter((reservation) => reservation.userId === userId);
-
-            return this.page(visible);
+            return this.page(this.visibleReservations(token));
         }
 
         if (method === 'POST' && action.length === 0) {
-            return this.createReservation(body, userId);
+            return this.createReservation(body, token.id);
         }
 
         const reservation = this.dataset.reservations.find((item) => item.id === id);
@@ -317,6 +329,15 @@ export class MockBackendService {
         }
 
         return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Route inconnue.');
+    }
+
+
+    private visibleReservations(token: KzMockToken): KzReservation[] {
+        if (token.role === KzUserRole.ADMIN) {
+            return [...this.dataset.reservations];
+        }
+
+        return this.dataset.reservations.filter((reservation) => reservation.userId === token.id);
     }
 
 
@@ -363,11 +384,14 @@ export class MockBackendService {
 
 
     private cancelReservation(reservation: KzReservation, reason: string): Response {
-        if (reservation.status === KzReservationStatus.PAID
-            || reservation.status === KzReservationStatus.CANCELLED
-            || reservation.status === KzReservationStatus.REFUNDED) {
-            return this.fail(this.CONFLICT, 'INVALID_STATUS',
-                'Cette reservation ne peut plus etre annulee.');
+        const locked: readonly KzReservationStatus[] = [
+            KzReservationStatus.PAID,
+            KzReservationStatus.REFUNDED,
+            KzReservationStatus.EXPIRED,
+        ];
+
+        if (locked.includes(reservation.status) || reservation.status === KzReservationStatus.CANCELLED) {
+            return this.fail(this.CONFLICT, 'INVALID_STATUS', 'Cette reservation ne peut plus etre annulee.');
         }
 
         reservation.status = KzReservationStatus.CANCELLED;
@@ -387,8 +411,7 @@ export class MockBackendService {
         }
 
         if (cardNumber.endsWith(this.DECLINED_CARD_SUFFIX)) {
-            return this.fail(this.PAYMENT_DECLINED, 'PAYMENT_DECLINED',
-                'Paiement refuse par la banque.');
+            return this.fail(this.PAYMENT_DECLINED, 'PAYMENT_DECLINED', 'Paiement refuse par la banque.');
         }
 
         reservation.status = KzReservationStatus.PAID;
@@ -443,8 +466,9 @@ export class MockBackendService {
     }
 
 
-    private routeCatalog<T extends { id: number }>(
-        collection: readonly T[],
+    private routeCatalog<T extends KzMockIdentified>(
+        read: () => T[],
+        write: (items: T[]) => void,
         method: string,
         body: KzMockBody,
         id: number,
@@ -452,7 +476,7 @@ export class MockBackendService {
         token: KzMockToken | null,
     ): Response {
         if (method === 'GET' && id === 0) {
-            return this.page(collection);
+            return this.page(read());
         }
 
         const denied = this.requireAdmin(token);
@@ -461,52 +485,64 @@ export class MockBackendService {
             return denied;
         }
 
+        const items = read();
+        const index = items.findIndex((entry) => entry.id === id);
+
         if (method === 'GET' && action === 'availability') {
-            return this.ok({ itemId: id, available: collection.some((item) => item.id === id) });
+            return this.ok({ itemId: id, available: index >= 0 });
         }
 
         if (method === 'GET') {
-            const item = collection.find((entry) => entry.id === id);
-
-            return item === undefined
+            return index < 0
                 ? this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.')
-                : this.ok(item);
+                : this.ok(items[index]);
         }
 
-        const list = collection as T[];
-
         if (method === 'POST' && id === 0) {
-            const created = { ...body, id: this.nextIdOf(collection) } as unknown as T;
-            this.replaceCollection(collection, [...list, created]);
-            this.saveDataset();
+            const created = { ...body, id: this.nextIdOf(items) } as unknown as T;
+            write([...items, created]);
 
             return this.ok(created, this.CREATED);
         }
 
         if (method === 'POST') {
-            const index = list.findIndex((entry) => entry.id === id);
-
             if (index < 0) {
                 return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.');
             }
 
-            const updated = { ...list[index], ...body, id } as T;
-            const copy = [...list];
+            const updated = { ...items[index], ...body, id } as T;
+            const copy = [...items];
             copy[index] = updated;
-            this.replaceCollection(collection, copy);
-            this.saveDataset();
+            write(copy);
 
             return this.ok(updated);
         }
 
         if (method === 'DELETE') {
-            this.replaceCollection(collection, list.filter((entry) => entry.id !== id));
-            this.saveDataset();
+            write(items.filter((entry) => entry.id !== id));
 
             return this.ok({ deleted: true, id });
         }
 
         return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Methode non supportee.');
+    }
+
+
+    private writeFlights(items: KzFlight[]): void {
+        this.dataset.flights = items;
+        this.saveDataset();
+    }
+
+
+    private writePackages(items: KzPackage[]): void {
+        this.dataset.packages = items;
+        this.saveDataset();
+    }
+
+
+    private writeExcursions(items: KzExcursion[]): void {
+        this.dataset.excursions = items;
+        this.saveDataset();
     }
 
 
@@ -538,7 +574,7 @@ export class MockBackendService {
 
         const item = this.dataset.packages.find((entry) => entry.id === itemId);
 
-        return item !== undefined && item.available ? item.price : 0;
+        return item !== undefined && item.available ? this.PACKAGE_CAPACITY : 0;
     }
 
 
@@ -584,58 +620,46 @@ export class MockBackendService {
 
     private decrease(typeItem: string, itemId: number, quantity: number): void {
         if (typeItem === KzItemType.FLIGHT) {
-            this.patchItem(this.dataset.flights, itemId, (flight) => {
+            const flight = this.dataset.flights.find((item) => item.id === itemId);
+
+            if (flight !== undefined) {
                 flight.availableSeats = Math.max(0, flight.availableSeats - quantity);
-            });
+                this.saveDataset();
+            }
 
             return;
         }
 
         if (typeItem === KzItemType.EXCURSION) {
-            this.patchItem(this.dataset.excursions, itemId, (excursion) => {
+            const excursion = this.dataset.excursions.find((item) => item.id === itemId);
+
+            if (excursion !== undefined) {
                 excursion.availableSeats = Math.max(0, excursion.availableSeats - quantity);
-            });
+                this.saveDataset();
+            }
         }
     }
 
 
     private increase(typeItem: string, itemId: number, quantity: number): void {
         if (typeItem === KzItemType.FLIGHT) {
-            this.patchItem(this.dataset.flights, itemId, (flight) => {
+            const flight = this.dataset.flights.find((item) => item.id === itemId);
+
+            if (flight !== undefined) {
                 flight.availableSeats = flight.availableSeats + quantity;
-            });
+                this.saveDataset();
+            }
 
             return;
         }
 
         if (typeItem === KzItemType.EXCURSION) {
-            this.patchItem(this.dataset.excursions, itemId, (excursion) => {
+            const excursion = this.dataset.excursions.find((item) => item.id === itemId);
+
+            if (excursion !== undefined) {
                 excursion.availableSeats = excursion.availableSeats + quantity;
-            });
-        }
-    }
-
-
-    private patchItem<T extends { id: number }>(collection: T[], itemId: number, change: (item: T) => void): void {
-        const item = collection.find((entry) => entry.id === itemId);
-
-        if (item === undefined) {
-            return;
-        }
-
-        change(item);
-    }
-
-
-    private replaceCollection<T>(collection: readonly T[], next: T[]): void {
-        if (collection === this.dataset.flights) {
-            this.dataset.flights = next as KzFlight[];
-        }
-        else if (collection === this.dataset.packages) {
-            this.dataset.packages = next as KzPackage[];
-        }
-        else if (collection === this.dataset.excursions) {
-            this.dataset.excursions = next as KzExcursion[];
+                this.saveDataset();
+            }
         }
     }
 
@@ -725,28 +749,20 @@ export class MockBackendService {
     }
 
 
-    private requireUser(token: KzMockToken | null): Response | null {
-        return token === null
-            ? this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.')
-            : null;
-    }
-
-
     private requireAdmin(token: KzMockToken | null): Response | null {
-        const denied = this.requireUser(token);
-
-        if (denied !== null) {
-            return denied;
+        if (token === null) {
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.');
         }
 
-        return token?.role === KzUserRole.ADMIN
+        return token.role === KzUserRole.ADMIN
             ? null
             : this.fail(this.FORBIDDEN, 'FORBIDDEN', 'Acces reserve a l administrateur.');
     }
 
 
     private nextUserId(): number {
-        return this.users.reduce((highest: number, user: KzMockUserAccount) => Math.max(highest, user.id), 0) + 1;
+        return this.users.reduce((highest: number, user: KzMockUserAccount) =>
+            Math.max(highest, user.id), 0) + 1;
     }
 
 
@@ -755,13 +771,13 @@ export class MockBackendService {
     }
 
 
-    private nextIdOf<T extends { id: number }>(collection: readonly T[]): number {
-        return collection.reduce((highest: number, item: T) => Math.max(highest, item.id), 0) + 1;
+    private nextIdOf<T extends KzMockIdentified>(items: readonly T[]): number {
+        return items.reduce((highest: number, item: T) => Math.max(highest, item.id), 0) + 1;
     }
 
 
     private buildReference(): string {
-        const sequence = String(this.dataset.reservations.length + 1).padStart(this.REFERENCE_PADDING, '0');
+        const sequence = String(this.nextReservationId()).padStart(this.REFERENCE_PADDING, '0');
 
         return `${this.REFERENCE_PREFIX}${sequence}`;
     }
@@ -785,7 +801,7 @@ export class MockBackendService {
     }
 
 
-    private fail(status: number, code: string, message: string, details: KzMockBody = {}): Response {
+    private fail(status: number, code: string, message: string, details: KzApiError['details'] = {}): Response {
         const error: KzApiError = { code, message, details };
 
         return this.json({ error }, status);

@@ -10,6 +10,8 @@ export class GlobalService {
     readonly APP_NAME = 'Atlas Voyages';
     readonly TAGLINE = 'Forfaits, vols et excursions reserves en quelques minutes.';
     readonly ICON_FOLDER = 'assets/icons/';
+    readonly MOCK_DATA_FOLDER = 'data/';
+    readonly MOCK_MODE = true;
     readonly BACKEND_URL = 'http://localhost:8083';
     readonly FLIGHT_SERVICE_URL = 'http://localhost:8081';
     readonly PACKAGE_SERVICE_URL = 'http://localhost:8082';
