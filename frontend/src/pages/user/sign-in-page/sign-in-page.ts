@@ -35,6 +35,8 @@ export class SignInPage implements KzGuardedForm, OnInit {
     readonly SIGN_UP_LABEL = 'Creer un compte';
     readonly EMAIL_TYPE = KzFieldType.EMAIL;
     readonly PASSWORD_TYPE = KzFieldType.PASSWORD;
+    readonly DEMO_EMAIL = 'client@agency.travel';
+    readonly DEMO_PASSWORD = 'Password123!';
 
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
@@ -42,6 +44,7 @@ export class SignInPage implements KzGuardedForm, OnInit {
 
     form: KzCredentialsForm = { ...DEFAULT_KZ_CREDENTIALS_FORM };
     isSending = false;
+    isDirty = false;
     errorMessage = '';
     unavailableMessage = '';
 
@@ -59,22 +62,28 @@ export class SignInPage implements KzGuardedForm, OnInit {
     ngOnInit(): void {
         if (this.authService.isSignedIn) {
             this.router.navigateByUrl(this.globalService.pages.home);
+
+            return;
         }
+
+        this.autofillDemo();
     }
 
 
     hasUnsavedChanges(): boolean {
-        return this.form.email.length > 0 || this.form.password.length > 0;
+        return this.isDirty;
     }
 
 
     onEmailChange(value: string): void {
         this.form.email = value;
+        this.isDirty = true;
     }
 
 
     onPasswordChange(value: string): void {
         this.form.password = value;
+        this.isDirty = true;
     }
 
 
@@ -138,6 +147,7 @@ export class SignInPage implements KzGuardedForm, OnInit {
             this.authService.saveSession(session);
             this.authService.clearLastPage();
             this.form = { ...DEFAULT_KZ_CREDENTIALS_FORM };
+            this.isDirty = false;
             this.router.navigateByUrl(rememberedPage.length > 0 ? rememberedPage : this.globalService.pages.home);
         }
         catch (error: unknown) {
@@ -148,6 +158,15 @@ export class SignInPage implements KzGuardedForm, OnInit {
         finally {
             this.isSending = false;
         }
+    }
+
+
+    private autofillDemo(): void {
+        if (!this.globalService.MOCK_MODE) {
+            return;
+        }
+
+        this.form = { email: this.DEMO_EMAIL, password: this.DEMO_PASSWORD };
     }
 
 
