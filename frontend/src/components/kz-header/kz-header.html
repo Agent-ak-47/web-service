@@ -14,12 +14,6 @@
                 <a class="nav-link" [routerLink]="link.path" routerLinkActive="is-active"
                     [routerLinkActiveOptions]="{ exact: link.exact }" (click)="closeMenu()">{{ link.label }}</a>
             }
-            @if (isAdmin) {
-                @for (link of adminLinks; track link.path) {
-                    <a class="nav-link is-admin" [routerLink]="link.path" routerLinkActive="is-active"
-                        [routerLinkActiveOptions]="{ exact: link.exact }" (click)="closeMenu()">{{ link.label }}</a>
-                }
-            }
         </nav>
 
         <div class="header-account">

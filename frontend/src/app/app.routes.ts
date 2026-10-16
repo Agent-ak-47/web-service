@@ -48,30 +48,32 @@ export const routes: Routes = [
     {
         path: 'admin',
         canActivate: [adminGuard],
-        loadComponent: () => import('../pages/admin/dashboard-page/dashboard-page').then((module) => module.DashboardPage),
-    },
-    {
-        path: 'admin/vols',
-        canActivate: [adminGuard],
-        canDeactivate: [unsavedChangesGuard],
-        loadComponent: () => import('../pages/admin/flights-admin-page/flights-admin-page').then((module) => module.FlightsAdminPage),
-    },
-    {
-        path: 'admin/forfaits',
-        canActivate: [adminGuard],
-        canDeactivate: [unsavedChangesGuard],
-        loadComponent: () => import('../pages/admin/packages-admin-page/packages-admin-page').then((module) => module.PackagesAdminPage),
-    },
-    {
-        path: 'admin/excursions',
-        canActivate: [adminGuard],
-        canDeactivate: [unsavedChangesGuard],
-        loadComponent: () => import('../pages/admin/excursions-admin-page/excursions-admin-page').then((module) => module.ExcursionsAdminPage),
-    },
-    {
-        path: 'admin/reservations',
-        canActivate: [adminGuard],
-        loadComponent: () => import('../pages/admin/reservations-admin-page/reservations-admin-page').then((module) => module.ReservationsAdminPage),
+        loadComponent: () => import('../pages/admin/admin-layout/admin-layout').then((module) => module.AdminLayout),
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('../pages/admin/dashboard-page/dashboard-page').then((module) => module.DashboardPage),
+            },
+            {
+                path: 'vols',
+                canDeactivate: [unsavedChangesGuard],
+                loadComponent: () => import('../pages/admin/flights-admin-page/flights-admin-page').then((module) => module.FlightsAdminPage),
+            },
+            {
+                path: 'forfaits',
+                canDeactivate: [unsavedChangesGuard],
+                loadComponent: () => import('../pages/admin/packages-admin-page/packages-admin-page').then((module) => module.PackagesAdminPage),
+            },
+            {
+                path: 'excursions',
+                canDeactivate: [unsavedChangesGuard],
+                loadComponent: () => import('../pages/admin/excursions-admin-page/excursions-admin-page').then((module) => module.ExcursionsAdminPage),
+            },
+            {
+                path: 'reservations',
+                loadComponent: () => import('../pages/admin/reservations-admin-page/reservations-admin-page').then((module) => module.ReservationsAdminPage),
+            },
+        ],
     },
     {
         path: '**',

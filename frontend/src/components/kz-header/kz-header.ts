@@ -42,11 +42,6 @@ export class KzHeader {
     readonly FLIGHTS_LABEL = 'Vols';
     readonly EXCURSIONS_LABEL = 'Excursions';
     readonly RESERVATIONS_LABEL = 'Mes reservations';
-    readonly DASHBOARD_LABEL = 'Tableau de bord';
-    readonly ADMIN_FLIGHTS_LABEL = 'Admin vols';
-    readonly ADMIN_PACKAGES_LABEL = 'Admin forfaits';
-    readonly ADMIN_EXCURSIONS_LABEL = 'Admin excursions';
-    readonly ADMIN_RESERVATIONS_LABEL = 'Admin reservations';
 
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
@@ -80,39 +75,6 @@ export class KzHeader {
         {
             label: this.RESERVATIONS_LABEL,
             path: this.globalService.pages.reservations,
-            icon: KzIconName.RECEIPT,
-            exact: false,
-        },
-    ];
-
-    readonly adminLinks: KzNavLink[] = [
-        {
-            label: this.DASHBOARD_LABEL,
-            path: this.globalService.pages.adminDashboard,
-            icon: KzIconName.STAR,
-            exact: true,
-        },
-        {
-            label: this.ADMIN_FLIGHTS_LABEL,
-            path: this.globalService.pages.adminFlights,
-            icon: KzIconName.PLANE,
-            exact: false,
-        },
-        {
-            label: this.ADMIN_PACKAGES_LABEL,
-            path: this.globalService.pages.adminPackages,
-            icon: KzIconName.SUITCASE,
-            exact: false,
-        },
-        {
-            label: this.ADMIN_EXCURSIONS_LABEL,
-            path: this.globalService.pages.adminExcursions,
-            icon: KzIconName.COMPASS,
-            exact: false,
-        },
-        {
-            label: this.ADMIN_RESERVATIONS_LABEL,
-            path: this.globalService.pages.adminReservations,
             icon: KzIconName.RECEIPT,
             exact: false,
         },
@@ -169,11 +131,6 @@ export class KzHeader {
 
     get isSignedIn(): boolean {
         return this.authService.isSignedIn;
-    }
-
-
-    get isAdmin(): boolean {
-        return this.authService.isAdmin;
     }
 
 

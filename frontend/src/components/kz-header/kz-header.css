@@ -63,10 +63,6 @@
     font-weight: var(--weight-medium);
 }
 
-.nav-link.is-admin {
-    border: var(--border-width) solid var(--on-primary);
-}
-
 .header-account {
     display: flex;
     align-items: center;
