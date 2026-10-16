@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { KzFlight } from '../../../models/kz_flight.interface';
+import { KzBreadcrumbItem } from '../../../models/kz_breadcrumb_item.interface';
 import { KzIconName } from '../../../models/kz_icon_name.enum';
 import { KzItemDetailData, KzItemDetailRow } from '../../../models/kz_item_detail_data.interface';
 import { KzItemType } from '../../../models/kz_item_type.enum';
@@ -12,6 +13,7 @@ import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
+import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
 import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -19,12 +21,13 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-flight-detail-page',
     standalone: true,
-    imports: [KzItemDetail, KzLoading],
+    imports: [KzBreadcrumb, KzItemDetail, KzLoading],
     templateUrl: './flight-detail-page.html',
     styleUrl: './flight-detail-page.css',
 })
 export class FlightDetailPage implements OnInit {
-    readonly BACK_LABEL = 'Retour aux vols';
+    readonly HOME_LABEL = 'Accueil';
+    readonly SECTION_LABEL = 'Vols';
     readonly RESERVE_LABEL = 'Reserver';
     readonly SOLD_OUT_LABEL = 'Complet';
     readonly INACTIVE_LABEL = 'Indisponible';
@@ -61,8 +64,17 @@ export class FlightDetailPage implements OnInit {
     }
 
 
-    get backPath(): string {
-        return this.globalService.pages.flights;
+    get breadcrumb(): KzBreadcrumbItem[] {
+        const trail: KzBreadcrumbItem[] = [
+            { label: this.HOME_LABEL, path: this.globalService.pages.home },
+            { label: this.SECTION_LABEL, path: this.globalService.pages.flights },
+        ];
+
+        if (this.item !== null) {
+            trail.push({ label: `${this.item.departureCity} - ${this.item.arrivalCity}`, path: '' });
+        }
+
+        return trail;
     }
 
 

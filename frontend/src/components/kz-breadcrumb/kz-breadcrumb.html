@@ -1,0 +1,11 @@
+<nav class="kz-breadcrumb" [attr.aria-label]="NAV_LABEL">
+    @for (item of items(); track item.label; let last = $last) {
+        @if (last) {
+            <span [class]="CURRENT_CLASS" aria-current="page">{{ item.label }}</span>
+        }
+        @else {
+            <a [class]="LINK_CLASS" [routerLink]="item.path">{{ item.label }}</a>
+            <span class="separator">{{ SEPARATOR }}</span>
+        }
+    }
+</nav>

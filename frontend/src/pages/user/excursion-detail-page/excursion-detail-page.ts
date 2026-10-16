@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { KzExcursion } from '../../../models/kz_excursion.interface';
+import { KzBreadcrumbItem } from '../../../models/kz_breadcrumb_item.interface';
 import { KzIconName } from '../../../models/kz_icon_name.enum';
 import { KzItemDetailData, KzItemDetailRow } from '../../../models/kz_item_detail_data.interface';
 import { KzItemType } from '../../../models/kz_item_type.enum';
@@ -12,6 +13,7 @@ import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
+import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
 import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -19,12 +21,13 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-excursion-detail-page',
     standalone: true,
-    imports: [KzItemDetail, KzLoading],
+    imports: [KzBreadcrumb, KzItemDetail, KzLoading],
     templateUrl: './excursion-detail-page.html',
     styleUrl: './excursion-detail-page.css',
 })
 export class ExcursionDetailPage implements OnInit {
-    readonly BACK_LABEL = 'Retour aux excursions';
+    readonly HOME_LABEL = 'Accueil';
+    readonly SECTION_LABEL = 'Excursions';
     readonly RESERVE_LABEL = 'Reserver';
     readonly SOLD_OUT_LABEL = 'Complet';
     readonly QUANTITY_LABEL = 'Participants';
@@ -59,8 +62,17 @@ export class ExcursionDetailPage implements OnInit {
     }
 
 
-    get backPath(): string {
-        return this.globalService.pages.excursions;
+    get breadcrumb(): KzBreadcrumbItem[] {
+        const trail: KzBreadcrumbItem[] = [
+            { label: this.HOME_LABEL, path: this.globalService.pages.home },
+            { label: this.SECTION_LABEL, path: this.globalService.pages.excursions },
+        ];
+
+        if (this.item !== null) {
+            trail.push({ label: this.item.title, path: '' });
+        }
+
+        return trail;
     }
 
 

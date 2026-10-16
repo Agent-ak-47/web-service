@@ -401,9 +401,18 @@ export class ReservationsAdminPage implements OnInit {
 
 
     private setReservations(source: KzReservation[]): void {
-        this.reservations = source;
-        this.rows = this.buildRows(this.filterReservations(source));
-        this.summary = this.buildSummary(source);
+        this.reservations = this.sortByRecent(source);
+        this.rows = this.buildRows(this.filterReservations(this.reservations));
+        this.summary = this.buildSummary(this.reservations);
+    }
+
+
+    private sortByRecent(source: readonly KzReservation[]): KzReservation[] {
+        return [...source].sort((first: KzReservation, second: KzReservation) => {
+            const byDate = second.reservationDate.localeCompare(first.reservationDate);
+
+            return byDate !== 0 ? byDate : second.id - first.id;
+        });
     }
 
 

@@ -20,10 +20,6 @@
     gap: var(--space-4);
 }
 
-.detail-head .kz-link-button {
-    align-self: flex-start;
-}
-
 .head-row {
     display: flex;
     align-items: flex-start;
@@ -86,7 +82,6 @@
 
 .detail-rows {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: var(--space-3);
 }
 

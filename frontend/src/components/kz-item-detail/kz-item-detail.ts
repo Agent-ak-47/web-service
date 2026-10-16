@@ -1,5 +1,4 @@
 import { Component, inject, input, output } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { KzFieldType } from '../../models/kz_field_type.enum';
 import { KzIconImage } from '../../models/kz_icon_image.interface';
@@ -16,7 +15,7 @@ import { KzIcon } from '../kz-icon/kz-icon';
 @Component({
     selector: 'kz-item-detail',
     standalone: true,
-    imports: [KzBtn, KzField, KzIcon, KzMoneyPipe, RouterLink],
+    imports: [KzBtn, KzField, KzIcon, KzMoneyPipe],
     templateUrl: './kz-item-detail.html',
     styleUrl: './kz-item-detail.css',
 })
@@ -27,11 +26,8 @@ export class KzItemDetail {
     readonly QUANTITY_MIN = '1';
     readonly QUANTITY_STEP = '1';
     readonly DESCRIPTION_TITLE = 'Description';
-    readonly BACK_CLASS = 'kz-link-button is-outline';
 
     readonly data = input.required<KzItemDetailData>();
-    readonly backPath = input<string>('');
-    readonly backLabel = input<string>('Retour');
     readonly quantityLabel = input<string>('');
     readonly quantity = input<number>(1);
     readonly reserving = input<boolean>(false);
@@ -73,11 +69,6 @@ export class KzItemDetail {
 
     get hasDescription(): boolean {
         return this.data().description.trim().length > 0;
-    }
-
-
-    get hasBack(): boolean {
-        return this.backPath().length > 0;
     }
 
 
