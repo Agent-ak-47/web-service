@@ -35,7 +35,12 @@
                         <span class="pay-reference">{{ reservation.reference }}</span>
                         <span class="pay-amount">{{ reservation.itemLabel }} - {{ reservation.totalAmount | kzMoney }}</span>
                     </div>
-                    <kz-btn [label]="PAY_LABEL" [kind]="PAY_KIND" (clicked)="onPay(reservation)" />
+                    <div class="pay-actions">
+                        <kz-btn [label]="REMOVE_LABEL" [kind]="REMOVE_KIND" [disabled]="isCancelling"
+                            (clicked)="onRemove(reservation)" />
+                        <kz-btn [label]="PAY_LABEL" [kind]="PAY_KIND" [disabled]="isCancelling"
+                            (clicked)="onPay(reservation)" />
+                    </div>
                 </div>
             }
         </section>

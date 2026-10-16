@@ -53,6 +53,8 @@ export class ReservationsPage implements OnInit {
     readonly PAYABLE_TITLE = 'Reservations a payer';
     readonly PAY_LABEL = 'Payer';
     readonly PAY_KIND = KzBtnKind.PRIMARY;
+    readonly REMOVE_LABEL = 'Annuler';
+    readonly REMOVE_KIND = KzBtnKind.SECONDARY;
     readonly DIALOG_TITLE = KZ_LABELS.cancel;
     readonly CANCEL_QUESTION = 'Confirmer l annulation de cette reservation ?';
     readonly DEFAULT_CANCEL_REASON = 'Annulation demandee par le client';
@@ -154,10 +156,16 @@ export class ReservationsPage implements OnInit {
             return;
         }
 
-        this.cancelTarget = target;
-        this.cancelReason = this.DEFAULT_CANCEL_REASON;
-        this.errorMessage = '';
-        this.isDialogOpen = true;
+        this.openCancel(target);
+    }
+
+
+    onRemove(reservation: KzReservation): void {
+        if (this.isCancelling) {
+            return;
+        }
+
+        this.openCancel(reservation);
     }
 
 
@@ -227,6 +235,14 @@ export class ReservationsPage implements OnInit {
     }
 
 
+    private openCancel(reservation: KzReservation): void {
+        this.cancelTarget = reservation;
+        this.cancelReason = this.DEFAULT_CANCEL_REASON;
+        this.errorMessage = '';
+        this.isDialogOpen = true;
+    }
+
+
     private async cancelReservation(reservation: KzReservation): Promise<void> {
         this.isCancelling = true;
         this.errorMessage = '';
@@ -264,6 +280,7 @@ export class ReservationsPage implements OnInit {
                         cancellationReason: this.cancelReason,
                     }
                     : item));
+            this.dropPendingReservation(reservation.id);
             this.isDialogOpen = false;
             this.cancelTarget = null;
             this.cancelReason = '';
@@ -275,6 +292,15 @@ export class ReservationsPage implements OnInit {
         finally {
             this.isCancelling = false;
         }
+    }
+
+
+    private dropPendingReservation(reservationId: number): void {
+        if (this.authService.pendingReservation.id !== reservationId) {
+            return;
+        }
+
+        this.authService.clearPendingReservation();
     }
 
 
