@@ -121,13 +121,6 @@ export class HomePage implements OnInit {
 
 
     onReserve(card: KzItemCardData): void {
-        if (!this.authService.isSignedIn) {
-            this.authService.rememberPage(this.globalService.pages.home);
-            this.router.navigateByUrl(this.globalService.pages.signIn);
-
-            return;
-        }
-
         this.router.navigateByUrl(this.sectionPath(card.type));
     }
 
