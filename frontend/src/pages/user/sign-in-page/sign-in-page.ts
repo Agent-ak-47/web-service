@@ -1,0 +1,157 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+
+import { KzAuthSession } from '../../../models/kz_auth_session.interface';
+import { KzFieldType } from '../../../models/kz_field_type.enum';
+import { KzGuardedForm } from '../../../models/kz_guarded_form.interface';
+import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { parseItem, parseResponse } from '../../../models/kz_response';
+import { AuthService } from '../../../services/auth.service';
+import { GlobalService } from '../../../services/global.service';
+import { KzBtn } from '../../../components/kz-btn/kz-btn';
+import { KzField } from '../../../components/kz-field/kz-field';
+import { DEFAULT_KZ_CREDENTIALS_FORM, KzCredentialsForm } from './models/kz_credentials_form.interface';
+
+
+@Component({
+    selector: 'kz-sign-in-page',
+    standalone: true,
+    imports: [KzBtn, KzField, RouterLink],
+    templateUrl: './sign-in-page.html',
+    styleUrl: './sign-in-page.css',
+})
+export class SignInPage implements KzGuardedForm, OnInit {
+    readonly PAGE_TITLE = 'Connexion';
+    readonly PAGE_SUBTITLE = 'Accedez a vos reservations et a vos paiements.';
+    readonly EMAIL_LABEL = 'Email';
+    readonly PASSWORD_LABEL = 'Mot de passe';
+    readonly SUBMIT_LABEL = 'Se connecter';
+    readonly SUBMIT_LOADING_LABEL = KZ_LABELS.sending;
+    readonly SECURITY_HINT = 'Vos identifiants sont envoyes a l API et ne sont pas conserves dans le navigateur.';
+    readonly UNAVAILABLE_CODE = 'SERVICE_UNAVAILABLE';
+    readonly UNAVAILABLE_STATUS = 502;
+    readonly UNAVAILABLE_HINT = "L API n est pas joignable. Verifiez que le backend est demarre puis reessayez.";
+    readonly SIGN_UP_PROMPT = 'Pas encore de compte ?';
+    readonly SIGN_UP_LABEL = 'Creer un compte';
+    readonly EMAIL_TYPE = KzFieldType.EMAIL;
+    readonly PASSWORD_TYPE = KzFieldType.PASSWORD;
+
+    private readonly globalService = inject(GlobalService);
+    private readonly authService = inject(AuthService);
+    private readonly router = inject(Router);
+
+    form: KzCredentialsForm = { ...DEFAULT_KZ_CREDENTIALS_FORM };
+    isSending = false;
+    errorMessage = '';
+    unavailableMessage = '';
+
+
+    get signUpPath(): string {
+        return this.globalService.pages.signUp;
+    }
+
+
+    get submitLabel(): string {
+        return this.isSending ? this.SUBMIT_LOADING_LABEL : this.SUBMIT_LABEL;
+    }
+
+
+    ngOnInit(): void {
+        if (this.authService.isSignedIn) {
+            this.router.navigateByUrl(this.globalService.pages.home);
+        }
+    }
+
+
+    hasUnsavedChanges(): boolean {
+        return this.form.email.length > 0 || this.form.password.length > 0;
+    }
+
+
+    onEmailChange(value: string): void {
+        this.form.email = value;
+    }
+
+
+    onPasswordChange(value: string): void {
+        this.form.password = value;
+    }
+
+
+    async onSubmit(): Promise<void> {
+        if (this.isSending) {
+            return;
+        }
+
+        this.errorMessage = '';
+        this.unavailableMessage = '';
+
+        const rememberedPage = this.authService.lastPage;
+
+        await this.send(rememberedPage);
+    }
+
+
+    private async send(rememberedPage: string): Promise<void> {
+        this.isSending = true;
+
+        try {
+            const response = await fetch(this.globalService.routes.login, {
+                method: 'POST',
+                credentials: 'include',
+                headers: this.authService.authHeaders,
+                body: JSON.stringify({
+                    email: this.form.email.trim(),
+                    password: this.form.password,
+                }),
+            });
+            const raw: unknown = await response.json();
+            console.log(raw);
+
+            const parsed = parseResponse<KzAuthSession>(raw, response.status);
+
+            if (parsed.redirect.length > 0) {
+                this.authService.clearSession();
+                this.router.navigateByUrl(parsed.redirect);
+
+                return;
+            }
+
+            if (parsed.error !== null) {
+                this.errorMessage = parsed.error.message;
+
+                if (this.isUnavailable(response.status, parsed.error.code)) {
+                    this.unavailableMessage = this.UNAVAILABLE_HINT;
+                }
+
+                return;
+            }
+
+            const session = parseItem<KzAuthSession>(parsed.data);
+
+            if (session === null) {
+                this.errorMessage = KZ_LABELS.unexpectedError;
+
+                return;
+            }
+
+            this.authService.saveSession(session);
+            this.authService.clearLastPage();
+            this.form = { ...DEFAULT_KZ_CREDENTIALS_FORM };
+            this.router.navigateByUrl(rememberedPage.length > 0 ? rememberedPage : this.globalService.pages.home);
+        }
+        catch (error: unknown) {
+            console.error(error);
+            this.errorMessage = KZ_LABELS.unexpectedError;
+            this.unavailableMessage = this.UNAVAILABLE_HINT;
+        }
+        finally {
+            this.isSending = false;
+        }
+    }
+
+
+    private isUnavailable(status: number, code: string): boolean {
+        return status === this.UNAVAILABLE_STATUS || code === this.UNAVAILABLE_CODE;
+    }
+}

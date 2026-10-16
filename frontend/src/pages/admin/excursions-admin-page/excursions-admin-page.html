@@ -1,0 +1,82 @@
+<section class="kz-page kz-container">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    <div class="kz-row toolbar">
+        <kz-btn [label]="toggleFormLabel" [kind]="PRIMARY_KIND" [disabled]="isSaving" (clicked)="onToggleForm()" />
+
+        <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
+            (reseted)="onSearchReset()" />
+    </div>
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    @if (isFormOpen) {
+        <section class="kz-panel">
+            <h2>{{ formTitle }}</h2>
+
+            <div class="form-grid">
+                <kz-field [label]="TITLE_LABEL" name="title" [type]="TEXT_TYPE" [value]="form.title"
+                    [error]="errors.title" [required]="true" [disabled]="isSaving" (valueChange)="onTitleChange($event)" />
+
+                <kz-field [label]="LOCATION_LABEL" name="location" [type]="TEXT_TYPE" [value]="form.location"
+                    [error]="errors.location" [required]="true" [disabled]="isSaving"
+                    (valueChange)="onLocationChange($event)" />
+
+                <kz-field [label]="DATE_LABEL" name="date" [type]="DATE_TYPE" [value]="form.date"
+                    [disabled]="isSaving" (valueChange)="onDateChange($event)" />
+
+                <kz-field [label]="START_TIME_LABEL" name="startTime" [type]="TIME_TYPE"
+                    [value]="form.startTime" [disabled]="isSaving" (valueChange)="onStartTimeChange($event)" />
+
+                <kz-field [label]="DURATION_LABEL" name="dureeMinutes" [type]="NUMBER_TYPE"
+                    [value]="form.dureeMinutes" [min]="DURATION_MIN" [hint]="DURATION_UNIT"
+                    [error]="errors.dureeMinutes" [required]="true" [disabled]="isSaving"
+                    (valueChange)="onDurationChange($event)" />
+
+                <kz-field [label]="CAPACITY_LABEL" name="capacity" [type]="NUMBER_TYPE" [value]="form.capacity"
+                    [min]="SEATS_MIN" [error]="errors.capacity" [required]="true" [disabled]="isSaving"
+                    (valueChange)="onCapacityChange($event)" />
+
+                <kz-field [label]="AVAILABLE_SEATS_LABEL" name="availableSeats" [type]="NUMBER_TYPE"
+                    [value]="form.availableSeats" [min]="FREE_MIN" [error]="errors.availableSeats"
+                    [required]="true" [disabled]="isSaving" (valueChange)="onAvailableSeatsChange($event)" />
+
+                <kz-field [label]="PRICE_LABEL" name="price" [type]="NUMBER_TYPE" [value]="form.price"
+                    [min]="PRICE_MIN" [step]="PRICE_STEP" [error]="errors.price" [required]="true"
+                    [disabled]="isSaving" (valueChange)="onPriceChange($event)" />
+
+                <kz-field [label]="GUIDE_LABEL" name="guide" [type]="TEXT_TYPE" [value]="form.guide"
+                    [disabled]="isSaving" (valueChange)="onGuideChange($event)" />
+
+                <kz-field [label]="DESCRIPTION_LABEL" name="description" [type]="TEXTAREA_TYPE"
+                    [value]="form.description" [rows]="DESCRIPTION_ROWS" [disabled]="isSaving"
+                    (valueChange)="onDescriptionChange($event)" />
+            </div>
+
+            @if (hasFormErrors) {
+                <p class="kz-error">{{ VALIDATION_LABEL }}</p>
+            }
+
+            <div class="kz-row">
+                <kz-btn [label]="SAVE_LABEL" [kind]="PRIMARY_KIND" [loading]="isSaving" [disabled]="isSaving"
+                    (clicked)="onSubmit()" />
+
+                <kz-btn [label]="CANCEL_LABEL" [kind]="SECONDARY_KIND" [disabled]="isSaving"
+                    (clicked)="onToggleForm()" />
+
+                <kz-btn [label]="activeLabel" [kind]="activeKind" [disabled]="isSaving" (clicked)="onToggleActive()" />
+            </div>
+        </section>
+    }
+
+    <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
+        [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
+
+    <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage" [loading]="isDeleting"
+        (confirmed)="onConfirmRemove()" (cancelled)="onCloseDialog()" />
+</section>

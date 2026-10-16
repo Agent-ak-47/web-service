@@ -1,0 +1,9 @@
+<button [class]="buttonClasses" [type]="type()" [disabled]="isFrozen" (click)="onClick()">
+    @if (loading()) {
+        <span [class]="spinnerClasses"></span>
+    }
+    @else if (hasIcon()) {
+        <kz-icon [img]="iconImage" [tone]="iconTone" [size]="iconSize" />
+    }
+    <span class="kz-button-label">{{ label() }}</span>
+</button>

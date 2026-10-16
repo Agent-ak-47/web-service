@@ -1,0 +1,35 @@
+<label class="kz-field">
+    <span class="kz-field-label">
+        {{ label() }}
+        @if (required()) {
+            <span class="kz-field-required">{{ REQUIRED_MARK }}</span>
+        }
+    </span>
+
+    @switch (type()) {
+        @case (FIELD_TYPE.SELECT) {
+            <select [class]="controlClasses" [name]="name()" [value]="value()" [disabled]="disabled()"
+                (change)="onInput($event)">
+                @for (option of options(); track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                }
+            </select>
+        }
+        @case (FIELD_TYPE.TEXTAREA) {
+            <textarea [class]="controlClasses" [name]="name()" [rows]="rows()" [value]="value()"
+                [placeholder]="placeholder()" [disabled]="disabled()" (input)="onInput($event)"></textarea>
+        }
+        @default {
+            <input [class]="controlClasses" [type]="htmlType" [name]="name()" [value]="value()"
+                [placeholder]="placeholder()" [disabled]="disabled()" [attr.min]="min()" [attr.max]="max()"
+                [attr.step]="step()" (input)="onInput($event)" />
+        }
+    }
+
+    @if (error().length > 0) {
+        <span class="kz-field-error">{{ error() }}</span>
+    }
+    @else if (hint().length > 0) {
+        <span class="kz-field-hint">{{ hint() }}</span>
+    }
+</label>

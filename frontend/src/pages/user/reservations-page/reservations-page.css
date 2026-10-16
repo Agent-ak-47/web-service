@@ -1,0 +1,43 @@
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-4);
+}
+
+.counter-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}
+
+.counter-value {
+    font-size: var(--font-size-xl);
+    font-weight: var(--weight-bold);
+}
+
+.pay-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.pay-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.pay-reference {
+    font-weight: var(--weight-medium);
+}
+
+.pay-amount {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}

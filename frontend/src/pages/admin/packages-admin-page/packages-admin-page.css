@@ -1,0 +1,14 @@
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar {
+    align-items: flex-start;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+}

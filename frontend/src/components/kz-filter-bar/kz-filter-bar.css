@@ -1,0 +1,29 @@
+:host {
+    display: flex;
+    width: 100%;
+}
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-4);
+    background-color: var(--secondary);
+    border-radius: var(--radius-lg);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-3);
+    width: 100%;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}

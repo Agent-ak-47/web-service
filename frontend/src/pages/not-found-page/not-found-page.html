@@ -1,0 +1,10 @@
+<section class="kz-page kz-container not-found">
+    <p class="not-found-code">{{ CODE }}</p>
+    <h1 class="not-found-title">{{ TITLE }}</h1>
+    <p class="not-found-subtitle">{{ SUBTITLE }}</p>
+
+    <div class="not-found-actions">
+        <kz-btn [label]="BACK_LABEL" (clicked)="goHome()" />
+        <a class="kz-link-button is-outline" [routerLink]="homePath">Accueil</a>
+    </div>
+</section>

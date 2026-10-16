@@ -1,0 +1,112 @@
+:host {
+    display: block;
+    background-color: var(--primary);
+    color: var(--on-primary);
+}
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: var(--primary);
+    color: var(--on-primary);
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: var(--size-header);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--weight-bold);
+}
+
+.brand-name {
+    font-size: var(--font-size-md);
+}
+
+.menu-toggle {
+    display: none;
+    padding: var(--space-2);
+    background: none;
+    border: var(--border-width) solid var(--on-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.nav-link {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-pill);
+    transition: background-color var(--transition);
+}
+
+.nav-link:hover {
+    background-color: var(--tertiary);
+    color: var(--on-tertiary);
+}
+
+.nav-link.is-active {
+    background-color: var(--on-primary);
+    color: var(--primary);
+    font-weight: var(--weight-medium);
+}
+
+.nav-link.is-admin {
+    border: var(--border-width) solid var(--on-primary);
+}
+
+.header-account {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+
+.user-name {
+    font-size: var(--font-size-sm);
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .menu-toggle {
+        display: inline-flex;
+        margin-left: auto;
+    }
+
+    .main-nav {
+        display: none;
+        position: absolute;
+        top: var(--size-header);
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-1);
+        padding: var(--space-4) var(--space-5);
+        background-color: var(--primary);
+        border-top: var(--border-width) solid var(--tertiary);
+    }
+
+    .main-nav.is-open {
+        display: flex;
+    }
+
+    .header-account {
+        margin-left: 0;
+    }
+}

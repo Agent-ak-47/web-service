@@ -1,0 +1,46 @@
+<section class="kz-page kz-container">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    <div class="summary-grid">
+        <div class="kz-panel">
+            <span class="counter-label">{{ TOTAL_LABEL }}</span>
+            <span class="counter-value">{{ summary.total }}</span>
+        </div>
+        <div class="kz-panel">
+            <span class="counter-label">{{ PAYABLE_LABEL }}</span>
+            <span class="counter-value">{{ summary.payable }}</span>
+        </div>
+        <div class="kz-panel">
+            <span class="counter-label">{{ CANCELLED_LABEL }}</span>
+            <span class="counter-value">{{ summary.cancelled }}</span>
+        </div>
+    </div>
+
+    <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
+        [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
+
+    @if (payableReservations.length > 0) {
+        <section class="kz-stack">
+            <h2>{{ PAYABLE_TITLE }}</h2>
+            @for (reservation of payableReservations; track reservation.id) {
+                <div class="kz-panel pay-row">
+                    <div class="pay-text">
+                        <span class="pay-reference">{{ reservation.reference }}</span>
+                        <span class="pay-amount">{{ reservation.itemLabel }} - {{ reservation.totalAmount | kzMoney }}</span>
+                    </div>
+                    <kz-btn [label]="PAY_LABEL" [kind]="PAY_KIND" (clicked)="onPay(reservation)" />
+                </div>
+            }
+        </section>
+    }
+
+    <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage" [loading]="isCancelling"
+        (confirmed)="onConfirmCancel()" (cancelled)="onCloseDialog()" />
+</section>

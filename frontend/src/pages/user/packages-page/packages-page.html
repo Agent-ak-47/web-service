@@ -1,0 +1,27 @@
+<section class="kz-page kz-container">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onFiltersChanged($event)"
+        (reseted)="onFiltersReset()" />
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    @if (isLoading) {
+        <kz-loading [label]="labels.loading" />
+    }
+    @else if (isEmpty) {
+        <div class="kz-empty">{{ EMPTY_LABEL }}</div>
+    }
+    @else {
+        <div class="kz-grid-cards">
+            @for (card of cards; track card.id) {
+                <kz-card [data]="card" [loading]="reservingId === card.id" (action)="onReserve($event)" />
+            }
+        </div>
+    }
+</section>
