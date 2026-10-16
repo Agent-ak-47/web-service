@@ -63,6 +63,17 @@
     font-weight: var(--weight-medium);
 }
 
+.avatar-link {
+    display: inline-flex;
+    border-radius: var(--radius-pill);
+    transition: opacity var(--transition), transform var(--transition);
+}
+
+.avatar-link:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
 .header-account {
     display: flex;
     align-items: center;

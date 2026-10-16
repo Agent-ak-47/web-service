@@ -18,7 +18,16 @@
 
         <div class="header-account">
             @if (isSignedIn) {
-                <kz-avatar [initial]="avatarInitial" [label]="userEmail" [variant]="avatarVariant" />
+                @if (isAdmin) {
+                    <a class="avatar-link" [routerLink]="adminPath" [attr.aria-label]="ADMIN_LINK_LABEL"
+                        (click)="closeMenu()">
+                        <kz-avatar [initial]="avatarInitial" [variant]="avatarVariant" />
+                    </a>
+                }
+                @else {
+                    <kz-avatar [initial]="avatarInitial" [label]="userEmail" [variant]="avatarVariant" />
+                }
+
                 <kz-btn [label]="signOutLabel" [kind]="GHOST_KIND" [icon]="LOGOUT_ICON" [hasIcon]="true"
                     [onDark]="true" [loading]="isSigningOut" (clicked)="signOut()" />
             }
