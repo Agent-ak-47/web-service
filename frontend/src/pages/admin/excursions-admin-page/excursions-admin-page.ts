@@ -11,6 +11,10 @@ import {
 } from '../../../models/kz_excursion_form.interface';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
+import { KzFormColumns } from '../../../models/kz_form_columns.enum';
+import { DEFAULT_KZ_FORM_FIELD, KzFormField } from '../../../models/kz_form_field.interface';
+import { KzFormFieldChange } from '../../../models/kz_form_field_change.interface';
+import { KzFormSection } from '../../../models/kz_form_section.interface';
 import { KzGuardedForm } from '../../../models/kz_guarded_form.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { parseItem, parseList, parseResponse } from '../../../models/kz_response';
@@ -26,14 +30,14 @@ import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
-import { KzField } from '../../../components/kz-field/kz-field';
 import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
+import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 
 
 @Component({
     selector: 'kz-excursions-admin-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzField, KzFilterBar],
+    imports: [KzBtn, KzDataTable, KzDialog, KzFilterBar, KzFormPanel],
     templateUrl: './excursions-admin-page.html',
     styleUrl: './excursions-admin-page.css',
 })
@@ -47,8 +51,6 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
     readonly CLOSE_LABEL = 'Fermer le formulaire';
     readonly CREATE_TITLE = 'Nouvelle excursion';
     readonly EDIT_TITLE = 'Modifier l excursion';
-    readonly SAVE_LABEL = 'Enregistrer';
-    readonly CANCEL_LABEL = KZ_LABELS.cancel;
     readonly VALIDATION_LABEL = 'Corrigez les champs en erreur avant d enregistrer.';
     readonly ACTIVE_LABEL = 'Actif';
     readonly INACTIVE_LABEL = 'Inactif';
@@ -81,15 +83,18 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
     readonly EMPTY_LABEL = KZ_LABELS.emptyList;
     readonly DIALOG_TITLE = 'Suppression';
     readonly REMOVE_QUESTION = 'Confirmer la suppression de cette excursion ?';
-    readonly TEXT_TYPE = KzFieldType.TEXT;
-    readonly TEXTAREA_TYPE = KzFieldType.TEXTAREA;
-    readonly NUMBER_TYPE = KzFieldType.NUMBER;
-    readonly DATE_TYPE = KzFieldType.DATE;
-    readonly TIME_TYPE = KzFieldType.TIME;
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
-    readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
     readonly ON_KIND = KzBtnKind.PRIMARY;
     readonly OFF_KIND = KzBtnKind.SECONDARY;
+    readonly IDENTITY_SECTION = 'identity';
+    readonly WHEN_SECTION = 'when';
+    readonly SEATS_SECTION = 'seats';
+    readonly GUIDE_SECTION = 'guide';
+    readonly DESCRIPTION_SECTION = 'description';
+    readonly IDENTITY_TITLE = 'Excursion';
+    readonly WHEN_TITLE = 'Quand';
+    readonly SEATS_TITLE = 'Places et tarif';
+    readonly GUIDE_TITLE = 'Guide et image';
 
     readonly TITLE_KEY = 'title';
     readonly LOCATION_KEY = 'location';
@@ -218,6 +223,132 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
     }
 
 
+    get validationMessage(): string {
+        return this.hasFormErrors ? this.VALIDATION_LABEL : '';
+    }
+
+
+    get formSections(): KzFormSection[] {
+        return [
+            {
+                id: this.IDENTITY_SECTION,
+                title: this.IDENTITY_TITLE,
+                columns: KzFormColumns.TWO,
+                fields: [
+                    this.formField({
+                        name: 'title',
+                        label: this.TITLE_LABEL,
+                        value: this.form.title,
+                        error: this.errors.title,
+                        required: true,
+                    }),
+                    this.formField({
+                        name: 'location',
+                        label: this.LOCATION_LABEL,
+                        value: this.form.location,
+                        error: this.errors.location,
+                        required: true,
+                    }),
+                ],
+            },
+            {
+                id: this.WHEN_SECTION,
+                title: this.WHEN_TITLE,
+                columns: KzFormColumns.THREE,
+                fields: [
+                    this.formField({
+                        name: 'date',
+                        label: this.DATE_LABEL,
+                        type: KzFieldType.DATE,
+                        value: this.form.date,
+                    }),
+                    this.formField({
+                        name: 'startTime',
+                        label: this.START_TIME_LABEL,
+                        type: KzFieldType.TIME,
+                        value: this.form.startTime,
+                    }),
+                    this.formField({
+                        name: 'dureeMinutes',
+                        label: this.DURATION_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.dureeMinutes,
+                        hint: this.DURATION_UNIT,
+                        min: this.DURATION_MIN,
+                        error: this.errors.dureeMinutes,
+                        required: true,
+                    }),
+                ],
+            },
+            {
+                id: this.SEATS_SECTION,
+                title: this.SEATS_TITLE,
+                columns: KzFormColumns.THREE,
+                fields: [
+                    this.formField({
+                        name: 'capacity',
+                        label: this.CAPACITY_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.capacity,
+                        min: this.SEATS_MIN,
+                        error: this.errors.capacity,
+                        required: true,
+                    }),
+                    this.formField({
+                        name: 'availableSeats',
+                        label: this.AVAILABLE_SEATS_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.availableSeats,
+                        min: this.FREE_MIN,
+                        error: this.errors.availableSeats,
+                        required: true,
+                    }),
+                    this.formField({
+                        name: 'price',
+                        label: this.PRICE_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.price,
+                        min: this.PRICE_MIN,
+                        step: this.PRICE_STEP,
+                        error: this.errors.price,
+                        required: true,
+                    }),
+                ],
+            },
+            {
+                id: this.GUIDE_SECTION,
+                title: this.GUIDE_TITLE,
+                columns: KzFormColumns.TWO,
+                fields: [
+                    this.formField({
+                        name: 'guide',
+                        label: this.GUIDE_LABEL,
+                        value: this.form.guide,
+                    }),
+                    this.formField({
+                        name: 'imageUrl',
+                        label: this.IMAGE_LABEL,
+                        value: this.form.imageUrl,
+                    }),
+                ],
+            },
+            {
+                id: this.DESCRIPTION_SECTION,
+                columns: KzFormColumns.ONE,
+                fields: [
+                    this.formField({
+                        name: 'description',
+                        label: this.DESCRIPTION_LABEL,
+                        type: KzFieldType.TEXTAREA,
+                        value: this.form.description,
+                        rows: this.DESCRIPTION_ROWS,
+                    }),
+                ],
+            },
+        ];
+    }
+
+
     get dialogMessage(): string {
         if (this.removeTarget === null) {
             return '';
@@ -272,77 +403,11 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
     }
 
 
-    onTitleChange(value: string): void {
-        this.form.title = value;
-        this.errors.title = '';
+    onFieldChange(change: KzFormFieldChange): void {
+        this.form = { ...this.form, [change.name]: change.value } as KzExcursionForm;
+        this.errors = { ...this.errors, [change.name]: '' };
         this.isDirty = true;
     }
-
-
-    onLocationChange(value: string): void {
-        this.form.location = value;
-        this.errors.location = '';
-        this.isDirty = true;
-    }
-
-
-    onDescriptionChange(value: string): void {
-        this.form.description = value;
-        this.isDirty = true;
-    }
-
-
-    onDateChange(value: string): void {
-        this.form.date = value;
-        this.isDirty = true;
-    }
-
-
-    onStartTimeChange(value: string): void {
-        this.form.startTime = value;
-        this.isDirty = true;
-    }
-
-
-    onDurationChange(value: string): void {
-        this.form.dureeMinutes = value;
-        this.errors.dureeMinutes = '';
-        this.isDirty = true;
-    }
-
-
-    onCapacityChange(value: string): void {
-        this.form.capacity = value;
-        this.errors.capacity = '';
-        this.isDirty = true;
-    }
-
-
-    onAvailableSeatsChange(value: string): void {
-        this.form.availableSeats = value;
-        this.errors.availableSeats = '';
-        this.isDirty = true;
-    }
-
-
-    onPriceChange(value: string): void {
-        this.form.price = value;
-        this.errors.price = '';
-        this.isDirty = true;
-    }
-
-
-    onGuideChange(value: string): void {
-        this.form.guide = value;
-        this.isDirty = true;
-    }
-
-
-    onImageChange(value: string): void {
-        this.form.imageUrl = value;
-        this.isDirty = true;
-    }
-
 
     async onSubmit(): Promise<void> {
         if (this.isSaving) {
@@ -617,6 +682,11 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
                 [this.ACTIVE_KEY]: item.available,
             },
         }));
+    }
+
+
+    private formField(field: Partial<KzFormField>): KzFormField {
+        return { ...DEFAULT_KZ_FORM_FIELD, disabled: this.isSaving, ...field };
     }
 
 

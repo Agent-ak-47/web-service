@@ -4,7 +4,6 @@
     background-color: var(--secondary);
     color: var(--text);
     --size-tagline-width: 320px;
-    --tracking-column-title: 0.06em;
 }
 
 .site-footer {
@@ -46,7 +45,7 @@
 .column-title {
     font-size: var(--font-size-sm);
     text-transform: uppercase;
-    letter-spacing: var(--tracking-column-title);
+    letter-spacing: var(--tracking-caps);
     color: var(--text-muted);
 }
 

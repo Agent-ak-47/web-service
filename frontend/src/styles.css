@@ -70,6 +70,7 @@
     --radius-lg: 18px;
     --radius-pill: 999px;
     --border-width: 1px;
+    --tracking-caps: 0.06em;
 
     /* effects */
     --transition: 160ms ease-in-out;

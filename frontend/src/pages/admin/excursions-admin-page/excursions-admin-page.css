@@ -1,7 +1,6 @@
 :host {
     display: flex;
     flex-direction: column;
-    --size-form-field: 200px;
 }
 
 .toolbar {
@@ -10,17 +9,4 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-3);
-}
-
-.form-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-3);
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--size-form-field), 1fr));
-    gap: var(--space-4);
 }

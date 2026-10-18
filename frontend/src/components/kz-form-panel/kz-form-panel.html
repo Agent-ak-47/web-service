@@ -1,0 +1,35 @@
+<section class="form-panel">
+    <h2>{{ title() }}</h2>
+
+    @for (section of sections(); track section.id) {
+        @if (section.title !== undefined && section.title.length > 0) {
+            <h3 class="section-title">{{ section.title }}</h3>
+        }
+
+        <div [class]="rowClasses(section.columns)">
+            @for (field of section.fields; track field.name) {
+                <kz-field [label]="field.label" [name]="field.name" [type]="field.type" [value]="field.value"
+                    [placeholder]="field.placeholder" [hint]="field.hint" [error]="field.error"
+                    [required]="field.required" [disabled]="field.disabled" [options]="field.options"
+                    [min]="field.min" [max]="field.max" [step]="field.step" [rows]="field.rows"
+                    (valueChange)="onFieldChange(field, $event)" />
+            }
+        </div>
+    }
+
+    @if (validationMessage().length > 0) {
+        <p class="kz-error">{{ validationMessage() }}</p>
+    }
+
+    <div class="form-actions">
+        <kz-btn [label]="SAVE_LABEL" [kind]="PRIMARY_KIND" [loading]="loading()" [disabled]="disabled()"
+            (clicked)="saved.emit()" />
+
+        <kz-btn [label]="CANCEL_LABEL" [kind]="SECONDARY_KIND" [disabled]="disabled()" (clicked)="cancelled.emit()" />
+
+        @if (activeLabel().length > 0) {
+            <kz-btn [label]="activeLabel()" [kind]="activeKind()" [disabled]="disabled()"
+                (clicked)="activeToggled.emit()" />
+        }
+    </div>
+</section>

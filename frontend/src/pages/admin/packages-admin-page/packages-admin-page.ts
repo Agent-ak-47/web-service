@@ -4,6 +4,10 @@ import { Router } from '@angular/router';
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
+import { KzFormColumns } from '../../../models/kz_form_columns.enum';
+import { DEFAULT_KZ_FORM_FIELD, KzFormField } from '../../../models/kz_form_field.interface';
+import { KzFormFieldChange } from '../../../models/kz_form_field_change.interface';
+import { KzFormSection } from '../../../models/kz_form_section.interface';
 import { KzGuardedForm } from '../../../models/kz_guarded_form.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzPackage } from '../../../models/kz_package.interface';
@@ -26,14 +30,14 @@ import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
-import { KzField } from '../../../components/kz-field/kz-field';
 import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
+import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 
 
 @Component({
     selector: 'kz-packages-admin-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzField, KzFilterBar],
+    imports: [KzBtn, KzDataTable, KzDialog, KzFilterBar, KzFormPanel],
     templateUrl: './packages-admin-page.html',
     styleUrl: './packages-admin-page.css',
 })
@@ -47,8 +51,6 @@ export class PackagesAdminPage implements KzGuardedForm, OnInit {
     readonly CLOSE_LABEL = 'Fermer le formulaire';
     readonly CREATE_TITLE = 'Nouveau forfait';
     readonly EDIT_TITLE = 'Modifier le forfait';
-    readonly SAVE_LABEL = 'Enregistrer';
-    readonly CANCEL_LABEL = KZ_LABELS.cancel;
     readonly VALIDATION_LABEL = 'Corrigez les champs en erreur avant d enregistrer.';
     readonly ACTIVE_LABEL = 'Actif';
     readonly INACTIVE_LABEL = 'Inactif';
@@ -77,14 +79,18 @@ export class PackagesAdminPage implements KzGuardedForm, OnInit {
     readonly EMPTY_LABEL = KZ_LABELS.emptyList;
     readonly DIALOG_TITLE = 'Suppression';
     readonly REMOVE_QUESTION = 'Confirmer la suppression de ce forfait ?';
-    readonly TEXT_TYPE = KzFieldType.TEXT;
-    readonly TEXTAREA_TYPE = KzFieldType.TEXTAREA;
-    readonly NUMBER_TYPE = KzFieldType.NUMBER;
-    readonly DATE_TYPE = KzFieldType.DATE;
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
-    readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
     readonly ON_KIND = KzBtnKind.PRIMARY;
     readonly OFF_KIND = KzBtnKind.SECONDARY;
+    readonly IDENTITY_SECTION = 'identity';
+    readonly DATES_SECTION = 'dates';
+    readonly TARIFF_SECTION = 'tariff';
+    readonly MEDIA_SECTION = 'media';
+    readonly DESCRIPTION_SECTION = 'description';
+    readonly IDENTITY_TITLE = 'Forfait';
+    readonly DATES_TITLE = 'Dates';
+    readonly TARIFF_TITLE = 'Tarif';
+    readonly MEDIA_TITLE = 'Image';
 
     readonly NAME_KEY = 'name';
     readonly DESTINATION_KEY = 'destination';
@@ -201,6 +207,117 @@ export class PackagesAdminPage implements KzGuardedForm, OnInit {
     }
 
 
+    get validationMessage(): string {
+        return this.hasFormErrors ? this.VALIDATION_LABEL : '';
+    }
+
+
+    get formSections(): KzFormSection[] {
+        return [
+            {
+                id: this.IDENTITY_SECTION,
+                title: this.IDENTITY_TITLE,
+                columns: KzFormColumns.TWO,
+                fields: [
+                    this.formField({
+                        name: 'name',
+                        label: this.NAME_LABEL,
+                        value: this.form.name,
+                        error: this.errors.name,
+                        required: true,
+                    }),
+                    this.formField({
+                        name: 'destination',
+                        label: this.DESTINATION_LABEL,
+                        value: this.form.destination,
+                        error: this.errors.destination,
+                        required: true,
+                    }),
+                ],
+            },
+            {
+                id: this.DATES_SECTION,
+                title: this.DATES_TITLE,
+                columns: KzFormColumns.TWO,
+                fields: [
+                    this.formField({
+                        name: 'startDate',
+                        label: this.START_DATE_LABEL,
+                        type: KzFieldType.DATE,
+                        value: this.form.startDate,
+                    }),
+                    this.formField({
+                        name: 'endDate',
+                        label: this.END_DATE_LABEL,
+                        type: KzFieldType.DATE,
+                        value: this.form.endDate,
+                    }),
+                ],
+            },
+            {
+                id: this.TARIFF_SECTION,
+                title: this.TARIFF_TITLE,
+                columns: KzFormColumns.THREE,
+                fields: [
+                    this.formField({
+                        name: 'durationNights',
+                        label: this.DURATION_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.durationNights,
+                        min: this.NIGHTS_MIN,
+                        error: this.errors.durationNights,
+                        required: true,
+                    }),
+                    this.formField({
+                        name: 'price',
+                        label: this.PRICE_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.price,
+                        min: this.PRICE_MIN,
+                        step: this.PRICE_STEP,
+                        error: this.errors.price,
+                        required: true,
+                    }),
+                    this.formField({
+                        name: 'discountPercentage',
+                        label: this.DISCOUNT_LABEL,
+                        type: KzFieldType.NUMBER,
+                        value: this.form.discountPercentage,
+                        min: this.DISCOUNT_MIN,
+                        max: this.DISCOUNT_MAX,
+                        error: this.errors.discountPercentage,
+                    }),
+                ],
+            },
+            {
+                id: this.MEDIA_SECTION,
+                title: this.MEDIA_TITLE,
+                columns: KzFormColumns.ONE,
+                fields: [
+                    this.formField({
+                        name: 'imageUrl',
+                        label: this.IMAGE_LABEL,
+                        value: this.form.imageUrl,
+                    }),
+                ],
+            },
+            {
+                id: this.DESCRIPTION_SECTION,
+                columns: KzFormColumns.ONE,
+                fields: [
+                    this.formField({
+                        name: 'description',
+                        label: this.DESCRIPTION_LABEL,
+                        type: KzFieldType.TEXTAREA,
+                        value: this.form.description,
+                        rows: this.DESCRIPTION_ROWS,
+                    }),
+                ],
+            },
+        ];
+    }
+
+
     get dialogMessage(): string {
         if (this.removeTarget === null) {
             return '';
@@ -255,64 +372,11 @@ export class PackagesAdminPage implements KzGuardedForm, OnInit {
     }
 
 
-    onNameChange(value: string): void {
-        this.form.name = value;
-        this.errors.name = '';
+    onFieldChange(change: KzFormFieldChange): void {
+        this.form = { ...this.form, [change.name]: change.value } as KzPackageForm;
+        this.errors = { ...this.errors, [change.name]: '' };
         this.isDirty = true;
     }
-
-
-    onDescriptionChange(value: string): void {
-        this.form.description = value;
-        this.isDirty = true;
-    }
-
-
-    onDestinationChange(value: string): void {
-        this.form.destination = value;
-        this.errors.destination = '';
-        this.isDirty = true;
-    }
-
-
-    onDurationChange(value: string): void {
-        this.form.durationNights = value;
-        this.errors.durationNights = '';
-        this.isDirty = true;
-    }
-
-
-    onPriceChange(value: string): void {
-        this.form.price = value;
-        this.errors.price = '';
-        this.isDirty = true;
-    }
-
-
-    onStartDateChange(value: string): void {
-        this.form.startDate = value;
-        this.isDirty = true;
-    }
-
-
-    onEndDateChange(value: string): void {
-        this.form.endDate = value;
-        this.isDirty = true;
-    }
-
-
-    onDiscountChange(value: string): void {
-        this.form.discountPercentage = value;
-        this.errors.discountPercentage = '';
-        this.isDirty = true;
-    }
-
-
-    onImageChange(value: string): void {
-        this.form.imageUrl = value;
-        this.isDirty = true;
-    }
-
 
     async onSubmit(): Promise<void> {
         if (this.isSaving) {
@@ -582,6 +646,11 @@ export class PackagesAdminPage implements KzGuardedForm, OnInit {
                 [this.ACTIVE_KEY]: item.available,
             },
         }));
+    }
+
+
+    private formField(field: Partial<KzFormField>): KzFormField {
+        return { ...DEFAULT_KZ_FORM_FIELD, disabled: this.isSaving, ...field };
     }
 
 
