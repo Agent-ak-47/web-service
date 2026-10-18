@@ -178,6 +178,20 @@ textarea {
     font-size: var(--font-size-sm);
 }
 
+.kz-page-head.is-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.kz-page-head-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
 .kz-grid-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--size-card-min), 1fr));

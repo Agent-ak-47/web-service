@@ -25,3 +25,5 @@ public/
 .angular/
 tui.json
 dist/
+
+.vscode/

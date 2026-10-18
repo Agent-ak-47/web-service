@@ -1,15 +1,15 @@
 <section class="kz-page">
-    <header class="kz-page-head">
-        <h1>{{ PAGE_TITLE }}</h1>
-        <p>{{ PAGE_SUBTITLE }}</p>
+    <header class="kz-page-head is-row">
+        <div class="kz-page-head-text">
+            <h1>{{ PAGE_TITLE }}</h1>
+            <p>{{ PAGE_SUBTITLE }}</p>
+        </div>
+
+        <kz-btn [label]="NEW_LABEL" [kind]="PRIMARY_KIND" (clicked)="onNewPackage()" />
     </header>
 
-    <div class="toolbar">
-        <kz-btn [label]="NEW_LABEL" [kind]="PRIMARY_KIND" (clicked)="onNewPackage()" />
-
-        <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
-            (reseted)="onSearchReset()" />
-    </div>
+    <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
+        (reseted)="onSearchReset()" />
 
     @if (errorMessage.length > 0) {
         <p class="kz-error">{{ errorMessage }}</p>
