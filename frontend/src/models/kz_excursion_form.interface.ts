@@ -8,6 +8,7 @@ export interface KzExcursionForm {
     capacity: string;
     availableSeats: string;
     price: string;
+    imageUrl: string;
     guide: string;
     active: boolean;
 }
@@ -23,6 +24,7 @@ export const DEFAULT_KZ_EXCURSION_FORM: KzExcursionForm = {
     capacity: '',
     availableSeats: '',
     price: '',
+    imageUrl: '',
     guide: '',
     active: true,
 };

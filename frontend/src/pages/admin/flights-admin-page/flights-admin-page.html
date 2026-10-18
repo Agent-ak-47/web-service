@@ -53,6 +53,9 @@
                 <kz-field [label]="PRICE_LABEL" name="price" [type]="NUMBER_TYPE" [value]="form.price"
                     [min]="PRICE_MIN" [step]="PRICE_STEP" [error]="errors.price" [required]="true"
                     [disabled]="isSaving" (valueChange)="onPriceChange($event)" />
+
+                <kz-field [label]="IMAGE_LABEL" name="imageUrl" [type]="TEXT_TYPE" [value]="form.imageUrl"
+                    [disabled]="isSaving" (valueChange)="onImageChange($event)" />
             </div>
 
             @if (hasFormErrors) {

@@ -32,7 +32,7 @@ export class MockBackendService {
     readonly DATASET_KEY = 'kz_mock_dataset';
     readonly VERSION_KEY = 'kz_mock_version';
     readonly USERS_KEY = 'kz_mock_users';
-    readonly DATASET_VERSION = '1';
+    readonly DATASET_VERSION = '2';
     readonly TOKEN_PREFIX = 'kzmock.';
     readonly TOKEN_LIFETIME_HOURS = 12;
     readonly DEMO_PASSWORD = 'Password123!';

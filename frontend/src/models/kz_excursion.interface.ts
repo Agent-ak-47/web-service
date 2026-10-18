@@ -9,6 +9,7 @@ export interface KzExcursion {
     capacity: number;
     availableSeats: number;
     price: number;
+    imageUrl: string;
     guide: string;
     available: boolean;
 }
@@ -25,6 +26,7 @@ export const DEFAULT_KZ_EXCURSION: KzExcursion = {
     capacity: 0,
     availableSeats: 0,
     price: 0,
+    imageUrl: '',
     guide: '',
     available: true,
 };

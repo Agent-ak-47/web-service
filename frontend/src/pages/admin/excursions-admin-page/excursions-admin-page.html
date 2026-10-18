@@ -53,6 +53,9 @@
                 <kz-field [label]="GUIDE_LABEL" name="guide" [type]="TEXT_TYPE" [value]="form.guide"
                     [disabled]="isSaving" (valueChange)="onGuideChange($event)" />
 
+                <kz-field [label]="IMAGE_LABEL" name="imageUrl" [type]="TEXT_TYPE" [value]="form.imageUrl"
+                    [disabled]="isSaving" (valueChange)="onImageChange($event)" />
+
                 <kz-field [label]="DESCRIPTION_LABEL" name="description" [type]="TEXTAREA_TYPE"
                     [value]="form.description" [rows]="DESCRIPTION_ROWS" [disabled]="isSaving"
                     (valueChange)="onDescriptionChange($event)" />

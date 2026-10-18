@@ -9,6 +9,7 @@ export interface KzFlight {
     totalSeats: number;
     availableSeats: number;
     price: number;
+    imageUrl: string;
     active: boolean;
 }
 
@@ -24,5 +25,6 @@ export const DEFAULT_KZ_FLIGHT: KzFlight = {
     totalSeats: 0,
     availableSeats: 0,
     price: 0,
+    imageUrl: '',
     active: true,
 };

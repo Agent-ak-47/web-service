@@ -61,6 +61,7 @@ export class FlightsAdminPage implements KzGuardedForm, OnInit {
     readonly TOTAL_SEATS_LABEL = 'Places totales';
     readonly AVAILABLE_SEATS_LABEL = 'Places disponibles';
     readonly PRICE_LABEL = 'Prix';
+    readonly IMAGE_LABEL = 'Image';
     readonly ROUTE_LABEL = 'Depart';
     readonly DEPARTURE_COLUMN_LABEL = 'Depart le';
     readonly AVAILABLE_COLUMN_LABEL = 'Disponibles';
@@ -323,6 +324,12 @@ export class FlightsAdminPage implements KzGuardedForm, OnInit {
     }
 
 
+    onImageChange(value: string): void {
+        this.form.imageUrl = value;
+        this.isDirty = true;
+    }
+
+
     async onSubmit(): Promise<void> {
         if (this.isSaving) {
             return;
@@ -524,6 +531,7 @@ export class FlightsAdminPage implements KzGuardedForm, OnInit {
             totalSeats: String(flight.totalSeats),
             availableSeats: String(flight.availableSeats),
             price: String(flight.price),
+            imageUrl: flight.imageUrl,
             active: flight.active,
         };
         this.errors = { ...DEFAULT_KZ_FLIGHT_FORM_ERRORS };

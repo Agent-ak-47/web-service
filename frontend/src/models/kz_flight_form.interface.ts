@@ -8,6 +8,7 @@ export interface KzFlightForm {
     totalSeats: string;
     availableSeats: string;
     price: string;
+    imageUrl: string;
     active: boolean;
 }
 
@@ -22,6 +23,7 @@ export const DEFAULT_KZ_FLIGHT_FORM: KzFlightForm = {
     totalSeats: '',
     availableSeats: '',
     price: '',
+    imageUrl: '',
     active: true,
 };
 

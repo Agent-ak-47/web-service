@@ -162,7 +162,7 @@ export class FlightDetailPage implements OnInit {
             title: `${item.departureCity} - ${item.arrivalCity}`,
             subtitle: `${item.airline} ${item.flightNumber}`,
             icon: KzIconName.PLANE,
-            imageUrl: '',
+            imageUrl: item.imageUrl,
             description: this.buildDescription(item),
             price: item.price,
             unitLabel: this.PRICE_UNIT,

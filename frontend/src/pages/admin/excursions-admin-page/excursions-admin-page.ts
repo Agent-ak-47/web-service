@@ -64,6 +64,7 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
     readonly AVAILABLE_SEATS_LABEL = 'Places disponibles';
     readonly PRICE_LABEL = 'Prix';
     readonly GUIDE_LABEL = 'Guide';
+    readonly IMAGE_LABEL = 'Image';
     readonly AVAILABLE_COLUMN_LABEL = 'Disponibles';
     readonly TITLE_ERROR = 'Le titre est obligatoire.';
     readonly LOCATION_ERROR = 'Le lieu est obligatoire.';
@@ -337,6 +338,12 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
     }
 
 
+    onImageChange(value: string): void {
+        this.form.imageUrl = value;
+        this.isDirty = true;
+    }
+
+
     async onSubmit(): Promise<void> {
         if (this.isSaving) {
             return;
@@ -538,6 +545,7 @@ export class ExcursionsAdminPage implements KzGuardedForm, OnInit {
             capacity: String(item.capacity),
             availableSeats: String(item.availableSeats),
             price: String(item.price),
+            imageUrl: item.imageUrl,
             guide: item.guide,
             active: item.available,
         };

@@ -228,7 +228,7 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
             title: item.title,
             subtitle: item.location,
             icon: KzIconName.COMPASS,
-            imageUrl: '',
+            imageUrl: item.imageUrl,
             price: item.price,
             unitLabel: this.PRICE_UNIT,
             badge: '',

@@ -53,7 +53,7 @@ export class KzItemDetail {
 
 
     get hasCover(): boolean {
-        return this.data().imageUrl.length > 0;
+        return (this.data().imageUrl ?? '').length > 0;
     }
 
 

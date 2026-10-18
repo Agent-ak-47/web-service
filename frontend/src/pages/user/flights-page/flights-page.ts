@@ -244,7 +244,7 @@ export class FlightsPage implements KzGuardedForm, OnInit {
             title: `${flight.departureCity} - ${flight.arrivalCity}`,
             subtitle: `${flight.airline} ${flight.flightNumber}`,
             icon: KzIconName.PLANE,
-            imageUrl: '',
+            imageUrl: flight.imageUrl,
             price: flight.price,
             unitLabel: this.PRICE_UNIT,
             badge: flight.active ? this.SEATS_LABEL : this.INACTIVE_LABEL,

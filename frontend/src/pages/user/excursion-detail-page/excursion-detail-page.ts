@@ -155,7 +155,7 @@ export class ExcursionDetailPage implements OnInit {
             title: item.title,
             subtitle: item.location,
             icon: KzIconName.COMPASS,
-            imageUrl: '',
+            imageUrl: item.imageUrl,
             description: item.description,
             price: item.price,
             unitLabel: this.PRICE_UNIT,
