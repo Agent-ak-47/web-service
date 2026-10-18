@@ -35,8 +35,14 @@ export class GlobalService {
         signUp: '/inscription',
         adminDashboard: '/admin',
         adminFlights: '/admin/vols',
+        adminFlightForm: '/admin/vol-formulaire',
+        adminFlightFormEdit: (id: number): string => `/admin/vol-formulaire/${id}`,
         adminPackages: '/admin/forfaits',
+        adminPackageForm: '/admin/forfait-formulaire',
+        adminPackageFormEdit: (id: number): string => `/admin/forfait-formulaire/${id}`,
         adminExcursions: '/admin/excursions',
+        adminExcursionForm: '/admin/excursion-formulaire',
+        adminExcursionFormEdit: (id: number): string => `/admin/excursion-formulaire/${id}`,
         adminReservations: '/admin/reservations',
     };
 

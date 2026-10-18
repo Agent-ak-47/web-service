@@ -5,7 +5,7 @@
     </header>
 
     <div class="toolbar">
-        <kz-btn [label]="toggleFormLabel" [kind]="PRIMARY_KIND" [disabled]="isSaving" (clicked)="onToggleForm()" />
+        <kz-btn [label]="NEW_LABEL" [kind]="PRIMARY_KIND" (clicked)="onNewExcursion()" />
 
         <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
             (reseted)="onSearchReset()" />
@@ -13,13 +13,6 @@
 
     @if (errorMessage.length > 0) {
         <p class="kz-error">{{ errorMessage }}</p>
-    }
-
-    @if (isFormOpen) {
-        <kz-form-panel [title]="formTitle" [sections]="formSections" [validationMessage]="validationMessage"
-            [activeLabel]="activeLabel" [activeKind]="activeKind" [loading]="isSaving" [disabled]="isSaving"
-            (fieldChange)="onFieldChange($event)" (saved)="onSubmit()" (cancelled)="onToggleForm()"
-            (activeToggled)="onToggleActive()" />
     }
 
     <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
