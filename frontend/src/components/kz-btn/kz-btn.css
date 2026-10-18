@@ -1,0 +1,77 @@
+:host {
+    display: inline-flex;
+}
+
+.kz-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--size-button-height);
+    padding: var(--space-2) var(--space-5);
+    font-size: var(--font-size-sm);
+    font-weight: var(--weight-medium);
+    border: var(--border-width) solid transparent;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.kz-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.kz-button.is-full {
+    width: 100%;
+}
+
+.kz-button.is-compact {
+    padding: var(--space-2);
+}
+
+.kind-primary {
+    color: var(--on-primary);
+    background-color: var(--primary);
+}
+
+.kind-primary:hover:not(:disabled) {
+    opacity: 0.88;
+}
+
+.kind-secondary {
+    color: var(--on-secondary);
+    background-color: var(--secondary);
+    border-color: var(--border);
+}
+
+.kind-secondary:hover:not(:disabled) {
+    background-color: var(--tertiary);
+}
+
+.kind-ghost {
+    color: var(--text);
+    background-color: transparent;
+    border-color: var(--border);
+}
+
+.kind-ghost:hover:not(:disabled) {
+    background-color: var(--secondary);
+}
+
+.kind-danger {
+    color: var(--on-danger);
+    background-color: var(--danger);
+}
+
+.kind-danger:hover:not(:disabled) {
+    opacity: 0.88;
+}
+
+.kz-button-label {
+    white-space: nowrap;
+}
+
+.is-compact-label {
+    display: none;
+}

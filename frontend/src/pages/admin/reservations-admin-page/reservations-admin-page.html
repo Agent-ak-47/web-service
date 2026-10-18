@@ -1,0 +1,19 @@
+﻿<section class="kz-page">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onFiltersChanged($event)"
+        (reseted)="onFiltersReset()" />
+
+    <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
+        [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
+
+    <kz-dialog [open]="isDialogOpen" [title]="dialogTitle" [message]="dialogMessage" [confirmLabel]="confirmLabel"
+        [loading]="isSubmitting" (confirmed)="onConfirm()" (cancelled)="onCloseDialog()" />
+</section>

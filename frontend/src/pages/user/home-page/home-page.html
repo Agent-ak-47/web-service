@@ -1,0 +1,35 @@
+<section class="kz-page kz-container">
+    <kz-hero [title]="heroTitle" [subtitle]="heroSubtitle" [actions]="heroActions" />
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    @if (isLoading) {
+        <kz-loading [label]="loadingLabel" />
+    }
+    @else {
+        @for (section of sections; track section.id) {
+            <section class="home-section">
+                <header class="section-head">
+                    <div class="section-text">
+                        <h2 class="section-title">{{ section.title }}</h2>
+                        <p class="section-subtitle">{{ section.subtitle }}</p>
+                    </div>
+                    <a class="kz-link-button is-outline" [routerLink]="section.path">{{ section.linkLabel }}</a>
+                </header>
+
+                @if (section.cards.length === 0) {
+                    <div class="kz-empty">{{ emptyLabel }}</div>
+                }
+                @else {
+                    <div class="kz-grid-cards">
+                        @for (card of section.cards; track card.id) {
+                            <kz-card [data]="card" (opened)="onOpen($event)" (reserved)="onOpen($event)" />
+                        }
+                    </div>
+                }
+            </section>
+        }
+    }
+</section>

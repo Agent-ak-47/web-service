@@ -20,3 +20,10 @@ build/
 md/
 *.md
 
+node_modules/
+public/
+.angular/
+tui.json
+dist/
+
+.vscode/

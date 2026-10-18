@@ -1,0 +1,32 @@
+<section class="kz-page kz-container">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    <div class="kz-panel kz-narrow">
+        <kz-field [label]="EMAIL_LABEL" name="email" [type]="EMAIL_TYPE" [value]="form.email" [required]="true"
+            [disabled]="isSending" (valueChange)="onEmailChange($event)" />
+
+        <kz-field [label]="PASSWORD_LABEL" name="password" [type]="PASSWORD_TYPE" [value]="form.password"
+            [required]="true" [disabled]="isSending" (valueChange)="onPasswordChange($event)" />
+
+        @if (errorMessage.length > 0) {
+            <p class="kz-error">{{ errorMessage }}</p>
+        }
+
+        @if (unavailableMessage.length > 0) {
+            <p class="kz-muted">{{ unavailableMessage }}</p>
+        }
+
+        <kz-btn [label]="submitLabel" [loading]="isSending" [disabled]="isSending" [fullWidth]="true"
+            (clicked)="onSubmit()" />
+
+        <p class="kz-muted">{{ SECURITY_HINT }}</p>
+
+        <div class="sign-in-links">
+            <span class="kz-muted">{{ SIGN_UP_PROMPT }}</span>
+            <a class="kz-link-button is-outline" [routerLink]="signUpPath">{{ SIGN_UP_LABEL }}</a>
+        </div>
+    </div>
+</section>

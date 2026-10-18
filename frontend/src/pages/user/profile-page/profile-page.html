@@ -1,0 +1,31 @@
+<section class="kz-page">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    @if (isLoading) {
+        <kz-loading [label]="LOADING_LABEL" />
+    }
+    @else {
+        <div class="kz-panel">
+            <kz-field [label]="NAME_LABEL" name="name" [type]="TEXT_TYPE" [value]="form.name"
+                [error]="nameError" [required]="true" [disabled]="isSaving" (valueChange)="onNameChange($event)" />
+
+            <kz-field [label]="EMAIL_LABEL" name="email" [type]="EMAIL_TYPE" [value]="form.email"
+                [hint]="EMAIL_READONLY_HINT" [required]="true" [disabled]="true" />
+
+            <kz-field [label]="PHONE_LABEL" name="phone" [type]="TEXT_TYPE" [value]="form.phone"
+                [disabled]="isSaving" (valueChange)="onPhoneChange($event)" />
+
+            <kz-field [label]="ADDRESS_LABEL" name="address" [type]="TEXTAREA_TYPE" [value]="form.address"
+                [rows]="ADDRESS_ROWS" [disabled]="isSaving" (valueChange)="onAddressChange($event)" />
+
+            <kz-btn [label]="saveLabel" [loading]="isSaving" [disabled]="isSaving" (clicked)="onSubmit()" />
+        </div>
+    }
+</section>

@@ -30,31 +30,35 @@ VALUES
 
 -- Flights (Mohammed)
 INSERT INTO flights (airline, flight_number, departure_city, arrival_city, departure_time,
-                     arrival_time, total_seats, available_seats, price)
+                     arrival_time, total_seats, available_seats, price, image_url)
 VALUES
-('Royal Air Maroc', 'RAM101', 'Casablanca', 'Paris',        '2026-06-01 08:00:00', '2026-06-01 11:00:00', 180, 150, 2450.00),
-('Royal Air Maroc', 'RAM205', 'Casablanca', 'Marrakech',     '2026-06-05 07:30:00', '2026-06-05 08:30:00', 150,  60,  890.00),
-('Air France',      'AF1714', 'Paris',      'Istanbul',      '2026-07-12 14:00:00', '2026-07-12 18:30:00', 160,  95, 1980.00),
-('Turkish Airlines','TK1826', 'Marrakech',  'Istanbul',      '2026-07-14 09:15:00', '2026-07-14 14:45:00', 140,  22, 2150.00);
+('Royal Air Maroc', 'RAM101', 'Casablanca', 'Paris',        '2026-06-01 08:00:00', '2026-06-01 11:00:00', 180, 150, 2450.00, 'imgs/palace/ancient-palace-01.jpeg'),
+('Royal Air Maroc', 'RAM205', 'Casablanca', 'Marrakech',     '2026-06-05 07:30:00', '2026-06-05 08:30:00', 150,  60,  890.00, 'imgs/palace/ancient-palace-03.jpeg'),
+('Air France',      'AF1714', 'Paris',      'Istanbul',      '2026-07-12 14:00:00', '2026-07-12 18:30:00', 160,  95, 1980.00, 'imgs/palace/riad-upper-view-02.jpeg'),
+('Turkish Airlines','TK1826', 'Marrakech',  'Istanbul',      '2026-07-14 09:15:00', '2026-07-14 14:45:00', 140,  22, 2150.00, 'imgs/palace/riad-upper-view-03.jpeg');
 
 -- Excursions (Marwan)
 INSERT INTO excursions (title, location, description, date, start_time, duration_minutes,
-                        capacity, available_places, price, guide)
+                        capacity, available_places, price, guide, image_url)
 VALUES
 ('Marrakech medina tour', 'Marrakech',
- 'Guided tour of the medina and the souks.', '2026-06-06', '09:00:00', 180, 30, 12, 120.00, 'Youssef'),
+ 'Guided tour of the medina and the souks.', '2026-06-06', '09:00:00', 180, 30, 12, 120.00, 'Youssef',
+ 'imgs/sahara/market-berber-rugs.jpeg'),
 ('Bosphorus boat cruise', 'Istanbul',
- 'Sunset cruise with buffet.', '2026-07-15', '18:00:00', 150, 80, 41, 190.00, 'Selim'),
+ 'Sunset cruise with buffet.', '2026-07-15', '18:00:00', 150, 80, 41, 190.00, 'Selim',
+ 'imgs/palace/riad-courtyard-02.jpeg'),
 ('Agafay desert excursion', 'Marrakech',
- 'Dinner and a show under the stars.', '2026-06-07', '16:00:00', 300, 40, 25, 260.00, 'Hassan');
+ 'Dinner and a show under the stars.', '2026-06-07', '16:00:00', 300, 40, 25, 260.00, 'Hassan',
+ 'imgs/sahara/camp-berber-tent.png');
 
 -- Packages (Youssef)
-INSERT INTO packages (name, description, destination, duration_nights, price, start_date, end_date, discount_percentage)
+INSERT INTO packages (name, description, destination, duration_nights, price, start_date, end_date,
+                      discount_percentage, image_url)
 VALUES
 ('Marrakech escape', '3 nights, full board and a visit of the medina.',
- 'Marrakech', 3, 2400.00, '2026-06-01', '2026-09-30', 10.00),
+ 'Marrakech', 3, 2400.00, '2026-06-01', '2026-09-30', 10.00, 'imgs/palace/ancient-palace-01.jpeg'),
 ('Istanbul wonders', '5 nights, 4-star hotel and historical tours.',
- 'Istanbul', 5, 6200.00, '2026-06-15', '2026-10-15', 0.00);
+ 'Istanbul', 5, 6200.00, '2026-06-15', '2026-10-15', 0.00, 'imgs/palace/riad-upper-view-01.jpeg');
 
 -- "includes" associations
 INSERT INTO package_flights (package_id, flight_id, position)

@@ -1,0 +1,30 @@
+:host {
+    display: flex;
+}
+
+.not-found {
+    align-items: center;
+    text-align: center;
+}
+
+.not-found-code {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--weight-bold);
+    color: var(--tertiary);
+}
+
+.not-found-title {
+    font-size: var(--font-size-xl);
+}
+
+.not-found-subtitle {
+    color: var(--text-muted);
+}
+
+.not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+}

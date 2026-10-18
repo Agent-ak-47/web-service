@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS flights (
     available_seats    INT UNSIGNED    NOT NULL DEFAULT 0,
     price              DECIMAL(10,2)   NOT NULL,
     active             TINYINT(1)      NOT NULL DEFAULT 1,
+    image_url          VARCHAR(255)    NULL COMMENT 'cover path returned by the media endpoint',
     created_at         TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at         TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
                                        ON UPDATE CURRENT_TIMESTAMP,

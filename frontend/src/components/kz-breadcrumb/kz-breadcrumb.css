@@ -1,0 +1,31 @@
+:host {
+    display: flex;
+}
+
+.kz-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}
+
+.crumb {
+    color: var(--text-muted);
+    transition: color var(--transition);
+}
+
+a.crumb:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+.is-current {
+    color: var(--text);
+    font-weight: var(--weight-medium);
+}
+
+.separator {
+    color: var(--tertiary);
+}

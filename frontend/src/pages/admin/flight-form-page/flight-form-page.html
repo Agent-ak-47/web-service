@@ -1,0 +1,20 @@
+<section class="kz-page">
+    <header class="kz-page-head">
+        <h1>{{ formTitle }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+</header>
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    @if (isLoading) {
+        <kz-loading [label]="LOADING_LABEL" />
+    }
+    @else {
+        <kz-form-panel [title]="formTitle" [sections]="sections" [validationMessage]="validationMessage"
+            [activeLabel]="activeLabel" [activeKind]="activeKind" [loading]="isSaving" [disabled]="isSaving"
+            (fieldChange)="onFieldChange($event)" (saved)="onSubmit()" (cancelled)="onCancel()"
+            (activeToggled)="onToggleActive()" />
+    }
+</section>

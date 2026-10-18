@@ -1,0 +1,57 @@
+<div class="table-wrapper">
+    @if (loading()) {
+        <kz-loading [label]="LOADING_LABEL" />
+    }
+    @else if (rows().length === 0) {
+        <div class="kz-empty">{{ emptyLabel() }}</div>
+    }
+    @else {
+        <table class="kz-table">
+            <thead>
+                <tr>
+                    @for (column of columns(); track column.key) {
+                        <th [class.is-right]="isNumericColumn(column)">{{ column.label }}</th>
+                    }
+                    @if (hasActions) {
+                        <th class="actions-head"></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of rows(); track row.id) {
+                    <tr>
+                        @for (column of columns(); track column.key) {
+                            <td [class.is-right]="isNumericColumn(column)">
+                                @switch (column.format) {
+                                    @case (CELL_FORMAT.PRICE) {
+                                        {{ cellMoney(row, column) }}
+                                    }
+                                    @case (CELL_FORMAT.DATE) {
+                                        {{ cellDate(row, column) }}
+                                    }
+                                    @case (CELL_FORMAT.STATUS) {
+                                        <kz-status-tag [value]="cellText(row, column)" />
+                                    }
+                                    @default {
+                                        {{ cellText(row, column) }}
+                                    }
+                                }
+                            </td>
+                        }
+                        @if (hasActions) {
+                            <td class="actions-cell">
+                                <div class="actions-row">
+                                    @for (action of actions(); track action) {
+                                        <kz-btn [label]="actionLabel(action)" [kind]="actionKind(action)"
+                                            [icon]="actionIconRef(action)" [hasIcon]="true"
+                                            (clicked)="onAction(action, row.id)" />
+                                    }
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

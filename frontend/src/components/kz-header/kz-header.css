@@ -1,0 +1,107 @@
+:host {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: var(--surface);
+    color: var(--text);
+    border-bottom: var(--border-width) solid var(--border);
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: var(--size-header);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--weight-bold);
+}
+
+.brand-name {
+    font-size: var(--font-size-md);
+}
+
+.menu-toggle {
+    display: none;
+    padding: var(--space-2);
+    background: none;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.nav-link {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    border-radius: var(--radius-pill);
+    transition: background-color var(--transition);
+}
+
+.nav-link:hover {
+    background-color: var(--secondary);
+    color: var(--text);
+}
+
+.nav-link.is-active {
+    background-color: var(--primary);
+    color: var(--on-primary);
+    font-weight: var(--weight-medium);
+}
+
+.avatar-link {
+    display: inline-flex;
+    border-radius: var(--radius-pill);
+    transition: opacity var(--transition), transform var(--transition);
+}
+
+.avatar-link:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
+.header-account {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+}
+
+@media (max-width: 900px) {
+    .menu-toggle {
+        display: inline-flex;
+        margin-left: auto;
+    }
+
+    .main-nav {
+        display: none;
+        position: absolute;
+        top: var(--size-header);
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-1);
+        padding: var(--space-4) var(--space-5);
+        background-color: var(--surface);
+        border-top: var(--border-width) solid var(--border);
+    }
+
+    .main-nav.is-open {
+        display: flex;
+    }
+
+    .header-account {
+        margin-left: 0;
+    }
+}

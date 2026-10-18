@@ -1,0 +1,18 @@
+<section class="kz-page kz-container">
+    <kz-breadcrumb [items]="breadcrumb" />
+
+    @if (errorMessage.length > 0) {
+        <p class="kz-error">{{ errorMessage }}</p>
+    }
+
+    @if (isLoading) {
+        <kz-loading [label]="labels.loading" />
+    }
+    @else if (detail !== null) {
+        <kz-item-detail [data]="detail" [quantityLabel]="QUANTITY_LABEL" [quantity]="quantity" [reserving]="isReserving"
+            (quantityChanged)="onQuantityChanged($event)" (reserved)="onReserve()" />
+    }
+    @else {
+        <div class="kz-empty">{{ EMPTY_LABEL }}</div>
+    }
+</section>

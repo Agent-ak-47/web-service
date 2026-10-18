@@ -1,0 +1,161 @@
+:host {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    --icon-size: var(--size-icon-md);
+    --icon-color: var(--text);
+    --icon-padding: 0;
+}
+
+.has-background {
+    padding: var(--icon-padding);
+    background-color: var(--secondary);
+    border-radius: var(--radius-pill);
+}
+
+.size-xs {
+    --icon-size: var(--size-icon-xs);
+    --icon-padding: var(--space-2);
+}
+
+.size-sm {
+    --icon-size: var(--size-icon-sm);
+    --icon-padding: var(--space-2);
+}
+
+.size-md {
+    --icon-size: var(--size-icon-md);
+    --icon-padding: var(--space-3);
+}
+
+.size-lg {
+    --icon-size: var(--size-icon-lg);
+    --icon-padding: var(--space-3);
+}
+
+.tone-neutral {
+    --icon-color: var(--text);
+}
+
+.tone-soft {
+    --icon-color: var(--text-muted);
+}
+
+.tone-dark {
+    --icon-color: var(--on-primary);
+}
+
+.tone-success {
+    --icon-color: var(--success);
+}
+
+.tone-warning {
+    --icon-color: var(--warning);
+}
+
+.tone-danger {
+    --icon-color: var(--danger);
+}
+
+.kz-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    background-color: var(--icon-color);
+    -webkit-mask-image: var(--icon-src);
+    mask-image: var(--icon-src);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
+.is-plane {
+    --icon-src: url('/assets/icons/plane.svg');
+}
+
+.is-logo {
+    --icon-src: url('/assets/icons/logo.svg');
+}
+
+.is-suitcase {
+    --icon-src: url('/assets/icons/suitcase.svg');
+}
+
+.is-compass {
+    --icon-src: url('/assets/icons/compass.svg');
+}
+
+.is-receipt {
+    --icon-src: url('/assets/icons/receipt.svg');
+}
+
+.is-card {
+    --icon-src: url('/assets/icons/card.svg');
+}
+
+.is-user {
+    --icon-src: url('/assets/icons/user.svg');
+}
+
+.is-logout {
+    --icon-src: url('/assets/icons/logout.svg');
+}
+
+.is-menu {
+    --icon-src: url('/assets/icons/menu.svg');
+}
+
+.is-close {
+    --icon-src: url('/assets/icons/close.svg');
+}
+
+.is-search {
+    --icon-src: url('/assets/icons/search.svg');
+}
+
+.is-plus {
+    --icon-src: url('/assets/icons/plus.svg');
+}
+
+.is-edit {
+    --icon-src: url('/assets/icons/edit.svg');
+}
+
+.is-trash {
+    --icon-src: url('/assets/icons/trash.svg');
+}
+
+.is-image {
+    --icon-src: url('/assets/icons/image.svg');
+}
+
+.is-check {
+    --icon-src: url('/assets/icons/check.svg');
+}
+
+.is-warning {
+    --icon-src: url('/assets/icons/warning.svg');
+}
+
+.is-calendar {
+    --icon-src: url('/assets/icons/calendar.svg');
+}
+
+.is-clock {
+    --icon-src: url('/assets/icons/clock.svg');
+}
+
+.is-pin {
+    --icon-src: url('/assets/icons/pin.svg');
+}
+
+.is-arrow-right {
+    --icon-src: url('/assets/icons/arrow-right.svg');
+}
+
+.is-star {
+    --icon-src: url('/assets/icons/star.svg');
+}

@@ -1,0 +1,15 @@
+<form class="filter-bar" (submit)="onSubmit($event)">
+    <div class="filter-grid">
+        @for (field of fields(); track field.name) {
+            <kz-field [label]="field.label" [name]="field.name" [type]="field.type" [value]="field.value"
+                [placeholder]="field.placeholder" [options]="field.options"
+                (valueChange)="onFieldChange(field.name, $event)" />
+        }
+    </div>
+
+    <div class="filter-actions">
+        <kz-btn [label]="SEARCH_LABEL" [kind]="SEARCH_KIND" [type]="SUBMIT_TYPE" [loading]="loading()"
+            [disabled]="loading()" />
+        <kz-btn [label]="RESET_LABEL" [kind]="RESET_KIND" [disabled]="loading()" (clicked)="onReset()" />
+    </div>
+</form>

@@ -1,0 +1,14 @@
+@if (open()) {
+    <div class="dialog-backdrop" (click)="onBackdrop($event)">
+        <div class="dialog-box" role="dialog" aria-modal="true">
+            <h3 class="dialog-title">{{ title() }}</h3>
+            <p class="dialog-message">{{ message() }}</p>
+            <div class="dialog-actions">
+                <kz-btn [label]="CANCEL_LABEL" [kind]="CANCEL_KIND" [disabled]="loading()"
+                    (clicked)="cancelled.emit()" />
+                <kz-btn [label]="loading() ? CONFIRM_BUSY_LABEL : confirmLabel()" [kind]="CONFIRM_KIND"
+                    [loading]="loading()" (clicked)="confirmed.emit()" />
+            </div>
+        </div>
+    </div>
+}

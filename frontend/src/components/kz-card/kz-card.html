@@ -1,0 +1,36 @@
+<article [class]="hostClasses" [attr.tabindex]="tabIndex" (click)="onOpen()" (keydown.enter)="onOpen()">
+    <header class="card-head">
+        <kz-icon [img]="iconImage" [size]="iconSize" [tone]="ICON_TONE" [withBackground]="true" />
+        <div class="head-text">
+            <h3 class="card-title">{{ data().title }}</h3>
+            <p class="card-subtitle">{{ data().subtitle }}</p>
+        </div>
+        @if (hasBadge) {
+            <span [class]="badgeClasses">{{ data().badge }}</span>
+        }
+    </header>
+
+    @if (hasCover) {
+        <img class="card-cover" [src]="coverUrl" [alt]="data().title" />
+    }
+
+    @if (data().meta.length > 0) {
+        <ul class="card-meta">
+            @for (item of data().meta; track item.label) {
+                <li class="meta-item">
+                    <span class="meta-label">{{ item.label }}</span>
+                    <span class="meta-value">{{ item.value }}</span>
+                </li>
+            }
+        </ul>
+    }
+
+    <footer class="card-foot">
+        <div class="price-box">
+            <span class="price-value">{{ data().price | kzMoney }}</span>
+            <span class="price-unit">{{ data().unitLabel }}</span>
+        </div>
+        <kz-btn [label]="buttonLabel" [disabled]="data().disabled" [loading]="loading()" (click)="stop($event)"
+            (clicked)="onReserve()" />
+    </footer>
+</article>

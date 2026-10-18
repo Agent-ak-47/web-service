@@ -1,0 +1,12 @@
+<section class="hero-box">
+    <div class="hero-content">
+        <h1 class="hero-title">{{ title() }}</h1>
+        <p class="hero-subtitle">{{ subtitle() }}</p>
+    </div>
+
+    <div class="hero-actions">
+        @for (action of actions(); track action.path) {
+            <a class="kz-link-button is-on-dark" [routerLink]="action.path">{{ action.label }}</a>
+        }
+    </div>
+</section>

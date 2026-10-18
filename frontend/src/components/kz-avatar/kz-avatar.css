@@ -1,0 +1,25 @@
+:host {
+    display: inline-flex;
+}
+
+.kz-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-avatar);
+    height: var(--size-avatar);
+    font-size: var(--font-size-sm);
+    font-weight: var(--weight-bold);
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--primary);
+    background-color: var(--secondary);
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-pill);
+}
+
+.kz-avatar.is-gold {
+    color: var(--on-gold);
+    background-color: var(--gold);
+    border-color: var(--on-gold);
+}

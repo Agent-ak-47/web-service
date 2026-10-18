@@ -1,0 +1,32 @@
+<header>
+    <div class="header-inner kz-container">
+        <a class="brand" [routerLink]="homePath" (click)="closeMenu()">
+            <kz-icon [img]="brandIcon" [size]="brandIconSize" [tone]="brandIconTone" />
+            <span class="brand-name">{{ appName }}</span>
+        </a>
+
+        <button class="menu-toggle" type="button" (click)="toggleMenu()">
+            <kz-icon [img]="menuIcon" [tone]="menuIconTone" />
+        </button>
+
+        <nav class="main-nav" [class.is-open]="isMenuOpen">
+            @for (link of navLinks; track link.path) {
+                <a class="nav-link" [routerLink]="link.path" routerLinkActive="is-active"
+                    [routerLinkActiveOptions]="{ exact: link.exact }" (click)="closeMenu()">{{ link.label }}</a>
+            }
+        </nav>
+
+        <div class="header-account">
+            @if (isSignedIn) {
+                <a class="avatar-link" [routerLink]="avatarPath" [attr.aria-label]="avatarLinkLabel"
+                    (click)="closeMenu()">
+                    <kz-avatar [initial]="avatarInitial" [label]="userEmail" [variant]="avatarVariant" />
+                </a>
+            }
+            @else {
+                <kz-btn [label]="SIGN_IN_LABEL" [kind]="GHOST_KIND" (clicked)="goTo(signInPath)" />
+                <kz-btn [label]="SIGN_UP_LABEL" [kind]="SECONDARY_KIND" (clicked)="goTo(signUpPath)" />
+            }
+        </div>
+    </div>
+</header>

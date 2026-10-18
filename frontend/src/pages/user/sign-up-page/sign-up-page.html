@@ -1,0 +1,33 @@
+<section class="kz-page kz-container">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    <div class="kz-panel kz-narrow">
+        <kz-field [label]="EMAIL_LABEL" name="email" [type]="EMAIL_TYPE" [value]="form.email"
+            [error]="emailError" [required]="true" [disabled]="isSending" (valueChange)="onEmailChange($event)" />
+
+        <kz-field [label]="PASSWORD_LABEL" name="password" [type]="PASSWORD_TYPE" [value]="form.password"
+            [error]="passwordError" [required]="true" [disabled]="isSending" (valueChange)="onPasswordChange($event)" />
+
+        <kz-field [label]="CONFIRM_LABEL" name="confirmPassword" [type]="PASSWORD_TYPE" [value]="form.confirmPassword"
+            [error]="confirmPasswordError" [required]="true" [disabled]="isSending"
+            (valueChange)="onConfirmPasswordChange($event)" />
+
+        @if (errorMessage.length > 0) {
+            <p class="kz-error">{{ errorMessage }}</p>
+        }
+
+        <kz-btn [label]="submitLabel" [loading]="isSending" [disabled]="isSending" [fullWidth]="true"
+            (clicked)="onSubmit()" />
+
+        <p class="kz-muted">{{ SECURITY_HINT }}</p>
+        <p class="kz-muted">{{ PROFILE_HINT }}</p>
+
+        <div class="sign-up-links">
+            <span class="kz-muted">{{ SIGN_IN_PROMPT }}</span>
+            <a class="kz-link-button is-outline" [routerLink]="signInPath">{{ SIGN_IN_LABEL }}</a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,38 @@
+:host {
+    display: flex;
+    --size-hero-text: 640px;
+}
+
+.hero-box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    width: 100%;
+    padding: var(--space-8) var(--space-6);
+    color: var(--on-primary);
+    background-color: var(--primary);
+    border-radius: var(--radius-lg);
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: var(--size-hero-text);
+}
+
+.hero-title {
+    font-size: var(--font-size-2xl);
+    color: var(--on-primary);
+}
+
+.hero-subtitle {
+    font-size: var(--font-size-md);
+    color: var(--tertiary);
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}

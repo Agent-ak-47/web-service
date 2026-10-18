@@ -1,0 +1,31 @@
+<div class="kz-upload-img">
+    <span class="kz-upload-label">
+        {{ label() }}
+        @if (required()) {
+            <span class="kz-upload-required">*</span>
+        }
+    </span>
+
+    <div [class]="frameClasses">
+        <input #fileInput class="kz-upload-input" type="file" [attr.accept]="ACCEPTED_TYPES" [disabled]="isFrozen"
+            (change)="onPick($event)" />
+
+        @if (hasImage) {
+            <img class="kz-upload-preview" [src]="previewSrc" [alt]="label()" />
+
+            <kz-btn class="kz-upload-remove" [label]="REMOVE_LABEL" [kind]="DANGER_KIND" [icon]="REMOVE_ICON"
+                [hasIcon]="true" [iconOnly]="true" [disabled]="isFrozen" (clicked)="onRemove()" />
+        }
+        @else {
+            <kz-btn [label]="PICK_LABEL" [kind]="PRIMARY_KIND" [icon]="PICK_ICON" [hasIcon]="true"
+                [disabled]="isFrozen" (clicked)="fileInput.click()" />
+        }
+    </div>
+
+    @if (hasMessage) {
+        <span class="kz-upload-message">{{ message }}</span>
+    }
+    @else if (!hasImage) {
+        <span class="kz-upload-hint">{{ frameHint }}</span>
+    }
+</div>

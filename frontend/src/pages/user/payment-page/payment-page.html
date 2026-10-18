@@ -1,0 +1,75 @@
+<section class="kz-page kz-container">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    @if (hasReservation) {
+        <div class="payment-layout">
+            <section class="kz-panel">
+                <h2>{{ CARD_TITLE }}</h2>
+
+                <kz-field [label]="HOLDER_LABEL" name="cardHolder" [type]="TEXT_TYPE" [value]="form.cardHolder"
+                    [error]="errors.cardHolder" [required]="true" [disabled]="isPaying"
+                    (valueChange)="onHolderChange($event)" />
+
+                <kz-field [label]="NUMBER_LABEL" name="cardNumber" [type]="TEXT_TYPE" [value]="form.cardNumber"
+                    [placeholder]="NUMBER_PLACEHOLDER" [error]="errors.cardNumber" [required]="true"
+                    [disabled]="isPaying" (valueChange)="onNumberChange($event)" />
+
+                <kz-field [label]="EXPIRATION_LABEL" name="expiration" [type]="TEXT_TYPE" [value]="form.expiration"
+                    [placeholder]="EXPIRATION_PLACEHOLDER" [error]="errors.expiration" [required]="true"
+                    [disabled]="isPaying" (valueChange)="onExpirationChange($event)" />
+
+                <kz-field [label]="CVV_LABEL" name="cvv" [type]="PASSWORD_TYPE" [value]="form.cvv"
+                    [placeholder]="CVV_PLACEHOLDER" [error]="errors.cvv" [required]="true" [disabled]="isPaying"
+                    (valueChange)="onCvvChange($event)" />
+
+                <p class="kz-muted">{{ CARD_HINT }}</p>
+
+                @if (errorMessage.length > 0) {
+                    <p class="kz-error">{{ errorMessage }}</p>
+                }
+
+                <kz-btn [label]="payLabel" [loading]="isPaying" [disabled]="isPaying" [fullWidth]="true"
+                    (clicked)="onPay()" />
+            </section>
+
+            <section class="kz-panel">
+                <h2>{{ SUMMARY_TITLE }}</h2>
+
+                <div class="summary-list">
+                    <div class="summary-row">
+                        <span class="summary-label">{{ REFERENCE_LABEL }}</span>
+                        <span class="summary-value">{{ reservation.reference }}</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">{{ ITEM_LABEL }}</span>
+                        <span class="summary-value">{{ reservation.itemLabel }}</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">{{ QUANTITY_LABEL }}</span>
+                        <span class="summary-value">{{ reservation.quantity }}</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span class="summary-label">{{ UNIT_PRICE_LABEL }}</span>
+                        <span class="summary-value">{{ reservation.unitPrice | kzMoney }}</span>
+                    </div>
+
+                    <div class="summary-total">
+                        <span class="summary-label">{{ TOTAL_LABEL }}</span>
+                        <span class="summary-value">{{ reservation.totalAmount | kzMoney }}</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    }
+    @else {
+        <div class="kz-empty">{{ EMPTY_MESSAGE }}</div>
+
+        <kz-btn [label]="BACK_LABEL" (clicked)="goToReservations()" />
+    }
+</section>
