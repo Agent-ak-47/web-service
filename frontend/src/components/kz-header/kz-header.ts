@@ -39,7 +39,6 @@ export class KzHeader {
     readonly SIGN_UP_LABEL = 'Inscription';
     readonly SIGN_OUT_LABEL = 'Deconnexion';
     readonly SIGN_OUT_LOADING_LABEL = 'Deconnexion...';
-    readonly HOME_LABEL = 'Accueil';
     readonly PACKAGES_LABEL = 'Forfaits';
     readonly FLIGHTS_LABEL = 'Vols';
     readonly EXCURSIONS_LABEL = 'Excursions';
@@ -52,12 +51,6 @@ export class KzHeader {
     private readonly router = inject(Router);
 
     readonly navLinks: KzNavLink[] = [
-        {
-            label: this.HOME_LABEL,
-            path: this.globalService.pages.home,
-            icon: KzIconName.LOGO,
-            exact: true,
-        },
         {
             label: this.PACKAGES_LABEL,
             path: this.globalService.pages.packages,
