@@ -78,45 +78,60 @@ export const routes: Routes = [
             },
             {
                 path: 'vols',
-                loadComponent: () => import('../pages/admin/flights-admin-page/flights-admin-page').then((module) => module.FlightsAdminPage),
-            },
-            {
-                path: 'vol-formulaire',
-                canDeactivate: [unsavedChangesGuard],
-                loadComponent: () => import('../pages/admin/flight-form-page/flight-form-page').then((module) => module.FlightFormPage),
-            },
-            {
-                path: 'vol-formulaire/:id',
-                canDeactivate: [unsavedChangesGuard],
-                loadComponent: () => import('../pages/admin/flight-form-page/flight-form-page').then((module) => module.FlightFormPage),
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../pages/admin/flights-admin-page/flights-admin-page').then((module) => module.FlightsAdminPage),
+                    },
+                    {
+                        path: 'form',
+                        canDeactivate: [unsavedChangesGuard],
+                        loadComponent: () => import('../pages/admin/flight-form-page/flight-form-page').then((module) => module.FlightFormPage),
+                    },
+                    {
+                        path: 'form/:id',
+                        canDeactivate: [unsavedChangesGuard],
+                        loadComponent: () => import('../pages/admin/flight-form-page/flight-form-page').then((module) => module.FlightFormPage),
+                    },
+                ],
             },
             {
                 path: 'forfaits',
-                loadComponent: () => import('../pages/admin/packages-admin-page/packages-admin-page').then((module) => module.PackagesAdminPage),
-            },
-            {
-                path: 'forfait-formulaire',
-                canDeactivate: [unsavedChangesGuard],
-                loadComponent: () => import('../pages/admin/package-form-page/package-form-page').then((module) => module.PackageFormPage),
-            },
-            {
-                path: 'forfait-formulaire/:id',
-                canDeactivate: [unsavedChangesGuard],
-                loadComponent: () => import('../pages/admin/package-form-page/package-form-page').then((module) => module.PackageFormPage),
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../pages/admin/packages-admin-page/packages-admin-page').then((module) => module.PackagesAdminPage),
+                    },
+                    {
+                        path: 'form',
+                        canDeactivate: [unsavedChangesGuard],
+                        loadComponent: () => import('../pages/admin/package-form-page/package-form-page').then((module) => module.PackageFormPage),
+                    },
+                    {
+                        path: 'form/:id',
+                        canDeactivate: [unsavedChangesGuard],
+                        loadComponent: () => import('../pages/admin/package-form-page/package-form-page').then((module) => module.PackageFormPage),
+                    },
+                ],
             },
             {
                 path: 'excursions',
-                loadComponent: () => import('../pages/admin/excursions-admin-page/excursions-admin-page').then((module) => module.ExcursionsAdminPage),
-            },
-            {
-                path: 'excursion-formulaire',
-                canDeactivate: [unsavedChangesGuard],
-                loadComponent: () => import('../pages/admin/excursion-form-page/excursion-form-page').then((module) => module.ExcursionFormPage),
-            },
-            {
-                path: 'excursion-formulaire/:id',
-                canDeactivate: [unsavedChangesGuard],
-                loadComponent: () => import('../pages/admin/excursion-form-page/excursion-form-page').then((module) => module.ExcursionFormPage),
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../pages/admin/excursions-admin-page/excursions-admin-page').then((module) => module.ExcursionsAdminPage),
+                    },
+                    {
+                        path: 'form',
+                        canDeactivate: [unsavedChangesGuard],
+                        loadComponent: () => import('../pages/admin/excursion-form-page/excursion-form-page').then((module) => module.ExcursionFormPage),
+                    },
+                    {
+                        path: 'form/:id',
+                        canDeactivate: [unsavedChangesGuard],
+                        loadComponent: () => import('../pages/admin/excursion-form-page/excursion-form-page').then((module) => module.ExcursionFormPage),
+                    },
+                ],
             },
             {
                 path: 'reservations',
