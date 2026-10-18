@@ -148,7 +148,7 @@ export class SignInPage implements KzGuardedForm, OnInit {
             this.authService.clearLastPage();
             this.form = { ...DEFAULT_KZ_CREDENTIALS_FORM };
             this.isDirty = false;
-            this.router.navigateByUrl(rememberedPage.length > 0 ? rememberedPage : this.globalService.pages.home);
+            this.router.navigateByUrl(this.landingPath(rememberedPage));
         }
         catch (error: unknown) {
             console.error(error);
@@ -158,6 +158,15 @@ export class SignInPage implements KzGuardedForm, OnInit {
         finally {
             this.isSending = false;
         }
+    }
+
+
+    private landingPath(rememberedPage: string): string {
+        if (this.authService.isAdmin) {
+            return this.globalService.pages.adminDashboard;
+        }
+
+        return rememberedPage.length > 0 ? rememberedPage : this.globalService.pages.home;
     }
 
 

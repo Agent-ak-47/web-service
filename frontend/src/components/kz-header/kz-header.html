@@ -18,7 +18,7 @@
 
         <div class="header-account">
             @if (isSignedIn) {
-                <a class="avatar-link" [routerLink]="profilePath" [attr.aria-label]="PROFILE_LINK_LABEL"
+                <a class="avatar-link" [routerLink]="avatarPath" [attr.aria-label]="avatarLinkLabel"
                     (click)="closeMenu()">
                     <kz-avatar [initial]="avatarInitial" [label]="userEmail" [variant]="avatarVariant" />
                 </a>

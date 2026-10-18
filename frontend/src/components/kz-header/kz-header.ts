@@ -34,6 +34,7 @@ export class KzHeader {
     readonly FLIGHTS_LABEL = 'Vols';
     readonly EXCURSIONS_LABEL = 'Excursions';
     readonly PROFILE_LINK_LABEL = 'Mon profil';
+    readonly ADMIN_LINK_LABEL = 'Espace administrateur';
     readonly AVATAR_EMPTY_INITIAL = '?';
 
     private readonly globalService = inject(GlobalService);
@@ -121,6 +122,16 @@ get userEmail(): string {
 
     get profilePath(): string {
         return this.globalService.pages.profile;
+    }
+
+
+    get avatarPath(): string {
+        return this.authService.isAdmin ? this.globalService.pages.adminDashboard : this.profilePath;
+    }
+
+
+    get avatarLinkLabel(): string {
+        return this.authService.isAdmin ? this.ADMIN_LINK_LABEL : this.PROFILE_LINK_LABEL;
     }
 
 

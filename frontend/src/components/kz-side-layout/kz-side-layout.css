@@ -7,7 +7,7 @@
     grid-template-columns: var(--size-aside-width) minmax(0, 1fr);
     align-items: start;
     gap: var(--space-5);
-    padding-block: var(--space-6);
+    padding-block: 0 var(--space-6);
 }
 
 .side-aside {
