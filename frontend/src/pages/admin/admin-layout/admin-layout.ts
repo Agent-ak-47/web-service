@@ -7,13 +7,15 @@ import { KzIconImage } from '../../../models/kz_icon_image.interface';
 import { KzIconName } from '../../../models/kz_icon_name.enum';
 import { KzIconSize } from '../../../models/kz_icon_size.enum';
 import { KzTone } from '../../../models/kz_tone.enum';
+import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { GlobalService } from '../../../services/global.service';
+import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
 
 
 @Component({
     selector: 'kz-admin-layout',
     standalone: true,
-    imports: [KzIcon, RouterLink, RouterLinkActive, RouterOutlet],
+    imports: [KzBreadcrumb, KzIcon, RouterLink, RouterLinkActive, RouterOutlet],
     templateUrl: './admin-layout.html',
     styleUrl: './admin-layout.css',
 })
@@ -29,6 +31,7 @@ export class AdminLayout {
     readonly ADMIN_RESERVATIONS_LABEL = 'Reservations';
 
     private readonly globalService = inject(GlobalService);
+    readonly breadcrumbService = inject(BreadcrumbService);
 
     readonly links: KzNavLink[] = [
         {

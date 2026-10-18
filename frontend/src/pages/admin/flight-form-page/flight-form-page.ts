@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { KzBreadcrumbItem } from '../../../models/kz_breadcrumb_item.interface';
@@ -20,8 +20,8 @@ import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
+import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
-import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
 import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -29,11 +29,11 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-flight-form-page',
     standalone: true,
-    imports: [KzBreadcrumb, KzFormPanel, KzLoading],
+    imports: [KzFormPanel, KzLoading],
     templateUrl: './flight-form-page.html',
     styleUrl: './flight-form-page.css',
 })
-export class FlightFormPage implements KzGuardedForm, OnInit {
+export class FlightFormPage implements KzGuardedForm, OnDestroy, OnInit {
     readonly PAGE_SUBTITLE = 'Creez ou modifiez un vol du catalogue.';
     readonly ADMIN_LABEL = 'Vols';
     readonly CREATE_TITLE = 'Nouveau vol';
@@ -82,6 +82,7 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly detailService = inject(ItemDetailService);
+    private readonly breadcrumbService = inject(BreadcrumbService);
 
     form: KzFlightForm = { ...DEFAULT_KZ_FLIGHT_FORM };
     errors: KzFlightFormErrors = { ...DEFAULT_KZ_FLIGHT_FORM_ERRORS };
@@ -246,6 +247,12 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
 
     ngOnInit(): void {
         this.load();
+        this.load();
+    }
+
+
+    ngOnDestroy(): void {
+        this.breadcrumbService.clear();
     }
 
 
@@ -290,29 +297,25 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
     private async load(): Promise<void> {
         const id = Number(this.route.snapshot.paramMap.get('id') ?? '0');
 
-        if (id === 0) {
-            this.isLoading = false;
+        if (id !== 0) {
+            const result = await this.detailService.load<KzFlight>(this.globalService.routes.flight(id));
 
-            return;
+            if (result.signedOut) {
+                this.router.navigateByUrl(this.globalService.pages.signIn);
+
+                return;
+            }
+
+            if (result.item === null) {
+                this.errorMessage = result.error.length > 0 ? result.error : KZ_LABELS.noResult;
+            }
+            else {
+                this.startEdit(result.item);
+            }
         }
 
-        const result = await this.detailService.load<KzFlight>(this.globalService.routes.flight(id));
-
-        if (result.signedOut) {
-            this.router.navigateByUrl(this.globalService.pages.signIn);
-
-            return;
-        }
-
-        if (result.item === null) {
-            this.errorMessage = result.error.length > 0 ? result.error : KZ_LABELS.noResult;
-            this.isLoading = false;
-
-            return;
-        }
-
-        this.startEdit(result.item);
         this.isLoading = false;
+        this.breadcrumbService.set(this.breadcrumb);
     }
 
 

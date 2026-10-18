@@ -1,22 +1,28 @@
-<div class="admin-layout kz-container">
-    <aside class="admin-aside">
-        <div class="aside-head">
-            <h2>{{ MENU_TITLE }}</h2>
-            <p>{{ MENU_HINT }}</p>
+<div class="admin-shell kz-container">
+    @if (breadcrumbService.hasItems) {
+        <kz-breadcrumb [items]="breadcrumbService.items" />
+    }
+
+    <div class="admin-layout">
+        <aside class="admin-aside">
+            <div class="aside-head">
+                <h2>{{ MENU_TITLE }}</h2>
+                <p>{{ MENU_HINT }}</p>
+            </div>
+
+            <nav class="aside-nav">
+                @for (link of links; track link.path) {
+                    <a class="aside-link" [routerLink]="link.path" routerLinkActive="is-active"
+                        [routerLinkActiveOptions]="{ exact: link.exact }">
+                        <kz-icon [img]="iconImage(link)" [size]="ICON_SIZE" [tone]="ICON_TONE" />
+                        <span>{{ link.label }}</span>
+                    </a>
+                }
+            </nav>
+        </aside>
+
+        <div class="admin-content">
+            <router-outlet />
         </div>
-
-        <nav class="aside-nav">
-            @for (link of links; track link.path) {
-                <a class="aside-link" [routerLink]="link.path" routerLinkActive="is-active"
-                    [routerLinkActiveOptions]="{ exact: link.exact }">
-                    <kz-icon [img]="iconImage(link)" [size]="ICON_SIZE" [tone]="ICON_TONE" />
-                    <span>{{ link.label }}</span>
-                </a>
-            }
-        </nav>
-    </aside>
-
-    <div class="admin-content">
-        <router-outlet />
     </div>
 </div>
