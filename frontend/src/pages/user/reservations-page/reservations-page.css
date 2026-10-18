@@ -31,4 +31,5 @@
 .pay-amount {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
+    overflow-wrap: anywhere;
 }

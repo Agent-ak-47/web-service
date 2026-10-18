@@ -97,11 +97,13 @@
 .price-box {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .price-value {
     font-size: var(--font-size-lg);
     font-weight: var(--weight-bold);
+    white-space: nowrap;
 }
 
 .price-unit {

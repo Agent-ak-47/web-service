@@ -32,6 +32,7 @@
 .summary-value {
     font-weight: var(--weight-medium);
     text-align: right;
+    white-space: nowrap;
 }
 
 .summary-total {
