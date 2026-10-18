@@ -1,5 +1,7 @@
 :host {
     display: flex;
+    --size-detail-image: 250px;
+    --size-detail-aside: 300px;
 }
 
 .kz-item-detail {
@@ -44,7 +46,7 @@
 
 .detail-cover {
     width: 100%;
-    height: var(--size-card-image);
+    height: var(--size-detail-image);
     object-fit: cover;
     border-radius: var(--radius-md);
     background-color: var(--secondary);
@@ -52,7 +54,7 @@
 
 .detail-body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: minmax(0, 1fr) var(--size-detail-aside);
     gap: var(--space-6);
     align-items: start;
 }

@@ -1,6 +1,7 @@
 :host {
     display: flex;
     width: 100%;
+    --size-filter-field: 180px;
 }
 
 .filter-bar {
@@ -17,7 +18,7 @@
 
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--size-filter-field), 1fr));
     gap: var(--space-3);
     width: 100%;
 }

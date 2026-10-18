@@ -1,11 +1,12 @@
 :host {
     display: flex;
     flex-direction: column;
+    --size-summary-card: 180px;
 }
 
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--size-summary-card), 1fr));
     gap: var(--space-4);
 }
 

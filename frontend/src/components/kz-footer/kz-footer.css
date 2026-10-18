@@ -3,6 +3,8 @@
     margin-top: auto;
     background-color: var(--secondary);
     color: var(--text);
+    --size-tagline-width: 320px;
+    --tracking-column-title: 0.06em;
 }
 
 .site-footer {
@@ -32,7 +34,7 @@
 .brand-tagline {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
-    max-width: 320px;
+    max-width: var(--size-tagline-width);
 }
 
 .footer-column {
@@ -44,7 +46,7 @@
 .column-title {
     font-size: var(--font-size-sm);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: var(--tracking-column-title);
     color: var(--text-muted);
 }
 

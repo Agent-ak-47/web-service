@@ -61,6 +61,8 @@
     --size-card-image: 160px;
     --size-avatar: 36px;
     --size-aside-width: 230px;
+    --size-card-min: 280px;
+    --size-narrow: 560px;
 
     /* shapes */
     --radius-sm: 6px;
@@ -178,7 +180,7 @@ textarea {
 
 .kz-grid-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--size-card-min), 1fr));
     gap: var(--space-5);
 }
 
@@ -208,7 +210,7 @@ textarea {
 
 .kz-narrow {
     width: 100%;
-    max-width: 560px;
+    max-width: var(--size-narrow);
     margin-inline: auto;
 }
 

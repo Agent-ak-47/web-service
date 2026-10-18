@@ -1,6 +1,7 @@
 :host {
     display: flex;
     flex-direction: column;
+    --size-form-field: 200px;
 }
 
 .toolbar {
@@ -9,6 +10,6 @@
 
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--size-form-field), 1fr));
     gap: var(--space-4);
 }

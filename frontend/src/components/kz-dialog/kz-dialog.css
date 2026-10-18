@@ -1,5 +1,6 @@
 :host {
     display: contents;
+    --size-dialog-width: 420px;
 }
 
 .dialog-backdrop {
@@ -18,7 +19,7 @@
     flex-direction: column;
     gap: var(--space-4);
     width: 100%;
-    max-width: 420px;
+    max-width: var(--size-dialog-width);
     padding: var(--space-6);
     background-color: var(--surface);
     border-radius: var(--radius-lg);

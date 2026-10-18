@@ -1,5 +1,6 @@
 :host {
     display: flex;
+    --lift-hover: -2px;
 }
 
 .kz-card {
@@ -18,7 +19,7 @@
 
 .kz-card:hover {
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(var(--lift-hover));
 }
 
 .kz-card {

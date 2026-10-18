@@ -1,10 +1,11 @@
 :host {
     display: flex;
     flex-direction: column;
+    --size-stat-card: 200px;
 }
 
 .stat-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(var(--size-stat-card), 1fr));
     gap: var(--space-4);
 }
