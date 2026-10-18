@@ -165,7 +165,6 @@ textarea {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
-    padding-block: var(--space-7);
 }
 
 .kz-page-head {
