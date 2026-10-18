@@ -13,8 +13,8 @@
     line-height: 1;
     text-transform: uppercase;
     color: var(--primary);
-    background-color: var(--on-primary);
-    border: var(--border-width) solid transparent;
+    background-color: var(--secondary);
+    border: var(--border-width) solid var(--border);
     border-radius: var(--radius-pill);
 }
 

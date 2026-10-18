@@ -29,11 +29,11 @@
                 }
 
                 <kz-btn [label]="signOutLabel" [kind]="GHOST_KIND" [icon]="LOGOUT_ICON" [hasIcon]="true"
-                    [onDark]="true" [loading]="isSigningOut" (clicked)="signOut()" />
+                    [loading]="isSigningOut" (clicked)="signOut()" />
             }
             @else {
-                <kz-btn [label]="SIGN_IN_LABEL" [kind]="GHOST_KIND" [onDark]="true" (clicked)="goTo(signInPath)" />
-                <kz-btn [label]="SIGN_UP_LABEL" [kind]="SECONDARY_KIND" [onDark]="true" (clicked)="goTo(signUpPath)" />
+                <kz-btn [label]="SIGN_IN_LABEL" [kind]="GHOST_KIND" (clicked)="goTo(signInPath)" />
+                <kz-btn [label]="SIGN_UP_LABEL" [kind]="SECONDARY_KIND" (clicked)="goTo(signUpPath)" />
             }
         </div>
     </div>

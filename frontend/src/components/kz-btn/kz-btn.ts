@@ -30,7 +30,6 @@ export class KzBtn {
     readonly loading = input<boolean>(false);
     readonly disabled = input<boolean>(false);
     readonly fullWidth = input<boolean>(false);
-    readonly onDark = input<boolean>(false);
     readonly clicked = output<void>();
 
     private readonly globalService = inject(GlobalService);
@@ -43,9 +42,8 @@ export class KzBtn {
 
     get buttonClasses(): string {
         const width = this.fullWidth() ? ' is-full' : '';
-        const dark = this.onDark() ? ' is-on-dark' : '';
 
-        return `kz-button kind-${this.kind()}${width}${dark}`;
+        return `kz-button kind-${this.kind()}${width}`;
     }
 
 
@@ -64,7 +62,7 @@ export class KzBtn {
     get iconTone(): KzTone {
         const inverseKinds: readonly KzBtnKind[] = [KzBtnKind.PRIMARY, KzBtnKind.DANGER];
 
-        return inverseKinds.includes(this.kind()) || this.onDark() ? KzTone.DARK : KzTone.NEUTRAL;
+        return inverseKinds.includes(this.kind()) ? KzTone.DARK : KzTone.NEUTRAL;
     }
 
 

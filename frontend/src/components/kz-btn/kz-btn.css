@@ -55,17 +55,6 @@
     background-color: var(--secondary);
 }
 
-.kz-button.is-on-dark.kind-ghost {
-    color: var(--on-primary);
-    border-color: var(--on-primary);
-    background-color: transparent;
-}
-
-.kz-button.is-on-dark.kind-ghost:hover:not(:disabled) {
-    background-color: var(--tertiary);
-    opacity: 0.9;
-}
-
 .kind-danger {
     color: var(--on-danger);
     background-color: var(--danger);
