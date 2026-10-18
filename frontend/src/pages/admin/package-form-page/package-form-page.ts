@@ -1,7 +1,6 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { KzBreadcrumbItem } from '../../../models/kz_breadcrumb_item.interface';
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFormColumns } from '../../../models/kz_form_columns.enum';
@@ -20,7 +19,6 @@ import {
 import { parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
-import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
 import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
@@ -33,9 +31,8 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
     templateUrl: './package-form-page.html',
     styleUrl: './package-form-page.css',
 })
-export class PackageFormPage implements KzGuardedForm, OnDestroy, OnInit {
+export class PackageFormPage implements KzGuardedForm, OnInit {
     readonly PAGE_SUBTITLE = 'Creez ou modifiez un forfait du catalogue.';
-    readonly ADMIN_LABEL = 'Forfaits';
     readonly CREATE_TITLE = 'Nouveau forfait';
     readonly EDIT_TITLE = 'Modifier le forfait';
     readonly VALIDATION_LABEL = 'Corrigez les champs en erreur avant d enregistrer.';
@@ -80,7 +77,6 @@ export class PackageFormPage implements KzGuardedForm, OnDestroy, OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly detailService = inject(ItemDetailService);
-    private readonly breadcrumbService = inject(BreadcrumbService);
 
     form: KzPackageForm = { ...DEFAULT_KZ_PACKAGE_FORM };
     errors: KzPackageFormErrors = { ...DEFAULT_KZ_PACKAGE_FORM_ERRORS };
@@ -118,14 +114,6 @@ export class PackageFormPage implements KzGuardedForm, OnDestroy, OnInit {
 
     get validationMessage(): string {
         return this.hasFormErrors ? this.VALIDATION_LABEL : '';
-    }
-
-
-    get breadcrumb(): KzBreadcrumbItem[] {
-        return [
-            { label: this.ADMIN_LABEL, path: this.globalService.pages.adminPackages },
-            { label: this.formTitle, path: '' },
-        ];
     }
 
 
@@ -237,12 +225,6 @@ export class PackageFormPage implements KzGuardedForm, OnDestroy, OnInit {
 
     ngOnInit(): void {
         this.load();
-        this.load();
-    }
-
-
-    ngOnDestroy(): void {
-        this.breadcrumbService.clear();
     }
 
 
@@ -305,7 +287,6 @@ export class PackageFormPage implements KzGuardedForm, OnDestroy, OnInit {
         }
 
         this.isLoading = false;
-        this.breadcrumbService.set(this.breadcrumb);
     }
 
 

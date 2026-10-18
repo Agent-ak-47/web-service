@@ -1,7 +1,6 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { KzBreadcrumbItem } from '../../../models/kz_breadcrumb_item.interface';
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzExcursion } from '../../../models/kz_excursion.interface';
 import {
@@ -20,7 +19,6 @@ import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
-import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
 import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
@@ -33,9 +31,8 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
     templateUrl: './excursion-form-page.html',
     styleUrl: './excursion-form-page.css',
 })
-export class ExcursionFormPage implements KzGuardedForm, OnDestroy, OnInit {
+export class ExcursionFormPage implements KzGuardedForm, OnInit {
     readonly PAGE_SUBTITLE = 'Creez ou modifiez une excursion du catalogue.';
-    readonly ADMIN_LABEL = 'Excursions';
     readonly CREATE_TITLE = 'Nouvelle excursion';
     readonly EDIT_TITLE = 'Modifier l excursion';
     readonly VALIDATION_LABEL = 'Corrigez les champs en erreur avant d enregistrer.';
@@ -84,7 +81,6 @@ export class ExcursionFormPage implements KzGuardedForm, OnDestroy, OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly detailService = inject(ItemDetailService);
-    private readonly breadcrumbService = inject(BreadcrumbService);
 
     form: KzExcursionForm = { ...DEFAULT_KZ_EXCURSION_FORM };
     errors: KzExcursionFormErrors = { ...DEFAULT_KZ_EXCURSION_FORM_ERRORS };
@@ -122,14 +118,6 @@ export class ExcursionFormPage implements KzGuardedForm, OnDestroy, OnInit {
 
     get validationMessage(): string {
         return this.hasFormErrors ? this.VALIDATION_LABEL : '';
-    }
-
-
-    get breadcrumb(): KzBreadcrumbItem[] {
-        return [
-            { label: this.ADMIN_LABEL, path: this.globalService.pages.adminExcursions },
-            { label: this.formTitle, path: '' },
-        ];
     }
 
 
@@ -256,12 +244,6 @@ export class ExcursionFormPage implements KzGuardedForm, OnDestroy, OnInit {
 
     ngOnInit(): void {
         this.load();
-        this.load();
-    }
-
-
-    ngOnDestroy(): void {
-        this.breadcrumbService.clear();
     }
 
 
@@ -324,7 +306,6 @@ export class ExcursionFormPage implements KzGuardedForm, OnDestroy, OnInit {
         }
 
         this.isLoading = false;
-        this.breadcrumbService.set(this.breadcrumb);
     }
 
 

@@ -1,7 +1,6 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { KzBreadcrumbItem } from '../../../models/kz_breadcrumb_item.interface';
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFlight } from '../../../models/kz_flight.interface';
@@ -20,7 +19,6 @@ import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
-import { BreadcrumbService } from '../../../services/breadcrumb.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
 import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
@@ -33,9 +31,8 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
     templateUrl: './flight-form-page.html',
     styleUrl: './flight-form-page.css',
 })
-export class FlightFormPage implements KzGuardedForm, OnDestroy, OnInit {
+export class FlightFormPage implements KzGuardedForm, OnInit {
     readonly PAGE_SUBTITLE = 'Creez ou modifiez un vol du catalogue.';
-    readonly ADMIN_LABEL = 'Vols';
     readonly CREATE_TITLE = 'Nouveau vol';
     readonly EDIT_TITLE = 'Modifier le vol';
     readonly VALIDATION_LABEL = 'Corrigez les champs en erreur avant d enregistrer.';
@@ -82,7 +79,6 @@ export class FlightFormPage implements KzGuardedForm, OnDestroy, OnInit {
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly detailService = inject(ItemDetailService);
-    private readonly breadcrumbService = inject(BreadcrumbService);
 
     form: KzFlightForm = { ...DEFAULT_KZ_FLIGHT_FORM };
     errors: KzFlightFormErrors = { ...DEFAULT_KZ_FLIGHT_FORM_ERRORS };
@@ -120,14 +116,6 @@ export class FlightFormPage implements KzGuardedForm, OnDestroy, OnInit {
 
     get validationMessage(): string {
         return this.hasFormErrors ? this.VALIDATION_LABEL : '';
-    }
-
-
-    get breadcrumb(): KzBreadcrumbItem[] {
-        return [
-            { label: this.ADMIN_LABEL, path: this.globalService.pages.adminFlights },
-            { label: this.formTitle, path: '' },
-        ];
     }
 
 
@@ -247,12 +235,6 @@ export class FlightFormPage implements KzGuardedForm, OnDestroy, OnInit {
 
     ngOnInit(): void {
         this.load();
-        this.load();
-    }
-
-
-    ngOnDestroy(): void {
-        this.breadcrumbService.clear();
     }
 
 
@@ -315,7 +297,6 @@ export class FlightFormPage implements KzGuardedForm, OnDestroy, OnInit {
         }
 
         this.isLoading = false;
-        this.breadcrumbService.set(this.breadcrumb);
     }
 
 
