@@ -1,25 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { KzNavLink } from '../../../components/kz-header/kz-header_nav_link.interface';
-import { KzIcon } from '../../../components/kz-icon/kz-icon';
-import { KzIconImage } from '../../../models/kz_icon_image.interface';
+import { KzNavLink } from '../../../models/kz_nav_link.interface';
 import { KzIconName } from '../../../models/kz_icon_name.enum';
-import { KzIconSize } from '../../../models/kz_icon_size.enum';
-import { KzTone } from '../../../models/kz_tone.enum';
 import { GlobalService } from '../../../services/global.service';
+import { KzSideLayout } from '../../../components/kz-side-layout/kz-side-layout';
 
 
 @Component({
     selector: 'kz-admin-layout',
     standalone: true,
-    imports: [KzIcon, RouterLink, RouterLinkActive, RouterOutlet],
+    imports: [KzSideLayout],
     templateUrl: './admin-layout.html',
     styleUrl: './admin-layout.css',
 })
 export class AdminLayout {
-    readonly ICON_SIZE = KzIconSize.SM;
-    readonly ICON_TONE = KzTone.NEUTRAL;
     readonly MENU_TITLE = 'Administration';
     readonly MENU_HINT = 'Gestion des catalogues et des reservations.';
     readonly DASHBOARD_LABEL = 'Tableau de bord';
@@ -27,6 +21,7 @@ export class AdminLayout {
     readonly ADMIN_PACKAGES_LABEL = 'Forfaits';
     readonly ADMIN_EXCURSIONS_LABEL = 'Excursions';
     readonly ADMIN_RESERVATIONS_LABEL = 'Reservations';
+    readonly LOGOUT_LABEL = 'Deconnexion';
 
     private readonly globalService = inject(GlobalService);
 
@@ -62,9 +57,4 @@ export class AdminLayout {
             exact: true,
         },
     ];
-
-
-    iconImage(link: KzNavLink): KzIconImage {
-        return this.globalService.iconImage(link.icon, '');
-    }
 }

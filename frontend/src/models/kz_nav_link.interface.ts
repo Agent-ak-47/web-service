@@ -1,4 +1,4 @@
-import { KzIconName } from '../../models/kz_icon_name.enum';
+import { KzIconName } from './kz_icon_name.enum';
 
 
 export interface KzNavLink {

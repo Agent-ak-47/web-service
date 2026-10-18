@@ -5,11 +5,8 @@
     </header>
 
     <div class="kz-panel kz-narrow">
-        <kz-field [label]="NAME_LABEL" name="name" [type]="TEXT_TYPE" [value]="form.name" [required]="true"
-            [disabled]="isSending" (valueChange)="onNameChange($event)" />
-
-        <kz-field [label]="EMAIL_LABEL" name="email" [type]="EMAIL_TYPE" [value]="form.email" [required]="true"
-            [disabled]="isSending" (valueChange)="onEmailChange($event)" />
+        <kz-field [label]="EMAIL_LABEL" name="email" [type]="EMAIL_TYPE" [value]="form.email"
+            [error]="emailError" [required]="true" [disabled]="isSending" (valueChange)="onEmailChange($event)" />
 
         <kz-field [label]="PASSWORD_LABEL" name="password" [type]="PASSWORD_TYPE" [value]="form.password"
             [error]="passwordError" [required]="true" [disabled]="isSending" (valueChange)="onPasswordChange($event)" />
@@ -17,12 +14,6 @@
         <kz-field [label]="CONFIRM_LABEL" name="confirmPassword" [type]="PASSWORD_TYPE" [value]="form.confirmPassword"
             [error]="confirmPasswordError" [required]="true" [disabled]="isSending"
             (valueChange)="onConfirmPasswordChange($event)" />
-
-        <kz-field [label]="PHONE_LABEL" name="phone" [type]="TEXT_TYPE" [value]="form.phone"
-            [disabled]="isSending" (valueChange)="onPhoneChange($event)" />
-
-        <kz-field [label]="ADDRESS_LABEL" name="address" [type]="TEXTAREA_TYPE" [value]="form.address" [rows]="ADDRESS_ROWS"
-            [disabled]="isSending" (valueChange)="onAddressChange($event)" />
 
         @if (errorMessage.length > 0) {
             <p class="kz-error">{{ errorMessage }}</p>
@@ -32,6 +23,7 @@
             (clicked)="onSubmit()" />
 
         <p class="kz-muted">{{ SECURITY_HINT }}</p>
+        <p class="kz-muted">{{ PROFILE_HINT }}</p>
 
         <div class="sign-up-links">
             <span class="kz-muted">{{ SIGN_IN_PROMPT }}</span>

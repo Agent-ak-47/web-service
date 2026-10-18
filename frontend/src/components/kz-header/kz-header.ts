@@ -5,16 +5,14 @@ import { KzBtnKind } from '../../models/kz_btn_kind.enum';
 import { KzAvatarVariant } from '../../models/kz_avatar_variant.enum';
 import { KzIconImage } from '../../models/kz_icon_image.interface';
 import { KzIconName } from '../../models/kz_icon_name.enum';
-import { KzIconRef } from '../../models/kz_icon_ref.interface';
 import { KzIconSize } from '../../models/kz_icon_size.enum';
 import { KzTone } from '../../models/kz_tone.enum';
-import { parseResponse } from '../../models/kz_response';
 import { AuthService } from '../../services/auth.service';
 import { GlobalService } from '../../services/global.service';
 import { KzAvatar } from '../kz-avatar/kz-avatar';
 import { KzBtn } from '../kz-btn/kz-btn';
 import { KzIcon } from '../kz-icon/kz-icon';
-import { KzNavLink } from './kz-header_nav_link.interface';
+import { KzNavLink } from '../../models/kz_nav_link.interface';
 
 
 @Component({
@@ -30,20 +28,12 @@ export class KzHeader {
     readonly MENU_ICON_TONE = KzTone.DARK;
     readonly GHOST_KIND = KzBtnKind.GHOST;
     readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
-    readonly LOGOUT_ICON: KzIconRef = {
-        name: KzIconName.LOGOUT,
-        size: KzIconSize.SM,
-        tone: KzTone.DARK,
-    };
     readonly SIGN_IN_LABEL = 'Connexion';
     readonly SIGN_UP_LABEL = 'Inscription';
-    readonly SIGN_OUT_LABEL = 'Deconnexion';
-    readonly SIGN_OUT_LOADING_LABEL = 'Deconnexion...';
     readonly PACKAGES_LABEL = 'Forfaits';
     readonly FLIGHTS_LABEL = 'Vols';
     readonly EXCURSIONS_LABEL = 'Excursions';
-    readonly RESERVATIONS_LABEL = 'Mes reservations';
-    readonly ADMIN_LINK_LABEL = 'Espace administrateur';
+    readonly PROFILE_LINK_LABEL = 'Mon profil';
     readonly AVATAR_EMPTY_INITIAL = '?';
 
     private readonly globalService = inject(GlobalService);
@@ -69,16 +59,9 @@ export class KzHeader {
             icon: KzIconName.COMPASS,
             exact: false,
         },
-        {
-            label: this.RESERVATIONS_LABEL,
-            path: this.globalService.pages.reservations,
-            icon: KzIconName.RECEIPT,
-            exact: false,
-        },
     ];
 
     isMenuOpen = false;
-    isSigningOut = false;
 
 
     get appName(): string {
@@ -131,18 +114,13 @@ export class KzHeader {
     }
 
 
-    get userEmail(): string {
+get userEmail(): string {
         return this.authService.user.email;
     }
 
 
-    get isAdmin(): boolean {
-        return this.authService.isAdmin;
-    }
-
-
-    get adminPath(): string {
-        return this.globalService.pages.adminDashboard;
+    get profilePath(): string {
+        return this.globalService.pages.profile;
     }
 
 
@@ -158,11 +136,6 @@ export class KzHeader {
     }
 
 
-    get signOutLabel(): string {
-        return this.isSigningOut ? this.SIGN_OUT_LOADING_LABEL : this.SIGN_OUT_LABEL;
-    }
-
-
     toggleMenu(): void {
         this.isMenuOpen = !this.isMenuOpen;
     }
@@ -173,37 +146,8 @@ export class KzHeader {
     }
 
 
-    goTo(page: string): void {
+goTo(page: string): void {
         this.closeMenu();
         this.router.navigateByUrl(page);
-    }
-
-
-    async signOut(): Promise<void> {
-        if (this.isSigningOut) {
-            return;
-        }
-
-        this.isSigningOut = true;
-
-        try {
-            const response = await fetch(this.globalService.routes.logout, {
-                method: 'POST',
-                credentials: 'include',
-                headers: this.authService.authHeaders,
-            });
-            const raw: unknown = await response.json();
-            console.log(raw);
-            console.log(parseResponse<null>(raw, response.status));
-        }
-        catch (error: unknown) {
-            console.error(error);
-        }
-        finally {
-            this.isSigningOut = false;
-            this.authService.clearSession();
-            this.closeMenu();
-            this.router.navigateByUrl(this.globalService.pages.signIn);
-        }
     }
 }

@@ -37,9 +37,19 @@ export const routes: Routes = [
         loadComponent: () => import('../pages/user/excursion-detail-page/excursion-detail-page').then((module) => module.ExcursionDetailPage),
     },
     {
-        path: 'mes-reservations',
+        path: 'profil',
         canActivate: [authGuard],
-        loadComponent: () => import('../pages/user/reservations-page/reservations-page').then((module) => module.ReservationsPage),
+        loadComponent: () => import('../pages/user/user-layout/user-layout').then((module) => module.UserLayout),
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('../pages/user/profile-page/profile-page').then((module) => module.ProfilePage),
+            },
+            {
+                path: 'reservations',
+                loadComponent: () => import('../pages/user/reservations-page/reservations-page').then((module) => module.ReservationsPage),
+            },
+        ],
     },
     {
         path: 'paiement',

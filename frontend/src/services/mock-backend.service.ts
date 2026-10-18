@@ -186,7 +186,7 @@ export class MockBackendService {
         const action = parts[3] ?? '';
 
         if (resource === 'auth') {
-            return this.routeAuth(parts[2] ?? '', method, body);
+            return this.routeAuth(parts[2] ?? '', method, body, token);
         }
 
         if (resource === 'reservations') {
@@ -222,7 +222,11 @@ export class MockBackendService {
     }
 
 
-    private routeAuth(action: string, method: string, body: KzMockBody): Response {
+    private routeAuth(action: string, method: string, body: KzMockBody, token: KzMockToken | null): Response {
+        if (action === 'me') {
+            return this.profile(method, body, token);
+        }
+
         if (method !== 'POST') {
             return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Methode non supportee.');
         }
@@ -240,6 +244,30 @@ export class MockBackendService {
         }
 
         return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Route inconnue.');
+    }
+
+
+    private profile(method: string, body: KzMockBody, token: KzMockToken | null): Response {
+        if (token === null) {
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.');
+        }
+
+        const account = this.users.find((user) => user.id === token.id);
+
+        if (account === undefined) {
+            return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Utilisateur introuvable.');
+        }
+
+        if (method === 'GET') {
+            return this.ok({ ...account });
+        }
+
+        account.name = String(body['name'] ?? account.name);
+        account.phone = String(body['phone'] ?? account.phone);
+        account.address = String(body['address'] ?? account.address);
+        this.saveUsers();
+
+        return this.ok(this.buildSession(account));
     }
 
 
@@ -270,11 +298,11 @@ export class MockBackendService {
 
         const account: KzMockUserAccount = {
             id: this.nextUserId(),
-            name: String(body['name'] ?? ''),
+            name: '',
             email,
             role: KzUserRole.CLIENT,
-            phone: String(body['phone'] ?? ''),
-            address: String(body['address'] ?? ''),
+            phone: '',
+            address: '',
             password,
         };
 

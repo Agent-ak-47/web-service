@@ -1,0 +1,29 @@
+<div class="side-layout kz-container">
+    <aside class="side-aside">
+        <div class="aside-head">
+            <h2>{{ title() }}</h2>
+            <p>{{ hint() }}</p>
+        </div>
+
+        <nav class="aside-nav">
+            @for (link of links(); track link.path) {
+                <a class="aside-link" [routerLink]="link.path" routerLinkActive="is-active"
+                    [routerLinkActiveOptions]="{ exact: link.exact }">
+                    <kz-icon [img]="iconImage(link)" [size]="ICON_SIZE" [tone]="ICON_TONE" />
+                    <span>{{ link.label }}</span>
+                </a>
+            }
+        </nav>
+
+        @if (hasLogout) {
+            <div class="aside-foot">
+                <kz-btn [label]="logoutLabel()" [kind]="LOGOUT_KIND" [icon]="LOGOUT_ICON" [hasIcon]="true"
+                    [fullWidth]="true" [loading]="isSigningOut" [disabled]="isSigningOut" (clicked)="onLogout()" />
+            </div>
+        }
+    </aside>
+
+    <div class="side-content">
+        <router-outlet />
+    </div>
+</div>
