@@ -1,11 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzDashboardStat } from '../../../models/kz_dashboard_stat.interface';
 import { KzIconName } from '../../../models/kz_icon_name.enum';
-import { KzIconRef } from '../../../models/kz_icon_ref.interface';
-import { KzIconSize } from '../../../models/kz_icon_size.enum';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzReservation } from '../../../models/kz_reservation.interface';
 import { KzReservationStatus } from '../../../models/kz_reservation_status.enum';
@@ -15,17 +12,15 @@ import { KzTone } from '../../../models/kz_tone.enum';
 import { KzMoneyPipe } from '../../../pipes/kz-money.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
-import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import { Stat } from './components/stat/stat';
-import { KzDashboardLink } from './models/kz_dashboard_link.interface';
 
 
 @Component({
     selector: 'kz-dashboard-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzLoading, Stat],
+    imports: [KzDataTable, KzLoading, Stat],
     templateUrl: './dashboard-page.html',
     styleUrl: './dashboard-page.css',
 })
@@ -42,10 +37,6 @@ export class DashboardPage implements OnInit {
     readonly PAID_HINT = 'Paiements confirmes';
     readonly CANCELLED_HINT = 'Reservations annulees';
     readonly REVENUE_HINT = 'Total des reservations payees';
-    readonly FLIGHTS_LINK_LABEL = 'Gerer les vols';
-    readonly PACKAGES_LINK_LABEL = 'Gerer les forfaits';
-    readonly EXCURSIONS_LINK_LABEL = 'Gerer les excursions';
-    readonly RESERVATIONS_LINK_LABEL = 'Gerer les reservations';
     readonly REFERENCE_LABEL = 'Reference';
     readonly ARTICLE_LABEL = 'Article';
     readonly TOTAL_COLUMN_LABEL = KZ_LABELS.total;
@@ -53,9 +44,6 @@ export class DashboardPage implements OnInit {
     readonly DATE_LABEL = 'Date';
     readonly EMPTY_LABEL = KZ_LABELS.emptyReservations;
     readonly LOADING_LABEL = KZ_LABELS.loading;
-    readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
-    readonly LINK_ICON_SIZE = KzIconSize.MD;
-    readonly LINK_ICON_TONE = KzTone.NEUTRAL;
 
     readonly REFERENCE_KEY = 'reference';
     readonly ARTICLE_KEY = 'article';
@@ -67,29 +55,6 @@ export class DashboardPage implements OnInit {
     private readonly authService = inject(AuthService);
     private readonly moneyPipe = inject(KzMoneyPipe);
     private readonly router = inject(Router);
-
-    readonly links: KzDashboardLink[] = [
-        {
-            label: this.FLIGHTS_LINK_LABEL,
-            path: this.globalService.pages.adminFlights,
-            icon: this.linkIcon(KzIconName.PLANE),
-        },
-        {
-            label: this.PACKAGES_LINK_LABEL,
-            path: this.globalService.pages.adminPackages,
-            icon: this.linkIcon(KzIconName.SUITCASE),
-        },
-        {
-            label: this.EXCURSIONS_LINK_LABEL,
-            path: this.globalService.pages.adminExcursions,
-            icon: this.linkIcon(KzIconName.COMPASS),
-        },
-        {
-            label: this.RESERVATIONS_LINK_LABEL,
-            path: this.globalService.pages.adminReservations,
-            icon: this.linkIcon(KzIconName.RECEIPT),
-        },
-    ];
 
     reservations: KzReservation[] = [];
     stats: KzDashboardStat[] = [];
@@ -134,11 +99,6 @@ export class DashboardPage implements OnInit {
     }
 
 
-    goTo(path: string): void {
-        this.router.navigateByUrl(path);
-    }
-
-
     async loadReservations(): Promise<void> {
         this.isLoading = true;
         this.errorMessage = '';
@@ -176,15 +136,6 @@ export class DashboardPage implements OnInit {
         finally {
             this.isLoading = false;
         }
-    }
-
-
-    private linkIcon(name: KzIconName): KzIconRef {
-        return {
-            name,
-            size: this.LINK_ICON_SIZE,
-            tone: this.LINK_ICON_TONE,
-        };
     }
 
 

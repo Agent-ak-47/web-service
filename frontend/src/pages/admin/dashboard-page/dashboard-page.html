@@ -1,4 +1,4 @@
-﻿<section class="kz-page">
+<section class="kz-page">
     <header class="kz-page-head">
         <h1>{{ PAGE_TITLE }}</h1>
         <p>{{ PAGE_SUBTITLE }}</p>
@@ -24,12 +24,5 @@
 
             <kz-data-table [columns]="columns" [rows]="recentRows" [emptyLabel]="EMPTY_LABEL" />
         </section>
-
-        <div class="kz-row">
-            @for (link of links; track link.path) {
-                <kz-btn [label]="link.label" [kind]="SECONDARY_KIND" [icon]="link.icon" [hasIcon]="true"
-                    (clicked)="goTo(link.path)" />
-            }
-        </div>
     }
 </section>

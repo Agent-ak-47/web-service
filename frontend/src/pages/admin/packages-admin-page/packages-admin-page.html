@@ -1,10 +1,10 @@
-﻿<section class="kz-page">
+<section class="kz-page">
     <header class="kz-page-head">
         <h1>{{ PAGE_TITLE }}</h1>
         <p>{{ PAGE_SUBTITLE }}</p>
     </header>
 
-    <div class="kz-row toolbar">
+    <div class="toolbar">
         <kz-btn [label]="toggleFormLabel" [kind]="PRIMARY_KIND" [disabled]="isSaving" (clicked)="onToggleForm()" />
 
         <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
@@ -57,7 +57,7 @@
                 <p class="kz-error">{{ VALIDATION_LABEL }}</p>
             }
 
-            <div class="kz-row">
+            <div class="form-actions">
                 <kz-btn [label]="SAVE_LABEL" [kind]="PRIMARY_KIND" [loading]="isSaving" [disabled]="isSaving"
                     (clicked)="onSubmit()" />
 
