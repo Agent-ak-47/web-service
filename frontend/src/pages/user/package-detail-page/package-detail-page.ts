@@ -28,19 +28,19 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
     styleUrl: './package-detail-page.css',
 })
 export class PackageDetailPage implements OnInit {
-    readonly HOME_LABEL = 'Accueil';
-    readonly SECTION_LABEL = 'Forfaits';
-    readonly RESERVE_LABEL = 'Reserver';
-    readonly SOLD_OUT_LABEL = 'Complet';
-    readonly QUANTITY_LABEL = 'Participants';
-    readonly PRICE_UNIT = 'par personne';
+    readonly HOME_LABEL = 'Home';
+    readonly SECTION_LABEL = 'Packages';
+    readonly RESERVE_LABEL = 'Book';
+    readonly SOLD_OUT_LABEL = 'Booked';
+    readonly QUANTITY_LABEL = 'Guests';
+    readonly PRICE_UNIT = 'per person';
     readonly DESTINATION_LABEL = 'Destination';
     readonly DATES_LABEL = 'Dates';
-    readonly NIGHTS_LABEL = 'Nuits';
-    readonly DISCOUNT_LABEL = 'Remise';
-    readonly OLD_PRICE_LABEL = 'Prix normal';
-    readonly FLIGHTS_TITLE = 'Vols inclus';
-    readonly EXCURSIONS_TITLE = 'Excursions incluses';
+    readonly NIGHTS_LABEL = 'Nights';
+    readonly DISCOUNT_LABEL = 'Discount';
+    readonly OLD_PRICE_LABEL = 'Regular price';
+    readonly FLIGHTS_TITLE = 'Flights included';
+    readonly EXCURSIONS_TITLE = 'Included excursions';
     readonly EMPTY_LABEL = KZ_LABELS.noResult;
     readonly PACKAGE_CAPACITY = 10;
 

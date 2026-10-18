@@ -35,18 +35,18 @@ import {
 })
 export class ExcursionsPage implements KzGuardedForm, OnInit {
     readonly PAGE_TITLE = 'Excursions';
-    readonly PAGE_SUBTITLE = 'Decouvrez la destination avec un guide local.';
-    readonly LOCATION_LABEL = 'Lieu';
+    readonly PAGE_SUBTITLE = 'Discover the destination with a local guide.';
+    readonly LOCATION_LABEL = 'Location';
     readonly DATE_LABEL = 'Date';
-    readonly MAX_PRICE_LABEL = 'Prix maximum';
-    readonly QUANTITY_LABEL = 'Participants';
+    readonly MAX_PRICE_LABEL = 'Max price';
+    readonly QUANTITY_LABEL = 'Guests';
     readonly LOCATION_PLACEHOLDER = 'Marrakech';
-    readonly RESERVE_LABEL = 'Reserver';
-    readonly SOLD_OUT_LABEL = 'Complet';
-    readonly PRICE_UNIT = 'par personne';
-    readonly DURATION_LABEL = 'Duree';
+    readonly RESERVE_LABEL = 'Book';
+    readonly SOLD_OUT_LABEL = 'Booked';
+    readonly PRICE_UNIT = 'per person';
+    readonly DURATION_LABEL = 'Duration';
     readonly GUIDE_LABEL = 'Guide';
-    readonly SEATS_LABEL = 'Places';
+    readonly SEATS_LABEL = 'Seats';
     readonly MINUTES_IN_HOUR = 60;
     readonly EMPTY_LABEL = KZ_LABELS.noResult;
 

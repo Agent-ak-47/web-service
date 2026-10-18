@@ -30,22 +30,22 @@ import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
     styleUrl: './packages-admin-page.css',
 })
 export class PackagesAdminPage implements OnInit {
-    readonly PAGE_TITLE = 'Forfaits';
-    readonly PAGE_SUBTITLE = 'Creez, modifiez et supprimez les forfaits du catalogue.';
-    readonly SEARCH_LABEL = 'Recherche';
-    readonly SEARCH_PLACEHOLDER = 'Nom, destination';
+    readonly PAGE_TITLE = 'Packages';
+    readonly PAGE_SUBTITLE = 'Create, edit and delete the catalog packages.';
+    readonly SEARCH_LABEL = 'Search';
+    readonly SEARCH_PLACEHOLDER = 'Name, destination';
     readonly SEARCH_KEY = 'search';
-    readonly NEW_LABEL = 'Nouveau forfait';
-    readonly ACTIVE_LABEL = 'Actif';
-    readonly NAME_LABEL = 'Nom';
+    readonly NEW_LABEL = 'New package';
+    readonly ACTIVE_LABEL = 'Active';
+    readonly NAME_LABEL = 'Name';
     readonly DESTINATION_LABEL = 'Destination';
     readonly DATES_COLUMN_LABEL = 'Dates';
-    readonly DURATION_LABEL = 'Nuits';
-    readonly PRICE_LABEL = 'Prix';
-    readonly DISCOUNT_LABEL = 'Remise';
+    readonly DURATION_LABEL = 'Nights';
+    readonly PRICE_LABEL = 'Price';
+    readonly DISCOUNT_LABEL = 'Discount';
     readonly EMPTY_LABEL = KZ_LABELS.emptyList;
-    readonly DIALOG_TITLE = 'Suppression';
-    readonly REMOVE_QUESTION = 'Confirmer la suppression de ce forfait ?';
+    readonly DIALOG_TITLE = 'Delete';
+    readonly REMOVE_QUESTION = 'Delete this package?';
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
 
     readonly NAME_KEY = 'name';

@@ -7,6 +7,6 @@ export interface KzApiError {
 
 export const DEFAULT_KZ_API_ERROR: KzApiError = {
     code: 'INTERNAL_ERROR',
-    message: 'Une erreur inattendue est survenue.',
+    message: 'An unexpected error occurred.',
     details: {},
 };

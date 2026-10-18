@@ -32,6 +32,6 @@ export class KzDatePipe implements PipeTransform {
             return this.EMPTY_VALUE;
         }
 
-        return new Intl.DateTimeFormat('fr-FR', withTime ? this.DATETIME_OPTIONS : this.DATE_OPTIONS).format(date);
+        return new Intl.DateTimeFormat('en-US', withTime ? this.DATETIME_OPTIONS : this.DATE_OPTIONS).format(date);
     }
 }

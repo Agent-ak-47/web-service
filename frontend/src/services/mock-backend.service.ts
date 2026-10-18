@@ -218,7 +218,7 @@ export class MockBackendService {
                 method, body, id, action, token);
         }
 
-        return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Ressource inconnue.');
+        return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Unknown resource.');
     }
 
 
@@ -228,7 +228,7 @@ export class MockBackendService {
         }
 
         if (method !== 'POST') {
-            return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Methode non supportee.');
+            return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Method not supported.');
         }
 
         if (action === 'login') {
@@ -240,22 +240,22 @@ export class MockBackendService {
         }
 
         if (action === 'logout') {
-            return this.ok({ message: 'Session fermee.' });
+            return this.ok({ message: 'Session closed.' });
         }
 
-        return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Route inconnue.');
+        return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Unknown route.');
     }
 
 
     private profile(method: string, body: KzMockBody, token: KzMockToken | null): Response {
         if (token === null) {
-            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.');
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentication required.');
         }
 
         const account = this.users.find((user) => user.id === token.id);
 
         if (account === undefined) {
-            return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Utilisateur introuvable.');
+            return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'User not found.');
         }
 
         if (method === 'GET') {
@@ -275,7 +275,7 @@ export class MockBackendService {
         const account = this.users.find((user) => user.email === email);
 
         if (account === undefined || account.password !== password) {
-            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Email ou mot de passe incorrect.');
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Wrong email or password.');
         }
 
         return this.ok(this.buildSession(account));
@@ -288,12 +288,12 @@ export class MockBackendService {
         const exists = this.users.some((user) => user.email === email);
 
         if (exists) {
-            return this.fail(this.CONFLICT, 'DUPLICATE', 'Cet email est deja utilise.');
+            return this.fail(this.CONFLICT, 'DUPLICATE', 'This email is already used.');
         }
 
         if (password.length < this.MIN_PASSWORD_LENGTH) {
             return this.fail(this.BAD_REQUEST, 'BUSINESS_RULE_VIOLATION',
-                `Le mot de passe doit contenir au moins ${this.MIN_PASSWORD_LENGTH} caracteres.`);
+                `The password must contain at least ${this.MIN_PASSWORD_LENGTH} characters.`);
         }
 
         const account: KzMockUserAccount = {
@@ -321,7 +321,7 @@ export class MockBackendService {
         token: KzMockToken | null,
     ): Response {
         if (token === null) {
-            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.');
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentication required.');
         }
 
         if (method === 'GET' && action.length === 0) {
@@ -335,7 +335,7 @@ export class MockBackendService {
         const reservation = this.dataset.reservations.find((item) => item.id === id);
 
         if (reservation === undefined) {
-            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Reservation introuvable.');
+            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Booking not found.');
         }
 
         if (method === 'POST' && action === 'cancellation') {
@@ -356,7 +356,7 @@ export class MockBackendService {
             return this.ok({ reservationId: reservation.id, status: reservation.status });
         }
 
-        return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Route inconnue.');
+        return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Unknown route.');
     }
 
 
@@ -376,14 +376,14 @@ export class MockBackendService {
         const item = this.findItem(typeItem, itemId);
 
         if (item === null) {
-            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.');
+            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Item not found.');
         }
 
         const available = this.remainingOf(typeItem, itemId);
 
         if (quantity <= 0 || available < quantity) {
             return this.fail(this.CONFLICT, 'INSUFFICIENT_AVAILABILITY',
-                `Il ne reste que ${available} place(s) pour cet article.`,
+                `Only ${available} seat(s) left for this item.`,
                 { itemId, requested: quantity, available });
         }
 
@@ -419,7 +419,7 @@ export class MockBackendService {
         ];
 
         if (locked.includes(reservation.status) || reservation.status === KzReservationStatus.CANCELLED) {
-            return this.fail(this.CONFLICT, 'INVALID_STATUS', 'Cette reservation ne peut plus etre annulee.');
+            return this.fail(this.CONFLICT, 'INVALID_STATUS', 'This booking can no longer be cancelled.');
         }
 
         reservation.status = KzReservationStatus.CANCELLED;
@@ -435,11 +435,11 @@ export class MockBackendService {
 
         if (reservation.status === KzReservationStatus.CANCELLED
             || reservation.status === KzReservationStatus.REFUNDED) {
-            return this.fail(this.CONFLICT, 'INVALID_STATUS', 'Reservation annulee.');
+            return this.fail(this.CONFLICT, 'INVALID_STATUS', 'Booking cancelled.');
         }
 
         if (cardNumber.endsWith(this.DECLINED_CARD_SUFFIX)) {
-            return this.fail(this.PAYMENT_DECLINED, 'PAYMENT_DECLINED', 'Paiement refuse par la banque.');
+            return this.fail(this.PAYMENT_DECLINED, 'PAYMENT_DECLINED', 'Payment declined by the bank.');
         }
 
         reservation.status = KzReservationStatus.PAID;
@@ -471,14 +471,14 @@ export class MockBackendService {
         }
 
         if (method !== 'POST') {
-            return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Methode non supportee.');
+            return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Method not supported.');
         }
 
         const payment = this.payments.find((item) => item.id === id);
         const reservation = this.dataset.reservations.find((item) => item.id === id);
 
         if (payment === undefined && reservation === undefined) {
-            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Paiement introuvable.');
+            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Payment not found.');
         }
 
         if (payment !== undefined) {
@@ -525,7 +525,7 @@ export class MockBackendService {
 
         if (method === 'POST') {
             if (index < 0) {
-                return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.');
+                return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Item not found.');
             }
 
             const updated = { ...items[index], ...body, id } as T;
@@ -542,7 +542,7 @@ export class MockBackendService {
             return this.ok({ deleted: true, id });
         }
 
-        return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Methode non supportee.');
+        return this.fail(this.BAD_REQUEST, 'INVALID_FORMAT', 'Method not supported.');
     }
 
 
@@ -558,7 +558,7 @@ export class MockBackendService {
         }
 
         if (index < 0) {
-            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Article introuvable.');
+            return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Item not found.');
         }
 
         return this.ok(items[index]);
@@ -788,12 +788,12 @@ export class MockBackendService {
 
     private requireAdmin(token: KzMockToken | null): Response | null {
         if (token === null) {
-            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentification requise.');
+            return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentication required.');
         }
 
         return token.role === KzUserRole.ADMIN
             ? null
-            : this.fail(this.FORBIDDEN, 'FORBIDDEN', 'Acces reserve a l administrateur.');
+            : this.fail(this.FORBIDDEN, 'FORBIDDEN', 'Admin access only.');
     }
 
 

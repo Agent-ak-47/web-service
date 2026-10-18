@@ -34,24 +34,24 @@ import {
     styleUrl: './flights-page.css',
 })
 export class FlightsPage implements KzGuardedForm, OnInit {
-    readonly PAGE_TITLE = 'Vols';
-    readonly PAGE_SUBTITLE = 'Choisissez votre vol et reservez votre place en quelques clics.';
-    readonly DEPARTURE_LABEL = 'Ville de depart';
-    readonly ARRIVAL_LABEL = 'Ville d arrivee';
-    readonly DATE_LABEL = 'Date de depart';
-    readonly MAX_PRICE_LABEL = 'Prix maximum';
-    readonly QUANTITY_LABEL = 'Places';
+    readonly PAGE_TITLE = 'Flights';
+    readonly PAGE_SUBTITLE = 'Pick your flight and book your seat in a few clicks.';
+    readonly DEPARTURE_LABEL = 'Departure city';
+    readonly ARRIVAL_LABEL = 'Arrival city';
+    readonly DATE_LABEL = 'Departure date';
+    readonly MAX_PRICE_LABEL = 'Max price';
+    readonly QUANTITY_LABEL = 'Seats';
     readonly DEPARTURE_PLACEHOLDER = 'Casablanca';
     readonly ARRIVAL_PLACEHOLDER = 'Paris';
-    readonly RESERVE_LABEL = 'Reserver';
-    readonly SOLD_OUT_LABEL = 'Complet';
-    readonly INACTIVE_LABEL = 'Indisponible';
-    readonly PRICE_UNIT = 'par passager';
-    readonly DEPART_LABEL = 'Depart';
-    readonly ARRIVAL_TIME_LABEL = 'Arrivee';
-    readonly COMPANY_LABEL = 'Compagnie';
-    readonly NUMBER_LABEL = 'Numero';
-    readonly SEATS_LABEL = 'Sieges';
+    readonly RESERVE_LABEL = 'Book';
+    readonly SOLD_OUT_LABEL = 'Booked';
+    readonly INACTIVE_LABEL = 'Unavailable';
+    readonly PRICE_UNIT = 'per passenger';
+    readonly DEPART_LABEL = 'Departure';
+    readonly ARRIVAL_TIME_LABEL = 'Arrival';
+    readonly COMPANY_LABEL = 'Airline';
+    readonly NUMBER_LABEL = 'Number';
+    readonly SEATS_LABEL = 'Seats';
     readonly EMPTY_LABEL = KZ_LABELS.noResult;
 
     private readonly globalService = inject(GlobalService);

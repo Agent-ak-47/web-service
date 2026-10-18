@@ -13,7 +13,7 @@ import { KzBreadcrumbItem } from '../../models/kz_breadcrumb_item.interface';
 })
 export class KzBreadcrumb {
     readonly SEPARATOR = '/';
-    readonly NAV_LABEL = "Fil d Ariane";
+    readonly NAV_LABEL = "Breadcrumb";
     readonly CURRENT_CLASS = 'crumb is-current';
     readonly LINK_CLASS = 'crumb';
 

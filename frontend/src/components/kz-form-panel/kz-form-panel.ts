@@ -20,7 +20,7 @@ import { KzUploadImg } from '../kz-upload-img/kz-upload-img';
     styleUrl: './kz-form-panel.css',
 })
 export class KzFormPanel {
-    readonly SAVE_LABEL = 'Enregistrer';
+    readonly SAVE_LABEL = 'Save';
     readonly CANCEL_LABEL = KZ_LABELS.cancel;
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
     readonly SECONDARY_KIND = KzBtnKind.SECONDARY;

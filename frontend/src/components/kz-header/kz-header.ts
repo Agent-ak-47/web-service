@@ -28,13 +28,13 @@ export class KzHeader {
     readonly MENU_ICON_TONE = KzTone.DARK;
     readonly GHOST_KIND = KzBtnKind.GHOST;
     readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
-    readonly SIGN_IN_LABEL = 'Connexion';
-    readonly SIGN_UP_LABEL = 'Inscription';
-    readonly PACKAGES_LABEL = 'Forfaits';
-    readonly FLIGHTS_LABEL = 'Vols';
+    readonly SIGN_IN_LABEL = 'Sign in';
+    readonly SIGN_UP_LABEL = 'Sign up';
+    readonly PACKAGES_LABEL = 'Packages';
+    readonly FLIGHTS_LABEL = 'Flights';
     readonly EXCURSIONS_LABEL = 'Excursions';
-    readonly PROFILE_LINK_LABEL = 'Mon profil';
-    readonly ADMIN_LINK_LABEL = 'Espace administrateur';
+    readonly PROFILE_LINK_LABEL = 'My profile';
+    readonly ADMIN_LINK_LABEL = 'Admin area';
     readonly AVATAR_EMPTY_INITIAL = '?';
 
     private readonly globalService = inject(GlobalService);

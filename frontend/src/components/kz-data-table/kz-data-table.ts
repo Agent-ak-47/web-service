@@ -37,8 +37,8 @@ export class KzDataTable {
     readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
     readonly LOADING_LABEL = KZ_LABELS.loading;
     readonly EMPTY_LABEL = KZ_LABELS.emptyList;
-    readonly YES_LABEL = 'Oui';
-    readonly NO_LABEL = 'Non';
+    readonly YES_LABEL = 'Yes';
+    readonly NO_LABEL = 'No';
 
     readonly columns = input.required<KzTableColumn[]>();
     readonly rows = input<KzTableRow[]>([]);

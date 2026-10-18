@@ -15,13 +15,13 @@ import { KzSideLayout } from '../../../components/kz-side-layout/kz-side-layout'
 })
 export class AdminLayout {
     readonly MENU_TITLE = 'Administration';
-    readonly MENU_HINT = 'Gestion des catalogues et des reservations.';
-    readonly DASHBOARD_LABEL = 'Tableau de bord';
-    readonly ADMIN_FLIGHTS_LABEL = 'Vols';
-    readonly ADMIN_PACKAGES_LABEL = 'Forfaits';
+    readonly MENU_HINT = 'Catalog and booking management.';
+    readonly DASHBOARD_LABEL = 'Dashboard';
+    readonly ADMIN_FLIGHTS_LABEL = 'Flights';
+    readonly ADMIN_PACKAGES_LABEL = 'Packages';
     readonly ADMIN_EXCURSIONS_LABEL = 'Excursions';
-    readonly ADMIN_RESERVATIONS_LABEL = 'Reservations';
-    readonly LOGOUT_LABEL = 'Deconnexion';
+    readonly ADMIN_RESERVATIONS_LABEL = 'Bookings';
+    readonly LOGOUT_LABEL = 'Log out';
 
     private readonly globalService = inject(GlobalService);
 

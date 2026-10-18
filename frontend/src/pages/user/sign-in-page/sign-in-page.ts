@@ -21,18 +21,18 @@ import { DEFAULT_KZ_CREDENTIALS_FORM, KzCredentialsForm } from './models/kz_cred
     styleUrl: './sign-in-page.css',
 })
 export class SignInPage implements KzGuardedForm, OnInit {
-    readonly PAGE_TITLE = 'Connexion';
-    readonly PAGE_SUBTITLE = 'Accedez a vos reservations et a vos paiements.';
+    readonly PAGE_TITLE = 'Sign in';
+    readonly PAGE_SUBTITLE = 'Sign in to see your bookings and your payments.';
     readonly EMAIL_LABEL = 'Email';
-    readonly PASSWORD_LABEL = 'Mot de passe';
-    readonly SUBMIT_LABEL = 'Se connecter';
+    readonly PASSWORD_LABEL = 'Password';
+    readonly SUBMIT_LABEL = 'Sign in';
     readonly SUBMIT_LOADING_LABEL = KZ_LABELS.sending;
-    readonly SECURITY_HINT = 'Vos identifiants sont envoyes a l API et ne sont pas conserves dans le navigateur.';
+    readonly SECURITY_HINT = 'Your credentials are sent to the API and are not stored in the browser.';
     readonly UNAVAILABLE_CODE = 'SERVICE_UNAVAILABLE';
     readonly UNAVAILABLE_STATUS = 502;
-    readonly UNAVAILABLE_HINT = "L API n est pas joignable. Verifiez que le backend est demarre puis reessayez.";
-    readonly SIGN_UP_PROMPT = 'Pas encore de compte ?';
-    readonly SIGN_UP_LABEL = 'Creer un compte';
+    readonly UNAVAILABLE_HINT = "The API is unreachable. Check that the backend is running then retry.";
+    readonly SIGN_UP_PROMPT = 'No account yet?';
+    readonly SIGN_UP_LABEL = 'Create an account';
     readonly EMAIL_TYPE = KzFieldType.EMAIL;
     readonly PASSWORD_TYPE = KzFieldType.PASSWORD;
     readonly DEMO_EMAIL = 'client@agency.travel';

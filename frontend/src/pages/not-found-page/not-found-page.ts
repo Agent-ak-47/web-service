@@ -15,8 +15,8 @@ import { KzBtn } from '../../components/kz-btn/kz-btn';
 })
 export class NotFoundPage {
     readonly CODE = '404';
-    readonly TITLE = 'Page introuvable';
-    readonly SUBTITLE = 'La page demandee n existe pas ou a ete deplacee.';
+    readonly TITLE = 'Page not found';
+    readonly SUBTITLE = 'The requested page does not exist or has been moved.';
     readonly BACK_LABEL = KZ_LABELS.back;
 
     private readonly globalService = inject(GlobalService);

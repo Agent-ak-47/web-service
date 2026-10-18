@@ -26,19 +26,19 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
     styleUrl: './excursion-detail-page.css',
 })
 export class ExcursionDetailPage implements OnInit {
-    readonly HOME_LABEL = 'Accueil';
+    readonly HOME_LABEL = 'Home';
     readonly SECTION_LABEL = 'Excursions';
-    readonly RESERVE_LABEL = 'Reserver';
-    readonly SOLD_OUT_LABEL = 'Complet';
-    readonly QUANTITY_LABEL = 'Participants';
-    readonly PRICE_UNIT = 'par personne';
-    readonly LOCATION_LABEL = 'Lieu';
+    readonly RESERVE_LABEL = 'Book';
+    readonly SOLD_OUT_LABEL = 'Booked';
+    readonly QUANTITY_LABEL = 'Guests';
+    readonly PRICE_UNIT = 'per person';
+    readonly LOCATION_LABEL = 'Location';
     readonly DATE_LABEL = 'Date';
-    readonly TIME_LABEL = 'Heure';
-    readonly DURATION_LABEL = 'Duree';
+    readonly TIME_LABEL = 'Time';
+    readonly DURATION_LABEL = 'Duration';
     readonly GUIDE_LABEL = 'Guide';
-    readonly CAPACITY_LABEL = 'Capacite';
-    readonly AVAILABLE_SEATS_LABEL = 'Places disponibles';
+    readonly CAPACITY_LABEL = 'Capacity';
+    readonly AVAILABLE_SEATS_LABEL = 'Available seats';
     readonly EMPTY_LABEL = KZ_LABELS.noResult;
     readonly MINUTES_IN_HOUR = 60;
 

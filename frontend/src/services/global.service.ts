@@ -7,8 +7,8 @@ import { KzIconName } from '../models/kz_icon_name.enum';
 @Injectable({ providedIn: 'root' })
 export class GlobalService {
 
-    readonly APP_NAME = 'Atlas Voyages';
-    readonly TAGLINE = 'Forfaits, vols et excursions reserves en quelques minutes.';
+    readonly APP_NAME = 'Atlas Trips';
+    readonly TAGLINE = 'Packages, flights and excursions booked in a few minutes.';
     readonly ICON_FOLDER = 'assets/icons/';
     readonly IMGS_FOLDER = 'imgs/';
     readonly DATA_URL_PREFIX = 'data:';
@@ -19,29 +19,29 @@ export class GlobalService {
     readonly PACKAGE_SERVICE_URL = 'http://localhost:8082';
     readonly EXCURSION_SERVICE_URL = 'http://localhost:8084';
     readonly currency = 'MAD';
-    readonly supportEmail = 'contact@atlas-voyages.travel';
+    readonly supportEmail = 'contact@atlas-trips.travel';
     readonly supportPhone = '+212 5 22 00 00 00';
 
     readonly pages = {
         home: '/',
-        packages: '/forfaits',
-        packageDetail: (id: number): string => `/forfaits/${id}`,
-        flights: '/vols',
-        flightDetail: (id: number): string => `/vols/${id}`,
+        packages: '/packages',
+        packageDetail: (id: number): string => `/packages/${id}`,
+        flights: '/flights',
+        flightDetail: (id: number): string => `/flights/${id}`,
         excursions: '/excursions',
         excursionDetail: (id: number): string => `/excursions/${id}`,
-        reservations: '/profil/reservations',
-        payment: '/paiement',
-        signIn: '/connexion',
-        signUp: '/inscription',
-        profile: '/profil',
+        reservations: '/profile/reservations',
+        payment: '/payment',
+        signIn: '/sign-in',
+        signUp: '/sign-up',
+        profile: '/profile',
         adminDashboard: '/admin',
-        adminFlights: '/admin/vols',
-        adminFlightForm: '/admin/vols/form',
-        adminFlightFormEdit: (id: number): string => `/admin/vols/form/${id}`,
-        adminPackages: '/admin/forfaits',
-        adminPackageForm: '/admin/forfaits/form',
-        adminPackageFormEdit: (id: number): string => `/admin/forfaits/form/${id}`,
+        adminFlights: '/admin/flights',
+        adminFlightForm: '/admin/flights/form',
+        adminFlightFormEdit: (id: number): string => `/admin/flights/form/${id}`,
+        adminPackages: '/admin/packages',
+        adminPackageForm: '/admin/packages/form',
+        adminPackageFormEdit: (id: number): string => `/admin/packages/form/${id}`,
         adminExcursions: '/admin/excursions',
         adminExcursionForm: '/admin/excursions/form',
         adminExcursionFormEdit: (id: number): string => `/admin/excursions/form/${id}`,

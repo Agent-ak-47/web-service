@@ -29,27 +29,27 @@ import { KzHomeSection } from './models/kz_home_section.interface';
 })
 export class HomePage implements OnInit {
     readonly HIGHLIGHT_LIMIT = 3;
-    readonly SEE_ALL_LABEL = 'Voir tout';
-    readonly PACKAGES_TITLE = 'Forfaits';
-    readonly PACKAGES_SUBTITLE = 'Sejours complets vols et excursions inclus.';
-    readonly FLIGHTS_TITLE = 'Vols';
-    readonly FLIGHTS_SUBTITLE = 'Les prochains departs au meilleur prix.';
+    readonly SEE_ALL_LABEL = 'See all';
+    readonly PACKAGES_TITLE = 'Packages';
+    readonly PACKAGES_SUBTITLE = 'Full stays with flights and excursions included.';
+    readonly FLIGHTS_TITLE = 'Flights';
+    readonly FLIGHTS_SUBTITLE = 'The next departures at the best price.';
     readonly EXCURSIONS_TITLE = 'Excursions';
-    readonly EXCURSIONS_SUBTITLE = 'Decouvrez la destination avec un guide local.';
-    readonly NIGHTS_LABEL = 'Nuits';
+    readonly EXCURSIONS_SUBTITLE = 'Discover the destination with a local guide.';
+    readonly NIGHTS_LABEL = 'Nights';
     readonly DESTINATION_LABEL = 'Destination';
     readonly DATES_LABEL = 'Dates';
     readonly GUIDE_LABEL = 'Guide';
-    readonly LOCATION_LABEL = 'Lieu';
+    readonly LOCATION_LABEL = 'Location';
     readonly DATE_LABEL = 'Date';
-    readonly DURATION_LABEL = 'Duree';
-    readonly PACKAGE_UNIT = 'par personne';
-    readonly EXCURSION_UNIT = 'par personne';
-    readonly FLIGHT_UNIT = 'par passager';
-    readonly DEPARTURE_META = 'Depart';
-    readonly ARRIVAL_META = 'Arrivee';
-    readonly DISCOVER_LABEL = 'Decouvrir';
-    readonly SOLD_OUT_LABEL = 'Complet';
+    readonly DURATION_LABEL = 'Duration';
+    readonly PACKAGE_UNIT = 'per person';
+    readonly EXCURSION_UNIT = 'per person';
+    readonly FLIGHT_UNIT = 'per passenger';
+    readonly DEPARTURE_META = 'Departure';
+    readonly ARRIVAL_META = 'Arrival';
+    readonly DISCOVER_LABEL = 'Discover';
+    readonly SOLD_OUT_LABEL = 'Booked';
     readonly MINUTES_IN_HOUR = 60;
 
     private readonly globalService = inject(GlobalService);
@@ -58,9 +58,9 @@ export class HomePage implements OnInit {
     private readonly router = inject(Router);
 
     readonly heroActions: KzHeroAction[] = [
-        { label: 'Voir les forfaits', path: this.globalService.pages.packages, icon: KzIconName.SUITCASE },
-        { label: 'Voir les vols', path: this.globalService.pages.flights, icon: KzIconName.PLANE },
-        { label: 'Voir les excursions', path: this.globalService.pages.excursions, icon: KzIconName.COMPASS },
+        { label: 'See the packages', path: this.globalService.pages.packages, icon: KzIconName.SUITCASE },
+        { label: 'See the flights', path: this.globalService.pages.flights, icon: KzIconName.PLANE },
+        { label: 'See the excursions', path: this.globalService.pages.excursions, icon: KzIconName.COMPASS },
     ];
 
     sections: KzHomeSection[] = [];

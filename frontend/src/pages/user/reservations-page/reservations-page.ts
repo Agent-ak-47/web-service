@@ -35,23 +35,23 @@ import {
     styleUrl: './reservations-page.css',
 })
 export class ReservationsPage implements OnInit {
-    readonly PAGE_TITLE = 'Mes reservations';
-    readonly PAGE_SUBTITLE = 'Suivez vos reservations et reglez les paiements en attente.';
+    readonly PAGE_TITLE = 'My bookings';
+    readonly PAGE_SUBTITLE = 'Track your bookings and settle the pending payments.';
     readonly REFERENCE_LABEL = 'Reference';
-    readonly ITEM_LABEL = 'Article';
-    readonly DATE_LABEL = 'Date de reservation';
+    readonly ITEM_LABEL = 'Item';
+    readonly DATE_LABEL = 'Booking date';
     readonly QUANTITY_LABEL = KZ_LABELS.quantity;
     readonly TOTAL_LABEL = KZ_LABELS.total;
     readonly STATUS_LABEL = KZ_LABELS.status;
     readonly EMPTY_LABEL = KZ_LABELS.emptyReservations;
-    readonly PAYABLE_TITLE = 'Reservations a payer';
-    readonly PAY_LABEL = 'Payer';
+    readonly PAYABLE_TITLE = 'Bookings to pay';
+    readonly PAY_LABEL = 'Pay';
     readonly PAY_KIND = KzBtnKind.PRIMARY;
-    readonly REMOVE_LABEL = 'Annuler';
+    readonly REMOVE_LABEL = 'Cancel';
     readonly REMOVE_KIND = KzBtnKind.SECONDARY;
     readonly DIALOG_TITLE = KZ_LABELS.cancel;
-    readonly CANCEL_QUESTION = 'Confirmer l annulation de cette reservation ?';
-    readonly DEFAULT_CANCEL_REASON = 'Annulation demandee par le client';
+    readonly CANCEL_QUESTION = 'Cancel this booking?';
+    readonly DEFAULT_CANCEL_REASON = 'Cancelled by the customer';
 
     readonly REFERENCE_KEY = 'reference';
     readonly ITEM_KEY = 'item';

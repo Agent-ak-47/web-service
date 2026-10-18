@@ -14,11 +14,11 @@ import { KzSideLayout } from '../../../components/kz-side-layout/kz-side-layout'
     styleUrl: './user-layout.css',
 })
 export class UserLayout {
-    readonly MENU_TITLE = 'Mon compte';
-    readonly MENU_HINT = 'Vos informations et vos reservations.';
-    readonly PROFILE_LABEL = 'Informations personnelles';
-    readonly RESERVATIONS_LABEL = 'Mes reservations';
-    readonly LOGOUT_LABEL = 'Deconnexion';
+    readonly MENU_TITLE = 'My account';
+    readonly MENU_HINT = 'Your details and your bookings.';
+    readonly PROFILE_LABEL = 'Personal information';
+    readonly RESERVATIONS_LABEL = 'My bookings';
+    readonly LOGOUT_LABEL = 'Log out';
 
     private readonly globalService = inject(GlobalService);
 

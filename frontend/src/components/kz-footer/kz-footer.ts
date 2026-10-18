@@ -13,23 +13,23 @@ import { KzFooterLink } from './kz-footer_link.interface';
     styleUrl: './kz-footer.css',
 })
 export class KzFooter {
-    readonly PRODUCT_TITLE = 'Produits';
-    readonly COMPANY_TITLE = 'Agence';
+    readonly PRODUCT_TITLE = 'Products';
+    readonly COMPANY_TITLE = 'Agency';
     readonly CONTACT_TITLE = 'Contact';
-    readonly RIGHTS_LABEL = 'Tous droits reserves.';
+    readonly RIGHTS_LABEL = 'All rights reserved.';
 
     private readonly globalService = inject(GlobalService);
 
     readonly productLinks: KzFooterLink[] = [
-        { label: 'Forfaits', path: this.globalService.pages.packages },
-        { label: 'Vols', path: this.globalService.pages.flights },
+        { label: 'Packages', path: this.globalService.pages.packages },
+        { label: 'Flights', path: this.globalService.pages.flights },
         { label: 'Excursions', path: this.globalService.pages.excursions },
     ];
 
     readonly companyLinks: KzFooterLink[] = [
-        { label: 'Mes reservations', path: this.globalService.pages.reservations },
-        { label: 'Connexion', path: this.globalService.pages.signIn },
-        { label: 'Inscription', path: this.globalService.pages.signUp },
+        { label: 'My bookings', path: this.globalService.pages.reservations },
+        { label: 'Sign in', path: this.globalService.pages.signIn },
+        { label: 'Sign up', path: this.globalService.pages.signUp },
     ];
 
 

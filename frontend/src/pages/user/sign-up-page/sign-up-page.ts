@@ -21,21 +21,21 @@ import { DEFAULT_KZ_REGISTER_FORM, KzRegisterForm } from './models/kz_register_f
     styleUrl: './sign-up-page.css',
 })
 export class SignUpPage implements KzGuardedForm, OnInit {
-    readonly PAGE_TITLE = 'Inscription';
-    readonly PAGE_SUBTITLE = 'Creez votre compte pour reserver et payer en quelques clics.';
+    readonly PAGE_TITLE = 'Sign up';
+    readonly PAGE_SUBTITLE = 'Create your account to book and pay in a few clicks.';
     readonly EMAIL_LABEL = 'Email';
-    readonly PASSWORD_LABEL = 'Mot de passe';
-    readonly CONFIRM_LABEL = 'Confirmer le mot de passe';
-    readonly EMAIL_ERROR = 'Saisissez une adresse email valide.';
-    readonly PASSWORD_ERROR = 'Le mot de passe doit contenir au moins 8 caracteres.';
-    readonly CONFIRM_ERROR = 'Les mots de passe ne correspondent pas.';
-    readonly DUPLICATE_MESSAGE = 'Cet email est deja utilise.';
-    readonly SUBMIT_LABEL = 'Creer mon compte';
+    readonly PASSWORD_LABEL = 'Password';
+    readonly CONFIRM_LABEL = 'Confirm password';
+    readonly EMAIL_ERROR = 'Enter a valid email address.';
+    readonly PASSWORD_ERROR = 'The password must contain at least 8 characters.';
+    readonly CONFIRM_ERROR = 'The passwords do not match.';
+    readonly DUPLICATE_MESSAGE = 'This email is already used.';
+    readonly SUBMIT_LABEL = 'Create my account';
     readonly SUBMIT_LOADING_LABEL = KZ_LABELS.saving;
-    readonly SECURITY_HINT = 'Votre mot de passe est envoye directement a l API, il n est jamais stocke dans le navigateur.';
-    readonly PROFILE_HINT = 'Vous pourrez completer votre nom, telephone et adresse dans votre profil.';
-    readonly SIGN_IN_PROMPT = 'Deja inscrit ?';
-    readonly SIGN_IN_LABEL = 'Se connecter';
+    readonly SECURITY_HINT = 'Your password is sent straight to the API, it is never stored in the browser.';
+    readonly PROFILE_HINT = 'You can complete your name, phone and address in your profile.';
+    readonly SIGN_IN_PROMPT = 'Already registered?';
+    readonly SIGN_IN_LABEL = 'Sign in';
     readonly MIN_PASSWORD_LENGTH = 8;
     readonly EMAIL_AT = '@';
     readonly DUPLICATE_CODE = 'DUPLICATE';

@@ -10,21 +10,21 @@ export const routes: Routes = [
         loadComponent: () => import('../pages/user/home-page/home-page').then((module) => module.HomePage),
     },
     {
-        path: 'forfaits',
+        path: 'packages',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/packages-page/packages-page').then((module) => module.PackagesPage),
     },
     {
-        path: 'forfaits/:id',
+        path: 'packages/:id',
         loadComponent: () => import('../pages/user/package-detail-page/package-detail-page').then((module) => module.PackageDetailPage),
     },
     {
-        path: 'vols',
+        path: 'flights',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/flights-page/flights-page').then((module) => module.FlightsPage),
     },
     {
-        path: 'vols/:id',
+        path: 'flights/:id',
         loadComponent: () => import('../pages/user/flight-detail-page/flight-detail-page').then((module) => module.FlightDetailPage),
     },
     {
@@ -37,7 +37,7 @@ export const routes: Routes = [
         loadComponent: () => import('../pages/user/excursion-detail-page/excursion-detail-page').then((module) => module.ExcursionDetailPage),
     },
     {
-        path: 'profil',
+        path: 'profile',
         canActivate: [authGuard],
         loadComponent: () => import('../pages/user/user-layout/user-layout').then((module) => module.UserLayout),
         children: [
@@ -52,18 +52,18 @@ export const routes: Routes = [
         ],
     },
     {
-        path: 'paiement',
+        path: 'payment',
         canActivate: [authGuard],
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/payment-page/payment-page').then((module) => module.PaymentPage),
     },
     {
-        path: 'connexion',
+        path: 'sign-in',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/sign-in-page/sign-in-page').then((module) => module.SignInPage),
     },
     {
-        path: 'inscription',
+        path: 'sign-up',
         canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('../pages/user/sign-up-page/sign-up-page').then((module) => module.SignUpPage),
     },
@@ -77,7 +77,7 @@ export const routes: Routes = [
                 loadComponent: () => import('../pages/admin/dashboard-page/dashboard-page').then((module) => module.DashboardPage),
             },
             {
-                path: 'vols',
+                path: 'flights',
                 children: [
                     {
                         path: '',
@@ -96,7 +96,7 @@ export const routes: Routes = [
                 ],
             },
             {
-                path: 'forfaits',
+                path: 'packages',
                 children: [
                     {
                         path: '',

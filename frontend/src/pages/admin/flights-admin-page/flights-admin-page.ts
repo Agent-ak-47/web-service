@@ -30,23 +30,23 @@ import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
     styleUrl: './flights-admin-page.css',
 })
 export class FlightsAdminPage implements OnInit {
-    readonly PAGE_TITLE = 'Vols';
-    readonly PAGE_SUBTITLE = 'Creez, modifiez et supprimez les vols du catalogue.';
-    readonly SEARCH_LABEL = 'Recherche';
-    readonly SEARCH_PLACEHOLDER = 'Compagnie, numero, ville';
+    readonly PAGE_TITLE = 'Flights';
+    readonly PAGE_SUBTITLE = 'Create, edit and delete the catalog flights.';
+    readonly SEARCH_LABEL = 'Search';
+    readonly SEARCH_PLACEHOLDER = 'Airline, number, city';
     readonly SEARCH_KEY = 'search';
-    readonly NEW_LABEL = 'Nouveau vol';
-    readonly ACTIVE_LABEL = 'Actif';
-    readonly AIRLINE_LABEL = 'Compagnie';
-    readonly FLIGHT_NUMBER_LABEL = 'Numero';
-    readonly TOTAL_SEATS_LABEL = 'Places totales';
-    readonly PRICE_LABEL = 'Prix';
-    readonly ROUTE_LABEL = 'Depart';
-    readonly DEPARTURE_COLUMN_LABEL = 'Depart le';
-    readonly AVAILABLE_COLUMN_LABEL = 'Disponibles';
+    readonly NEW_LABEL = 'New flight';
+    readonly ACTIVE_LABEL = 'Active';
+    readonly AIRLINE_LABEL = 'Airline';
+    readonly FLIGHT_NUMBER_LABEL = 'Number';
+    readonly TOTAL_SEATS_LABEL = 'Total seats';
+    readonly PRICE_LABEL = 'Price';
+    readonly ROUTE_LABEL = 'Departure';
+    readonly DEPARTURE_COLUMN_LABEL = 'Departs on';
+    readonly AVAILABLE_COLUMN_LABEL = 'Available';
     readonly EMPTY_LABEL = KZ_LABELS.emptyList;
-    readonly DIALOG_TITLE = 'Suppression';
-    readonly REMOVE_QUESTION = 'Confirmer la suppression de ce vol ?';
+    readonly DIALOG_TITLE = 'Delete';
+    readonly REMOVE_QUESTION = 'Delete this flight?';
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
 
     readonly NUMBER_KEY = 'number';

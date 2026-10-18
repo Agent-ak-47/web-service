@@ -34,19 +34,19 @@ import {
     styleUrl: './packages-page.css',
 })
 export class PackagesPage implements KzGuardedForm, OnInit {
-    readonly PAGE_TITLE = 'Forfaits';
-    readonly PAGE_SUBTITLE = 'Sejours complets vols et excursions inclus.';
+    readonly PAGE_TITLE = 'Packages';
+    readonly PAGE_SUBTITLE = 'Full stays with flights and excursions included.';
     readonly DESTINATION_LABEL = 'Destination';
-    readonly DATE_LABEL = 'Date de depart';
-    readonly MAX_PRICE_LABEL = 'Prix maximum';
-    readonly QUANTITY_LABEL = 'Participants';
+    readonly DATE_LABEL = 'Departure date';
+    readonly MAX_PRICE_LABEL = 'Max price';
+    readonly QUANTITY_LABEL = 'Guests';
     readonly DESTINATION_PLACEHOLDER = 'Marrakech';
-    readonly RESERVE_LABEL = 'Reserver';
-    readonly SOLD_OUT_LABEL = 'Complet';
-    readonly PRICE_UNIT = 'par personne';
+    readonly RESERVE_LABEL = 'Book';
+    readonly SOLD_OUT_LABEL = 'Booked';
+    readonly PRICE_UNIT = 'per person';
     readonly DATES_LABEL = 'Dates';
-    readonly NIGHTS_LABEL = 'Nuits';
-    readonly DISCOUNT_LABEL = 'Remise';
+    readonly NIGHTS_LABEL = 'Nights';
+    readonly DISCOUNT_LABEL = 'Discount';
     readonly NO_DISCOUNT_LABEL = '-';
     readonly EMPTY_LABEL = KZ_LABELS.noResult;
 

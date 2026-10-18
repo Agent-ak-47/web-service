@@ -25,20 +25,20 @@ import { Stat } from './components/stat/stat';
     styleUrl: './dashboard-page.css',
 })
 export class DashboardPage implements OnInit {
-    readonly PAGE_TITLE = 'Tableau de bord';
-    readonly PAGE_SUBTITLE = 'Vue d ensemble des reservations et des catalogues.';
-    readonly RECENT_TITLE = 'Dernieres reservations';
+    readonly PAGE_TITLE = 'Dashboard';
+    readonly PAGE_SUBTITLE = 'Overview of the bookings and the catalogs.';
+    readonly RECENT_TITLE = 'Latest bookings';
     readonly RECENT_LIMIT = 5;
-    readonly TOTAL_LABEL = 'Reservations';
-    readonly PAID_LABEL = 'Payees';
-    readonly CANCELLED_LABEL = 'Annulees';
-    readonly REVENUE_LABEL = 'Chiffre d affaires';
-    readonly TOTAL_HINT = 'Toutes reservations';
-    readonly PAID_HINT = 'Paiements confirmes';
-    readonly CANCELLED_HINT = 'Reservations annulees';
-    readonly REVENUE_HINT = 'Total des reservations payees';
+    readonly TOTAL_LABEL = 'Bookings';
+    readonly PAID_LABEL = 'Paid';
+    readonly CANCELLED_LABEL = 'Cancelled';
+    readonly REVENUE_LABEL = 'Revenue';
+    readonly TOTAL_HINT = 'All bookings';
+    readonly PAID_HINT = 'Confirmed payments';
+    readonly CANCELLED_HINT = 'Cancelled bookings';
+    readonly REVENUE_HINT = 'Total of paid bookings';
     readonly REFERENCE_LABEL = 'Reference';
-    readonly ARTICLE_LABEL = 'Article';
+    readonly ARTICLE_LABEL = 'Item';
     readonly TOTAL_COLUMN_LABEL = KZ_LABELS.total;
     readonly STATUS_LABEL = KZ_LABELS.status;
     readonly DATE_LABEL = 'Date';

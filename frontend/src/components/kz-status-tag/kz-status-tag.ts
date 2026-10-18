@@ -15,14 +15,14 @@ import { KzStatusLabels } from './kz-status-tag_labels.interface';
 export class KzStatusTag {
     readonly LABELS: KzStatusLabels = {
         label: {
-            [KzReservationStatus.PENDING]: 'En attente',
-            [KzReservationStatus.CONFIRMED]: 'Confirmee',
-            [KzReservationStatus.PAID]: 'Payee',
-            [KzReservationStatus.CANCELLED]: 'Annulee',
-            [KzReservationStatus.REFUNDED]: 'Remboursee',
-            [KzReservationStatus.EXPIRED]: 'Expiree',
-            [KzPaymentStatus.SUCCEEDED]: 'Paiement accepte',
-            [KzPaymentStatus.FAILED]: 'Paiement refuse',
+            [KzReservationStatus.PENDING]: 'Pending',
+            [KzReservationStatus.CONFIRMED]: 'Confirmed',
+            [KzReservationStatus.PAID]: 'Paid',
+            [KzReservationStatus.CANCELLED]: 'Cancelled',
+            [KzReservationStatus.REFUNDED]: 'Refunded',
+            [KzReservationStatus.EXPIRED]: 'Expired',
+            [KzPaymentStatus.SUCCEEDED]: 'Payment accepted',
+            [KzPaymentStatus.FAILED]: 'Payment declined',
         },
         tone: {
             [KzReservationStatus.PENDING]: KzTone.WARNING,

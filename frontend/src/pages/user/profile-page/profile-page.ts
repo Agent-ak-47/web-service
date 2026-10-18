@@ -23,16 +23,16 @@ import { DEFAULT_KZ_PROFILE_FORM, KzProfileForm } from './models/kz_profile_form
     styleUrl: './profile-page.css',
 })
 export class ProfilePage implements KzGuardedForm, OnInit {
-    readonly PAGE_TITLE = 'Informations personnelles';
-    readonly PAGE_SUBTITLE = 'Gardez vos coordonnées a jour pour vos reservations.';
-    readonly NAME_LABEL = 'Nom complet';
+    readonly PAGE_TITLE = 'Personal information';
+    readonly PAGE_SUBTITLE = 'Keep your details up to date for your bookings.';
+    readonly NAME_LABEL = 'Full name';
     readonly EMAIL_LABEL = 'Email';
-    readonly EMAIL_READONLY_HINT = 'L email ne peut pas etre modifie.';
-    readonly PHONE_LABEL = 'Telephone';
-    readonly ADDRESS_LABEL = 'Adresse';
-    readonly NAME_ERROR = 'Le nom est obligatoire.';
-    readonly SAVE_LABEL = 'Enregistrer';
-    readonly SAVED_LABEL = 'Enregistre';
+    readonly EMAIL_READONLY_HINT = 'The email cannot be changed.';
+    readonly PHONE_LABEL = 'Phone';
+    readonly ADDRESS_LABEL = 'Address';
+    readonly NAME_ERROR = 'The name is required.';
+    readonly SAVE_LABEL = 'Save';
+    readonly SAVED_LABEL = 'Saved';
     readonly SAVING_LABEL = KZ_LABELS.saving;
     readonly LOADING_LABEL = KZ_LABELS.loading;
     readonly ADDRESS_ROWS = 3;

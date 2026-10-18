@@ -18,11 +18,11 @@ import { KzBtn } from '../kz-btn/kz-btn';
     styleUrl: './kz-upload-img.css',
 })
 export class KzUploadImg {
-    readonly PICK_LABEL = 'Choisir une image';
-    readonly FORMAT_HINT = 'PNG, JPG ou WEBP, 2 Mo maximum.';
-    readonly TYPE_ERROR = 'Le fichier doit etre une image.';
-    readonly SIZE_ERROR = 'L image ne doit pas depasser 2 Mo.';
-    readonly READ_ERROR = 'L image n a pas pu etre lue.';
+    readonly PICK_LABEL = 'Choose an image';
+    readonly FORMAT_HINT = 'PNG, JPG or WEBP, 2 MB max.';
+    readonly TYPE_ERROR = 'The file must be an image.';
+    readonly SIZE_ERROR = 'The image must not exceed 2 MB.';
+    readonly READ_ERROR = 'The image could not be read.';
     readonly REMOVE_LABEL = KZ_LABELS.remove;
     readonly ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp';
     readonly IMAGE_TYPE_PREFIX = 'image/';

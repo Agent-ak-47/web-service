@@ -31,23 +31,23 @@ import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 })
 export class ExcursionsAdminPage implements OnInit {
     readonly PAGE_TITLE = 'Excursions';
-    readonly PAGE_SUBTITLE = 'Creez, modifiez et supprimez les excursions du catalogue.';
-    readonly SEARCH_LABEL = 'Recherche';
-    readonly SEARCH_PLACEHOLDER = 'Titre, lieu, guide';
+    readonly PAGE_SUBTITLE = 'Create, edit and delete the catalog excursions.';
+    readonly SEARCH_LABEL = 'Search';
+    readonly SEARCH_PLACEHOLDER = 'Title, location, guide';
     readonly SEARCH_KEY = 'search';
-    readonly NEW_LABEL = 'Nouvelle excursion';
-    readonly ACTIVE_LABEL = 'Actif';
-    readonly TITLE_LABEL = 'Titre';
-    readonly LOCATION_LABEL = 'Lieu';
+    readonly NEW_LABEL = 'New excursion';
+    readonly ACTIVE_LABEL = 'Active';
+    readonly TITLE_LABEL = 'Title';
+    readonly LOCATION_LABEL = 'Location';
     readonly DATE_LABEL = 'Date';
-    readonly DURATION_LABEL = 'Duree';
+    readonly DURATION_LABEL = 'Duration';
     readonly GUIDE_LABEL = 'Guide';
-    readonly PRICE_LABEL = 'Prix';
-    readonly CAPACITY_LABEL = 'Places totales';
-    readonly AVAILABLE_COLUMN_LABEL = 'Disponibles';
+    readonly PRICE_LABEL = 'Price';
+    readonly CAPACITY_LABEL = 'Total seats';
+    readonly AVAILABLE_COLUMN_LABEL = 'Available';
     readonly EMPTY_LABEL = KZ_LABELS.emptyList;
-    readonly DIALOG_TITLE = 'Suppression';
-    readonly REMOVE_QUESTION = 'Confirmer la suppression de cette excursion ?';
+    readonly DIALOG_TITLE = 'Delete';
+    readonly REMOVE_QUESTION = 'Delete this excursion?';
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
 
     readonly TITLE_KEY = 'title';

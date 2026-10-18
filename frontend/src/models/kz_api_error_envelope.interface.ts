@@ -9,7 +9,7 @@ export interface KzApiErrorEnvelope {
 export const DEFAULT_KZ_API_ERROR_ENVELOPE: KzApiErrorEnvelope = {
     error: {
         code: 'INTERNAL_ERROR',
-        message: 'Une erreur inattendue est survenue.',
+        message: 'An unexpected error occurred.',
         details: {},
     },
 };

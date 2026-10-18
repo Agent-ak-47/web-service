@@ -26,21 +26,21 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
     styleUrl: './flight-detail-page.css',
 })
 export class FlightDetailPage implements OnInit {
-    readonly HOME_LABEL = 'Accueil';
-    readonly SECTION_LABEL = 'Vols';
-    readonly RESERVE_LABEL = 'Reserver';
-    readonly SOLD_OUT_LABEL = 'Complet';
-    readonly INACTIVE_LABEL = 'Indisponible';
-    readonly ACTIVE_LABEL = 'Disponible';
-    readonly QUANTITY_LABEL = 'Places';
-    readonly PRICE_UNIT = 'par passager';
-    readonly COMPANY_LABEL = 'Compagnie';
-    readonly NUMBER_LABEL = 'Numero';
-    readonly DEPART_LABEL = 'Depart';
-    readonly ARRIVAL_LABEL = 'Arrivee';
-    readonly DURATION_LABEL = 'Duree';
-    readonly TOTAL_SEATS_LABEL = 'Sieges totaux';
-    readonly AVAILABLE_SEATS_LABEL = 'Sieges disponibles';
+    readonly HOME_LABEL = 'Home';
+    readonly SECTION_LABEL = 'Flights';
+    readonly RESERVE_LABEL = 'Book';
+    readonly SOLD_OUT_LABEL = 'Booked';
+    readonly INACTIVE_LABEL = 'Unavailable';
+    readonly ACTIVE_LABEL = 'Available';
+    readonly QUANTITY_LABEL = 'Seats';
+    readonly PRICE_UNIT = 'per passenger';
+    readonly COMPANY_LABEL = 'Airline';
+    readonly NUMBER_LABEL = 'Number';
+    readonly DEPART_LABEL = 'Departure';
+    readonly ARRIVAL_LABEL = 'Arrival';
+    readonly DURATION_LABEL = 'Duration';
+    readonly TOTAL_SEATS_LABEL = 'Total seats';
+    readonly AVAILABLE_SEATS_LABEL = 'Available seats';
     readonly EMPTY_LABEL = KZ_LABELS.noResult;
     readonly MINUTES_IN_HOUR = 60;
 
@@ -179,7 +179,7 @@ export class FlightDetailPage implements OnInit {
 
 
     private buildDescription(item: KzFlight): string {
-        return `Vol ${item.flightNumber} de ${item.airline} au depart de ${item.departureCity} vers ${item.arrivalCity}. Duree estimee ${this.formatDuration(item)}. Bagage a main inclus, sieges supplementaires sur demande.`;
+        return `Flight ${item.flightNumber} of ${item.airline} from ${item.departureCity} to ${item.arrivalCity}. Estimated duration ${this.formatDuration(item)}. Cabin bag included, extra seats on request.`;
     }
 
 
