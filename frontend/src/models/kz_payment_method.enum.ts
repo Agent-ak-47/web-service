@@ -1,5 +1,5 @@
 export enum KzPaymentMethod {
-    CARD = 'CARTE',
+    CARD = 'CARD',
     CASH = 'CASH',
     BANK_TRANSFER = 'BANK_TRANSFER',
     PAYPAL = 'PAYPAL',

@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS reservations (
     user_id             BIGINT UNSIGNED NOT NULL,
     item_type           ENUM('FLIGHT','PACKAGE','EXCURSION') NOT NULL,
     item_id             BIGINT UNSIGNED NOT NULL COMMENT 'id in flights / packages / excursions',
+    item_label          VARCHAR(160)    NULL COMMENT 'product label captured at creation, like unit_price',
     quantity            SMALLINT UNSIGNED NOT NULL DEFAULT 1,
     reservation_date    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     departure_date      DATE            NULL,
