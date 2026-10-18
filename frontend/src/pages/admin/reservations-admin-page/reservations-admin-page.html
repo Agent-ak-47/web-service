@@ -8,29 +8,6 @@
         <p class="kz-error">{{ errorMessage }}</p>
     }
 
-    <div class="summary-grid">
-        <div class="kz-panel">
-            <span class="counter-label">{{ TOTAL_SUMMARY_LABEL }}</span>
-            <span class="counter-value">{{ summary.total }}</span>
-        </div>
-        <div class="kz-panel">
-            <span class="counter-label">{{ PENDING_SUMMARY_LABEL }}</span>
-            <span class="counter-value">{{ summary.pending }}</span>
-        </div>
-        <div class="kz-panel">
-            <span class="counter-label">{{ PAID_SUMMARY_LABEL }}</span>
-            <span class="counter-value">{{ summary.paid }}</span>
-        </div>
-        <div class="kz-panel">
-            <span class="counter-label">{{ CANCELLED_SUMMARY_LABEL }}</span>
-            <span class="counter-value">{{ summary.cancelled }}</span>
-        </div>
-        <div class="kz-panel">
-            <span class="counter-label">{{ REVENUE_SUMMARY_LABEL }}</span>
-            <span class="counter-value">{{ summary.revenue | kzMoney }}</span>
-        </div>
-    </div>
-
     <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onFiltersChanged($event)"
         (reseted)="onFiltersReset()" />
 

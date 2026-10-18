@@ -1,23 +1,6 @@
 :host {
     display: flex;
     flex-direction: column;
-    --size-summary-card: 180px;
-}
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--size-summary-card), 1fr));
-    gap: var(--space-4);
-}
-
-.counter-label {
-    font-size: var(--font-size-sm);
-    color: var(--text-muted);
-}
-
-.counter-value {
-    font-size: var(--font-size-xl);
-    font-weight: var(--weight-bold);
 }
 
 .pay-row {

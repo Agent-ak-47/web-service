@@ -11,10 +11,6 @@ import {
     DEFAULT_KZ_RESERVATION_ADMIN_COLUMN,
     KzReservationAdminColumn,
 } from '../../../models/kz_reservation_admin_column.interface';
-import {
-    DEFAULT_KZ_RESERVATION_ADMIN_SUMMARY,
-    KzReservationAdminSummary,
-} from '../../../models/kz_reservation_admin_summary.interface';
 import { KzReservationStatus } from '../../../models/kz_reservation_status.enum';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import {
@@ -23,7 +19,6 @@ import {
     KzTableActionEvent,
     KzTableRow,
 } from '../../../models/kz_table.interface';
-import { KzMoneyPipe } from '../../../pipes/kz-money.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
@@ -34,7 +29,7 @@ import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 @Component({
     selector: 'kz-reservations-admin-page',
     standalone: true,
-    imports: [KzDataTable, KzDialog, KzFilterBar, KzMoneyPipe],
+    imports: [KzDataTable, KzDialog, KzFilterBar],
     templateUrl: './reservations-admin-page.html',
     styleUrl: './reservations-admin-page.css',
 })
@@ -62,11 +57,6 @@ export class ReservationsAdminPage implements OnInit {
     readonly TOTAL_LABEL = KZ_LABELS.total;
     readonly STATUS_COLUMN_LABEL = KZ_LABELS.status;
     readonly DATE_LABEL = 'Date';
-    readonly TOTAL_SUMMARY_LABEL = 'Reservations';
-    readonly PENDING_SUMMARY_LABEL = 'En attente';
-    readonly PAID_SUMMARY_LABEL = 'Payees';
-    readonly CANCELLED_SUMMARY_LABEL = 'Annulees';
-    readonly REVENUE_SUMMARY_LABEL = 'Chiffre d affaires';
     readonly CANCEL_DIALOG_TITLE = 'Annulation';
     readonly CANCEL_QUESTION = 'Confirmer l annulation de cette reservation ?';
     readonly REFUND_DIALOG_TITLE = 'Remboursement';
@@ -94,7 +84,6 @@ export class ReservationsAdminPage implements OnInit {
 
     reservations: KzReservation[] = [];
     rows: KzTableRow[] = [];
-    summary: KzReservationAdminSummary = { ...DEFAULT_KZ_RESERVATION_ADMIN_SUMMARY };
     target: KzReservation | null = null;
     pendingAction: KzTableAction | null = null;
     search = '';
@@ -403,7 +392,6 @@ export class ReservationsAdminPage implements OnInit {
     private setReservations(source: KzReservation[]): void {
         this.reservations = this.sortByRecent(source);
         this.rows = this.buildRows(this.filterReservations(this.reservations));
-        this.summary = this.buildSummary(this.reservations);
     }
 
 
@@ -445,23 +433,6 @@ export class ReservationsAdminPage implements OnInit {
                 [this.STATUS_CELL_KEY]: reservation.status,
                 [this.DATE_CELL_KEY]: reservation.reservationDate,
             },
-        }));
-    }
-
-
-    private buildSummary(source: readonly KzReservation[]): KzReservationAdminSummary {
-        const paid = source.filter((reservation) =>
-            reservation.status === KzReservationStatus.PAID);
-
-        return {
-            total: source.length,
-            pending: source.filter((reservation) =>
-                reservation.status === KzReservationStatus.PENDING).length,
-            paid: paid.length,
-            cancelled: source.filter((reservation) =>
-                reservation.status === KzReservationStatus.CANCELLED).length,
-            revenue: paid.reduce((total: number, reservation: KzReservation) =>
-                total + reservation.totalAmount, 0),
-        };
+}));
     }
 }

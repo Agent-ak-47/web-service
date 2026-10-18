@@ -8,21 +8,6 @@
         <p class="kz-error">{{ errorMessage }}</p>
     }
 
-    <div class="summary-grid">
-        <div class="kz-panel">
-            <span class="counter-label">{{ TOTAL_LABEL }}</span>
-            <span class="counter-value">{{ summary.total }}</span>
-        </div>
-        <div class="kz-panel">
-            <span class="counter-label">{{ PAYABLE_LABEL }}</span>
-            <span class="counter-value">{{ summary.payable }}</span>
-        </div>
-        <div class="kz-panel">
-            <span class="counter-label">{{ CANCELLED_LABEL }}</span>
-            <span class="counter-value">{{ summary.cancelled }}</span>
-        </div>
-    </div>
-
     <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
         [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
 

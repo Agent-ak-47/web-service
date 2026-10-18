@@ -25,10 +25,6 @@ import {
     DEFAULT_KZ_RESERVATION_COLUMN,
     KzReservationColumn,
 } from './models/kz_reservation_column.interface';
-import {
-    DEFAULT_KZ_RESERVATION_SUMMARY,
-    KzReservationSummary,
-} from './models/kz_reservation_summary.interface';
 
 
 @Component({
@@ -48,8 +44,6 @@ export class ReservationsPage implements OnInit {
     readonly TOTAL_LABEL = KZ_LABELS.total;
     readonly STATUS_LABEL = KZ_LABELS.status;
     readonly EMPTY_LABEL = KZ_LABELS.emptyReservations;
-    readonly PAYABLE_LABEL = 'A payer';
-    readonly CANCELLED_LABEL = 'Annulees';
     readonly PAYABLE_TITLE = 'Reservations a payer';
     readonly PAY_LABEL = 'Payer';
     readonly PAY_KIND = KzBtnKind.PRIMARY;
@@ -74,7 +68,6 @@ export class ReservationsPage implements OnInit {
 
     reservations: KzReservation[] = [];
     rows: KzTableRow[] = [];
-    summary: KzReservationSummary = { ...DEFAULT_KZ_RESERVATION_SUMMARY };
     cancelReason = '';
     cancelTarget: KzReservation | null = null;
     isDialogOpen = false;
@@ -307,7 +300,6 @@ export class ReservationsPage implements OnInit {
     private setReservations(source: KzReservation[]): void {
         this.reservations = this.sortByRecent(source);
         this.rows = this.buildRows(this.reservations);
-        this.summary = this.buildSummary(this.reservations);
     }
 
 
@@ -331,20 +323,6 @@ export class ReservationsPage implements OnInit {
                 [this.STATUS_KEY]: reservation.status,
                 [this.DATE_KEY]: reservation.reservationDate,
             },
-        }));
-    }
-
-
-    private buildSummary(source: readonly KzReservation[]): KzReservationSummary {
-        const payable = source.filter((reservation) =>
-            PAYABLE_RESERVATION_STATUSES.includes(reservation.status)).length;
-        const cancelled = source.filter((reservation) =>
-            reservation.status === KzReservationStatus.CANCELLED).length;
-
-        return {
-            total: source.length,
-            payable,
-            cancelled,
-        };
+}));
     }
 }
