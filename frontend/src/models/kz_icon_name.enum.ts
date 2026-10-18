@@ -13,6 +13,7 @@ export enum KzIconName {
     PLUS = 'plus',
     EDIT = 'edit',
     TRASH = 'trash',
+    IMAGE = 'image',
     CHECK = 'check',
     WARNING = 'warning',
     CALENDAR = 'calendar',

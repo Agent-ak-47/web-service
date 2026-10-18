@@ -5,5 +5,5 @@
     @else if (hasIcon()) {
         <kz-icon [img]="iconImage" [tone]="iconTone" [size]="iconSize" />
     }
-    <span class="kz-button-label">{{ label() }}</span>
+    <span [class]="labelClasses">{{ label() }}</span>
 </button>

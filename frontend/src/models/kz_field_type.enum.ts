@@ -7,6 +7,7 @@ export enum KzFieldType {
     TIME = 'time',
     SELECT = 'select',
     TEXTAREA = 'textarea',
+    IMAGE = 'image',
 }
 
 

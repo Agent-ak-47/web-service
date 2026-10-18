@@ -11,6 +11,7 @@ export class GlobalService {
     readonly TAGLINE = 'Forfaits, vols et excursions reserves en quelques minutes.';
     readonly ICON_FOLDER = 'assets/icons/';
     readonly IMGS_FOLDER = 'imgs/';
+    readonly DATA_URL_PREFIX = 'data:';
     readonly MOCK_DATA_FOLDER = 'data/';
     readonly MOCK_MODE = true;
     readonly BACKEND_URL = 'http://localhost:8083';
@@ -71,7 +72,7 @@ export class GlobalService {
 
 
     assetUrl(path: string): string {
-        if (path.startsWith('http') || path.startsWith('assets') || path.startsWith(this.IMGS_FOLDER)) {
+        if (path.startsWith('http') || path.startsWith(this.DATA_URL_PREFIX) || path.startsWith('assets') || path.startsWith(this.IMGS_FOLDER)) {
             return path;
         }
 

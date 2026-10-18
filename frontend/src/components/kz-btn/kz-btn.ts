@@ -30,6 +30,7 @@ export class KzBtn {
     readonly loading = input<boolean>(false);
     readonly disabled = input<boolean>(false);
     readonly fullWidth = input<boolean>(false);
+    readonly iconOnly = input<boolean>(false);
     readonly clicked = output<void>();
 
     private readonly globalService = inject(GlobalService);
@@ -42,8 +43,14 @@ export class KzBtn {
 
     get buttonClasses(): string {
         const width = this.fullWidth() ? ' is-full' : '';
+        const compact = this.iconOnly() ? ' is-compact' : '';
 
-        return `kz-button kind-${this.kind()}${width}`;
+        return `kz-button kind-${this.kind()}${width}${compact}`;
+    }
+
+
+    get labelClasses(): string {
+        return this.iconOnly() ? 'kz-button-label is-compact-label' : 'kz-button-label';
     }
 
 

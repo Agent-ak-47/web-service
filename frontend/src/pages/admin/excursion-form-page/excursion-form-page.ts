@@ -40,14 +40,16 @@ export class ExcursionFormPage implements KzGuardedForm, OnInit {
     readonly ACTIVE_LABEL = 'Actif';
     readonly INACTIVE_LABEL = 'Inactif';
     readonly IDENTITY_SECTION = 'identity';
+    readonly MEDIA_SECTION = 'media';
     readonly WHEN_SECTION = 'when';
     readonly SEATS_SECTION = 'seats';
     readonly GUIDE_SECTION = 'guide';
     readonly DESCRIPTION_SECTION = 'description';
     readonly IDENTITY_TITLE = 'Excursion';
+    readonly MEDIA_TITLE = 'Couverture';
     readonly WHEN_TITLE = 'Quand';
     readonly SEATS_TITLE = 'Places et tarif';
-    readonly GUIDE_TITLE = 'Guide et image';
+    readonly GUIDE_TITLE = 'Guide';
     readonly TITLE_LABEL = 'Titre';
     readonly LOCATION_LABEL = 'Lieu';
     readonly DATE_LABEL = 'Date';
@@ -123,6 +125,19 @@ export class ExcursionFormPage implements KzGuardedForm, OnInit {
 
     get sections(): KzFormSection[] {
         return [
+            {
+                id: this.MEDIA_SECTION,
+                title: this.MEDIA_TITLE,
+                columns: KzFormColumns.ONE,
+                fields: [
+                    this.formField({
+                        name: 'imageUrl',
+                        label: this.IMAGE_LABEL,
+                        type: KzFieldType.IMAGE,
+                        value: this.form.imageUrl,
+                    }),
+                ],
+            },
             {
                 id: this.IDENTITY_SECTION,
                 title: this.IDENTITY_TITLE,
@@ -211,17 +226,12 @@ export class ExcursionFormPage implements KzGuardedForm, OnInit {
             {
                 id: this.GUIDE_SECTION,
                 title: this.GUIDE_TITLE,
-                columns: KzFormColumns.TWO,
+                columns: KzFormColumns.ONE,
                 fields: [
                     this.formField({
                         name: 'guide',
                         label: this.GUIDE_LABEL,
                         value: this.form.guide,
-                    }),
-                    this.formField({
-                        name: 'imageUrl',
-                        label: this.IMAGE_LABEL,
-                        value: this.form.imageUrl,
                     }),
                 ],
             },

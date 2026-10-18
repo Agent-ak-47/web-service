@@ -7,11 +7,20 @@
 
         <div [class]="rowClasses(section.columns)">
             @for (field of section.fields; track field.name) {
-                <kz-field [label]="field.label" [name]="field.name" [type]="field.type" [value]="field.value"
-                    [placeholder]="field.placeholder" [hint]="field.hint" [error]="field.error"
-                    [required]="field.required" [disabled]="field.disabled" [options]="field.options"
-                    [min]="field.min" [max]="field.max" [step]="field.step" [rows]="field.rows"
-                    (valueChange)="onFieldChange(field, $event)" />
+                @switch (field.type) {
+                    @case (FIELD_TYPE.IMAGE) {
+                        <kz-upload-img [label]="field.label" [value]="field.value"
+                            [hint]="field.hint" [error]="field.error" [required]="field.required"
+                            [disabled]="field.disabled" (valueChange)="onFieldChange(field, $event)" />
+                    }
+                    @default {
+                        <kz-field [label]="field.label" [name]="field.name" [type]="field.type" [value]="field.value"
+                            [placeholder]="field.placeholder" [hint]="field.hint" [error]="field.error"
+                            [required]="field.required" [disabled]="field.disabled" [options]="field.options"
+                            [min]="field.min" [max]="field.max" [step]="field.step" [rows]="field.rows"
+                            (valueChange)="onFieldChange(field, $event)" />
+                    }
+                }
             }
         </div>
     }

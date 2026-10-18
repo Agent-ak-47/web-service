@@ -40,11 +40,13 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
     readonly ACTIVE_LABEL = 'Actif';
     readonly INACTIVE_LABEL = 'Inactif';
     readonly IDENTITY_SECTION = 'identity';
+    readonly MEDIA_SECTION = 'media';
     readonly ROUTE_SECTION = 'route';
     readonly TIMES_SECTION = 'times';
     readonly SEATS_SECTION = 'seats';
     readonly TARIFF_SECTION = 'tariff';
     readonly IDENTITY_TITLE = 'Compagnie';
+    readonly MEDIA_TITLE = 'Couverture';
     readonly ROUTE_TITLE = 'Trajet';
     readonly TIMES_TITLE = 'Horaires';
     readonly SEATS_TITLE = 'Places';
@@ -121,6 +123,19 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
 
     get sections(): KzFormSection[] {
         return [
+            {
+                id: this.MEDIA_SECTION,
+                title: this.MEDIA_TITLE,
+                columns: KzFormColumns.ONE,
+                fields: [
+                    this.formField({
+                        name: 'imageUrl',
+                        label: this.IMAGE_LABEL,
+                        type: KzFieldType.IMAGE,
+                        value: this.form.imageUrl,
+                    }),
+                ],
+            },
             {
                 id: this.IDENTITY_SECTION,
                 title: this.IDENTITY_TITLE,
@@ -210,7 +225,7 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
             {
                 id: this.TARIFF_SECTION,
                 title: this.TARIFF_TITLE,
-                columns: KzFormColumns.TWO,
+                columns: KzFormColumns.ONE,
                 fields: [
                     this.formField({
                         name: 'price',
@@ -221,11 +236,6 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
                         step: this.PRICE_STEP,
                         error: this.errors.price,
                         required: true,
-                    }),
-                    this.formField({
-                        name: 'imageUrl',
-                        label: this.IMAGE_LABEL,
-                        value: this.form.imageUrl,
                     }),
                 ],
             },

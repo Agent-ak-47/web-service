@@ -47,7 +47,7 @@ export class PackageFormPage implements KzGuardedForm, OnInit {
     readonly IDENTITY_TITLE = 'Forfait';
     readonly DATES_TITLE = 'Dates';
     readonly TARIFF_TITLE = 'Tarif';
-    readonly MEDIA_TITLE = 'Image';
+    readonly MEDIA_TITLE = 'Couverture';
     readonly NAME_LABEL = 'Nom';
     readonly DESTINATION_LABEL = 'Destination';
     readonly START_DATE_LABEL = 'Date de debut';
@@ -120,6 +120,19 @@ export class PackageFormPage implements KzGuardedForm, OnInit {
     get sections(): KzFormSection[] {
         return [
             {
+                id: this.MEDIA_SECTION,
+                title: this.MEDIA_TITLE,
+                columns: KzFormColumns.ONE,
+                fields: [
+                    this.formField({
+                        name: 'imageUrl',
+                        label: this.IMAGE_LABEL,
+                        type: KzFieldType.IMAGE,
+                        value: this.form.imageUrl,
+                    }),
+                ],
+            },
+            {
                 id: this.IDENTITY_SECTION,
                 title: this.IDENTITY_TITLE,
                 columns: KzFormColumns.TWO,
@@ -191,18 +204,6 @@ export class PackageFormPage implements KzGuardedForm, OnInit {
                         min: this.DISCOUNT_MIN,
                         max: this.DISCOUNT_MAX,
                         error: this.errors.discountPercentage,
-                    }),
-                ],
-            },
-            {
-                id: this.MEDIA_SECTION,
-                title: this.MEDIA_TITLE,
-                columns: KzFormColumns.ONE,
-                fields: [
-                    this.formField({
-                        name: 'imageUrl',
-                        label: this.IMAGE_LABEL,
-                        value: this.form.imageUrl,
                     }),
                 ],
             },

@@ -14,6 +14,7 @@
     @else {
         <kz-form-panel [title]="formTitle" [sections]="sections" [validationMessage]="validationMessage"
             [activeLabel]="activeLabel" [activeKind]="activeKind" [loading]="isSaving" [disabled]="isSaving"
-            (saved)="onSubmit()" (cancelled)="onCancel()" (activeToggled)="onToggleActive()" />
+            (fieldChange)="onFieldChange($event)" (saved)="onSubmit()" (cancelled)="onCancel()"
+            (activeToggled)="onToggleActive()" />
     }
 </section>
