@@ -15,6 +15,8 @@ export class GlobalService {
     readonly MOCK_DATA_FOLDER = 'data/';
     readonly MOCK_MODE = true;
     readonly BACKEND_URL = 'http://localhost:8083';
+    readonly RESERVATION_SERVICE_URL = 'http://localhost:8085';
+    readonly PAYMENT_SERVICE_URL = 'http://localhost:8086';
     readonly FLIGHT_SERVICE_URL = 'http://localhost:8081';
     readonly PACKAGE_SERVICE_URL = 'http://localhost:8082';
     readonly EXCURSION_SERVICE_URL = 'http://localhost:8084';
@@ -53,12 +55,12 @@ export class GlobalService {
         register: `${this.BACKEND_URL}/api/auth/register`,
         logout: `${this.BACKEND_URL}/api/auth/logout`,
         me: `${this.BACKEND_URL}/api/auth/me`,
-        reservations: `${this.BACKEND_URL}/api/reservations`,
-        reservationCancel: (id: number): string => `${this.BACKEND_URL}/api/reservations/${id}/cancellation`,
-        reservationValidate: (id: number): string => `${this.BACKEND_URL}/api/reservations/${id}/validation`,
-        reservationPayment: (id: number): string => `${this.BACKEND_URL}/api/reservations/${id}/payment`,
-        reservationHistory: (id: number): string => `${this.BACKEND_URL}/api/reservations/${id}/history`,
-        paymentRefund: (id: number): string => `${this.BACKEND_URL}/api/payments/${id}/refund`,
+        reservations: `${this.RESERVATION_SERVICE_URL}/api/reservations`,
+        reservationCancel: (id: number): string => `${this.RESERVATION_SERVICE_URL}/api/reservations/${id}/cancellation`,
+        reservationValidate: (id: number): string => `${this.RESERVATION_SERVICE_URL}/api/reservations/${id}/validation`,
+        reservationPayment: (id: number): string => `${this.PAYMENT_SERVICE_URL}/api/reservations/${id}/payment`,
+        reservationHistory: (id: number): string => `${this.RESERVATION_SERVICE_URL}/api/reservations/${id}/history`,
+        paymentRefund: (id: number): string => `${this.PAYMENT_SERVICE_URL}/api/reservations/${id}/refund`,
         flights: `${this.FLIGHT_SERVICE_URL}/api/flights`,
         flight: (id: number): string => `${this.FLIGHT_SERVICE_URL}/api/flights/${id}`,
         flightAvailability: (id: number): string => `${this.FLIGHT_SERVICE_URL}/api/flights/${id}/availability`,
@@ -99,6 +101,8 @@ export class GlobalService {
             this.PACKAGE_SERVICE_URL,
             this.EXCURSION_SERVICE_URL,
             this.BACKEND_URL,
+            this.RESERVATION_SERVICE_URL,
+            this.PAYMENT_SERVICE_URL,
         ];
     }
 }
