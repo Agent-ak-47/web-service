@@ -1,99 +1,227 @@
-# Reservation & Payment Service — Kamal
+# Reservation & Payment Services — Kamal
 
 Working folder for Kamal. Git branch: **`kamal`**.
-Use case: **`use_case_reservation`** · Tables: `users`, `sessions`, `reservations`, `payments`, `reservation_history`.
+Use case: **`use_case_reservation`** · Tables: `users`, `sessions`, `reservations`, `payments`,
+`reservation_history`.
 
-> This folder holds **only the service code**. The shared documentation lives in
+> This folder holds the three Flask services. The shared documentation lives in
 > [`md/`](../md/) and the shared MySQL infrastructure at the repository root.
 
-## 1. Already delivered
+## 1. Services
 
-| Deliverable | Location | Status |
-|-------------|----------|--------|
-| Full documentation (UML, ERD, API, sequence, Docker, Git) | `md/` | ✅ |
-| Shared MySQL service (single `travel_agency` database) | `docker-compose.yml`, `db/init/` | ✅ |
-| Auth SQL schema | `db/init/10-auth.sql` | ✅ |
-| Reservation + Payment SQL schema | `db/init/50-reservation.sql` | ✅ |
-| Demo dataset | `db/init/90-seed.sql` | ✅ |
+| Service | Port | Responsibility |
+|---------|------|----------------|
+| `user/` | **8083** | Registration, login/logout, JWT sessions, profile |
+| `reservation/` | **8085** | Create, list, update, cancel, validate, history |
+| `payment/` | **8086** | Pay, refund by reservation, refund by payment |
 
-## 2. Still to do
+All three share the same `JWT_SECRET` and the same `sessions` table, so a token issued by
+the user service is accepted by the reservation and payment services.
 
-| # | Task | Expected result |
-|---|------|-----------------|
-| K1 | Sign-up / authentication / token | `POST /api/auth/register`, `/login`, `/deconnexion`, `GET /api/auth/me` |
-| K2 | Create a reservation | `POST /api/reservations` |
-| K3 | `calculateTotal()` | captured price × quantity, never recomputed afterwards |
-| K4 | Online payment | `POST /api/reservations/{id}/payment` |
-| K5 | View own reservations | `GET /api/reservations` |
-| K6 | Update a reservation | `PATCH /api/reservations/{id}` |
-| K7 | Cancel (seat released) | `POST /api/reservations/{id}/cancellation` |
-| K8 | Refund (admin) | `POST /api/payments/{id}/refund` |
-| K9 | Validate (admin) | `POST /api/reservations/{id}/validation` |
-| K10 | Tracking / history | `GET /api/reservations/{id}/history` |
-| K11 | Compensation on failure | `/release` call to the owning service |
-| — | Dockerfile + tests | `docker build` passes, ≥ 3 tests per use case |
+## 2. Delivered
 
-## 3. Expected service structure
+| Task | Result | Status |
+|------|--------|--------|
+| K1 | Sign-up, login, logout, `GET`/`POST /api/auth/me` | Done |
+| K2 | `POST /api/reservations` | Done |
+| K3 | Captured price × quantity, stored once | Done |
+| K4 | `POST /api/reservations/<id>/payment` | Done |
+| K5 | `GET /api/reservations` (own rows; all rows for admins) | Done |
+| K6 | `PATCH`/`POST /api/reservations/<id>` | Done |
+| K7 | `POST /api/reservations/<id>/cancellation` | Done |
+| K8 | `POST /api/payments/<id>/refund` (admin) | Done |
+| K9 | `POST /api/reservations/<id>/validation` (admin) | Done |
+| K10 | `GET /api/reservations/<id>/history` | Done |
+| K11 | Compensating `release`/`reserve` calls on failure | Done |
+| Tests | 283 backend tests (unit + API) | Done |
 
-To be created as work progresses, mirroring the layout of the other members:
+## 3. API
+
+Authentication uses `Authorization: Bearer <jeton>`.
+
+### User service — `http://localhost:8083`
+
+| Method | Path | Access |
+|--------|------|--------|
+| `POST` | `/api/auth/register` | Public |
+| `POST` | `/api/auth/login` | Public |
+| `POST` | `/api/auth/logout` | Authenticated |
+| `GET` | `/api/auth/me` | Authenticated |
+| `POST` | `/api/auth/me` | Authenticated |
+| `GET` | `/health` | Public |
+
+### Reservation service — `http://localhost:8085`
+
+| Method | Path | Access |
+|--------|------|--------|
+| `GET` | `/api/reservations` | Authenticated |
+| `POST` | `/api/reservations` | Authenticated |
+| `GET` | `/api/reservations/<id>` | Owner or admin |
+| `PATCH` / `POST` | `/api/reservations/<id>` | Owner or admin |
+| `POST` | `/api/reservations/<id>/cancellation` | Owner or admin |
+| `POST` | `/api/reservations/<id>/validation` | Admin |
+| `GET` | `/api/reservations/<id>/history` | Owner or admin |
+| `GET` | `/health` | Public |
+
+### Payment service — `http://localhost:8086`
+
+| Method | Path | Access |
+|--------|------|--------|
+| `POST` | `/api/reservations/<id>/payment` | Owner or admin |
+| `POST` | `/api/reservations/<id>/refund` | Admin |
+| `POST` | `/api/payments/<id>/refund` | Admin |
+| `GET` | `/health` | Public |
+
+Responses use one of two envelopes:
+
+```json
+{ "data": { } }
+```
+
+```json
+{ "error": { "code": "INVALID_FORMAT", "message": "...", "details": { } } }
+```
+
+## 4. Structure
 
 ```
 kamal/
-├── Dockerfile
-├── .dockerignore
-├── package.json            (or pom.xml / requirements.txt)
-├── .env.example            # values WITHOUT secrets
-└── src/
-    ├── server.js           # startup, middlewares, routes
-    ├── config.js           # reads process.env, nothing hard-coded
-    ├── db/
-    │   ├── pool.js         # connection pool to travel_agency
-    │   └── migrations/
-    ├── modules/
-    │   ├── auth/           # K1
-    │   │   ├── auth.routes.js
-    │   │   ├── auth.service.js
-    │   │   └── auth.controller.js
-    │   └── reservation/    # K2 to K11
-    │       ├── reservation.routes.js
-    │       ├── reservation.service.js
-    │       └── reservation.controller.js
-    ├── clients/            # HTTP clients to the other services
-    │   ├── flight.client.js
-    │   ├── package.client.js
-    │   └── excursion.client.js
-    └── middlewares/        # authentication, ADMIN role, error handling
+├── user/                 auth + profile
+├── reservation/          reservations + history
+├── payment/              payments + refunds
+├── requirements-dev.txt  pytest
+├── run_tests.py          runs each service suite in its own process
+└── .venv/                local virtual environment (git-ignored)
 ```
 
-## 4. Watch-outs
+Each service follows the same layout:
 
-1. **Never write to `flights`, `packages` or `excursions`.**
-   The database is shared, so nothing stops you technically — it is a rule, not a
-   permission. Those tables belong to Mohammed, Youssef and Marwan.
+```
+<service>/
+├── index.py              create_app(), error handlers, /health
+├── config.py             environment values and defaults
+├── requirements.txt
+├── .env.example
+├── pytest.ini
+├── controls/             Flask blueprints
+├── helpers/              auth, security, responses, HTTP clients
+├── models/               SQLAlchemy models
+└── tests/
+    ├── conftest.py       in-memory SQLite + auth fixtures
+    ├── unit/             pure helpers
+    └── api/              Flask test client endpoints
+```
+
+## 5. Setup
+
+### 5.1 Python environment
+
+```powershell
+cd "C:\Users\kamal\Desktop\il\web service\project\code"
+py -3.11 -m venv kamal\.venv
+kamal\.venv\Scripts\python.exe -m pip install -r kamal\user\requirements.txt
+kamal\.venv\Scripts\python.exe -m pip install -r kamal\reservation\requirements.txt
+kamal\.venv\Scripts\python.exe -m pip install -r kamal\payment\requirements.txt
+kamal\.venv\Scripts\python.exe -m pip install -r kamal\requirements-dev.txt
+```
+
+### 5.2 Database
+
+Apply the shared schema once, in order:
+
+1. `db/init/10-auth.sql`
+2. `db/init/50-reservation.sql`
+3. `db/init/90-seed.sql`
+
+The local MySQL instance is expected on `127.0.0.1:3306` with database
+`travel_agency`. Docker is only used when explicitly requested.
+
+### 5.3 Environment files
+
+Copy each `.env.example` to `.env` in the same folder and change the secrets:
+
+- `kamal/user/.env.example` → `kamal/user/.env`
+- `kamal/reservation/.env.example` → `kamal/reservation/.env`
+- `kamal/payment/.env.example` → `kamal/payment/.env`
+
+Rules:
+
+- `JWT_SECRET` must be **identical** in all three files.
+- `SECRET_KEY`, `JWT_SECRET` and `DB_PASSWORD` have no defaults; the service refuses to start
+  without them.
+- `DB_HOST=127.0.0.1`, `DB_PORT=3306` for local MySQL.
+- `CORS_ORIGINS=http://localhost:4200` for the Angular dev server.
+- `.env` files are git-ignored and must never be committed.
+
+### 5.4 Start the services
+
+Open one terminal per service:
+
+```powershell
+cd "C:\Users\kamal\Desktop\il\web service\project\code"
+kamal\.venv\Scripts\python.exe kamal\user\index.py
+kamal\.venv\Scripts\python.exe kamal\reservation\index.py
+kamal\.venv\Scripts\python.exe kamal\payment\index.py
+```
+
+Health checks: `/health` on ports **8083**, **8085** and **8086**.
+
+## 6. Tests
+
+The suites need no MySQL, no running service and no network: every test uses an in-memory
+SQLite database and stubs the catalogue HTTP calls.
+
+```powershell
+kamal\.venv\Scripts\python.exe kamal\run_tests.py
+```
+
+The runner starts the three suites in separate processes because all services use the same
+top-level module names (`config`, `models`, `helpers`, `controls`). A single suite can also
+be run from its service folder:
+
+```powershell
+cd kamal\user
+..\.venv\Scripts\python.exe -m pytest
+```
+
+| Suite | Tests | Covers |
+|-------|-------|--------|
+| `user/tests` | 78 | Validators, PBKDF2/JWT helpers, register/login/logout/me/update-me, error envelopes |
+| `reservation/tests` | 114 | Catalogue parsing, retry client, serializers, CRUD, cancellation, validation, history, permissions, stock compensation |
+| `payment/tests` | 91 | Card validation, payment methods, declined cards, idempotency, refunds, permissions, compensation |
+
+## 7. Watch-outs
+
+1. **Never write to `flights`, `packages` or `excursions`.** Those tables belong to Mohammed,
+   Youssef and Marwan.
 2. **Call the neighbouring services, not their tables.** See
    [`md/05-rest-api-contract.md`](../md/05-rest-api-contract.md) § 2, 3 and 4.
 3. **A 3 s timeout and at most 2 attempts** on every inter-service call.
-4. **No bank card data** in the database or in the logs.
+4. **No bank card data** in the database or logs. Only the last 4 digits and a transaction
+   reference are stored.
 5. **The price is captured** in `unit_price` when the reservation is created.
 6. **The reservation owner is read from the token**, never from the request body.
+7. **Refunding a `CANCELLED` reservation releases the seats again** because cancellation
+   already released them. Tracked in [`md/needs.md`](../md/needs.md).
 
-## 5. Startup
+## 8. Demo data and test cards
 
-```bash
-# At the repository root: the shared database
-docker compose up -d
-docker compose ps        # mysql must report "healthy"
+Demo accounts from the seed dataset:
 
-# Demo accounts
-#   client@agency.travel / Password123!
-#   admin@agency.travel  / Password123!
-```
+- `client@agency.travel` / `Password123!`
+- `admin@agency.travel` / `Password123!`
 
-## 6. References
+Payment simulation:
+
+- `4242424242424242`, expiry `12/28`, CVV `123` → success.
+- `4000000000000002`, expiry `12/28`, CVV `123` → `402 PAYMENT_DECLINED`.
+
+## 9. References
 
 | Need | Document |
 |------|----------|
 | My mission and the others | [`md/02-tasks-and-ownership.md`](../md/02-tasks-and-ownership.md) |
 | Data model | [`md/04-data-model.md`](../md/04-data-model.md) |
-| Endpoints to implement | [`md/05-rest-api-contract.md`](../md/05-rest-api-contract.md) |
+| API contract | [`md/05-rest-api-contract.md`](../md/05-rest-api-contract.md) |
 | Reservation / payment / cancellation scenarios | [`md/07-sequence-reservation-payment.md`](../md/07-sequence-reservation-payment.md) |
+| Local machine setup | [`md/kamal.md`](../md/kamal.md) |
