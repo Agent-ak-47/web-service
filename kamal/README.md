@@ -177,7 +177,8 @@ Health checks: `/health` on ports **8083**, **8085** and **8086**.
 ## 6. Tests
 
 The suites need no MySQL, no running service and no network: every test uses an in-memory
-SQLite database and stubs the catalogue HTTP calls.
+SQLite database and stubs the catalogue HTTP calls. Progress is shown as `[18/78]` because
+each `pytest.ini` sets `console_output_style = count`.
 
 ```powershell
 kamal\run_all_tests.bat
