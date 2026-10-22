@@ -11,7 +11,11 @@ import {
     DEFAULT_KZ_RESERVATION_ADMIN_COLUMN,
     KzReservationAdminColumn,
 } from '../../../models/kz_reservation_admin_column.interface';
-import { KzReservationStatus } from '../../../models/kz_reservation_status.enum';
+import {
+    CANCELABLE_RESERVATION_STATUSES,
+    KzReservationStatus,
+    REFUNDABLE_RESERVATION_STATUSES,
+} from '../../../models/kz_reservation_status.enum';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import {
     KzCellFormat,
@@ -80,7 +84,7 @@ export class ReservationsAdminPage implements OnInit {
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
 
-    readonly actions: KzTableAction[] = [KzTableAction.CANCEL, KzTableAction.REFUND];
+    readonly actions: KzTableAction[] = [];
 
     reservations: KzReservation[] = [];
     rows: KzTableRow[] = [];
@@ -433,6 +437,22 @@ export class ReservationsAdminPage implements OnInit {
                 [this.STATUS_CELL_KEY]: reservation.status,
                 [this.DATE_CELL_KEY]: reservation.reservationDate,
             },
-}));
+            actions: this.actionsFor(reservation.status),
+        }));
+    }
+
+
+    private actionsFor(status: KzReservationStatus): KzTableAction[] {
+        const actions: KzTableAction[] = [];
+
+        if (CANCELABLE_RESERVATION_STATUSES.includes(status)) {
+            actions.push(KzTableAction.CANCEL);
+        }
+
+        if (REFUNDABLE_RESERVATION_STATUSES.includes(status)) {
+            actions.push(KzTableAction.REFUND);
+        }
+
+        return actions;
     }
 }

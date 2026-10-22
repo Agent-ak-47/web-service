@@ -5,6 +5,7 @@ import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzReservation } from '../../../models/kz_reservation.interface';
 import {
+    CANCELABLE_RESERVATION_STATUSES,
     KzReservationStatus,
     PAYABLE_RESERVATION_STATUSES,
 } from '../../../models/kz_reservation_status.enum';
@@ -64,7 +65,7 @@ export class ReservationsPage implements OnInit {
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
 
-    readonly actions: KzTableAction[] = [KzTableAction.CANCEL];
+    readonly actions: KzTableAction[] = [];
 
     reservations: KzReservation[] = [];
     rows: KzTableRow[] = [];
@@ -313,16 +314,21 @@ export class ReservationsPage implements OnInit {
 
 
     private buildRows(source: readonly KzReservation[]): KzTableRow[] {
-        return source.map((reservation) => ({
-            id: reservation.id,
-            cells: {
-                [this.REFERENCE_KEY]: reservation.reference,
-                [this.ITEM_KEY]: `${reservation.typeItem} - ${reservation.itemLabel}`,
-                [this.QUANTITY_KEY]: reservation.quantity,
-                [this.TOTAL_KEY]: reservation.totalAmount,
-                [this.STATUS_KEY]: reservation.status,
-                [this.DATE_KEY]: reservation.reservationDate,
-            },
-}));
+        return source.map((reservation) => {
+            const cancelable = CANCELABLE_RESERVATION_STATUSES.includes(reservation.status);
+
+            return {
+                id: reservation.id,
+                cells: {
+                    [this.REFERENCE_KEY]: reservation.reference,
+                    [this.ITEM_KEY]: `${reservation.typeItem} - ${reservation.itemLabel}`,
+                    [this.QUANTITY_KEY]: reservation.quantity,
+                    [this.TOTAL_KEY]: reservation.totalAmount,
+                    [this.STATUS_KEY]: reservation.status,
+                    [this.DATE_KEY]: reservation.reservationDate,
+                },
+                actions: cancelable ? [KzTableAction.CANCEL] : [],
+            };
+        });
     }
 }

@@ -597,7 +597,23 @@ def test_cancel_reservation_uses_the_admin_actor(
     assert ReservationHistory.query.one().actor == 'admin'
 
 
-@pytest.mark.parametrize('status', ['CANCELLED', 'PAID', 'REFUNDED', 'EXPIRED'])
+def test_cancel_reservation_allows_a_paid_booking(
+    client, auth_for, make_reservation, catalog,
+):
+    reservation = make_reservation(user_id=1, status='PAID')
+
+    response = client.post(
+        f'/api/reservations/{reservation.id}/cancellation',
+        json={},
+        headers=auth_for(user_id=1),
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['status'] == 'CANCELLED'
+    assert catalog.release_calls == []
+
+
+@pytest.mark.parametrize('status', ['CANCELLED', 'REFUNDED', 'EXPIRED'])
 def test_cancel_reservation_rejects_non_cancellable_statuses(
     client, auth_for, make_reservation, status,
 ):

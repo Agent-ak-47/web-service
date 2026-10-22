@@ -414,7 +414,6 @@ export class MockBackendService {
 
     private cancelReservation(reservation: KzReservation, reason: string): Response {
         const locked: readonly KzReservationStatus[] = [
-            KzReservationStatus.PAID,
             KzReservationStatus.REFUNDED,
             KzReservationStatus.EXPIRED,
         ];
@@ -423,9 +422,15 @@ export class MockBackendService {
             return this.fail(this.CONFLICT, 'INVALID_STATUS', 'This booking can no longer be cancelled.');
         }
 
+        const releasesStock = reservation.status === KzReservationStatus.PENDING
+            || reservation.status === KzReservationStatus.CONFIRMED;
+
         reservation.status = KzReservationStatus.CANCELLED;
         reservation.cancellationReason = reason;
-        this.increase(reservation.typeItem, reservation.itemId, reservation.quantity);
+
+        if (releasesStock) {
+            this.increase(reservation.typeItem, reservation.itemId, reservation.quantity);
+        }
 
         return this.ok(this.saveReservation(reservation));
     }

@@ -30,7 +30,7 @@ reservations_bp = Blueprint('reservations', __name__, url_prefix='/api/reservati
 
 ITEM_TYPES = ('FLIGHT', 'PACKAGE', 'EXCURSION')
 STOCK_HELD_STATUSES = ('PENDING', 'CONFIRMED')
-CANCELLABLE_STATUSES = STOCK_HELD_STATUSES
+CANCELLABLE_STATUSES = ('PENDING', 'CONFIRMED', 'PAID')
 MONEY_QUANTUM = Decimal('0.01')
 MAX_QUANTITY = 65535
 MAX_TOTAL = Decimal('99999999.99')
@@ -443,16 +443,19 @@ def cancel_reservation(reservation_id):
     body = _body() or {}
     reason = str(body.get('reason') or '').strip()[:255] or 'Cancelled by the customer'
     previous_status = reservation.status
+    releases_stock = previous_status in STOCK_HELD_STATUSES
     released = False
 
     try:
-        release_item(
-            reservation.item_type,
-            reservation.item_id,
-            reservation.quantity,
-            reservation.id,
-        )
-        released = True
+        if releases_stock:
+            release_item(
+                reservation.item_type,
+                reservation.item_id,
+                reservation.quantity,
+                reservation.id,
+            )
+            released = True
+
         reservation.status = 'CANCELLED'
         reservation.cancellation_reason = reason
         _add_history(reservation.id, previous_status, 'CANCELLED', _actor())

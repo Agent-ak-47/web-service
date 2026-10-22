@@ -41,7 +41,7 @@
                         @if (hasActions) {
                             <td class="actions-cell">
                                 <div class="actions-row">
-                                    @for (action of actions(); track action) {
+                                    @for (action of rowActions(row); track action) {
                                         <kz-btn [label]="actionLabel(action)" [kind]="actionKind(action)"
                                             [icon]="actionIconRef(action)" [hasIcon]="true"
                                             (clicked)="onAction(action, row.id)" />
