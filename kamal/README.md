@@ -86,11 +86,12 @@ Responses use one of two envelopes:
 
 ```
 kamal/
-├── user/                 auth + profile
-├── reservation/          reservations + history
-├── payment/              payments + refunds
+├── user/                 auth + profile, own .venv and run_tests.py
+├── reservation/          reservations + history, own .venv and run_tests.py
+├── payment/              payments + refunds, own .venv and run_tests.py
 ├── requirements-dev.txt  pytest
-└── run_tests.py          runs each service suite with its own venv
+├── run_all_tests.bat     runs the three local run_tests.py scripts
+└── run_tests.py          cross-platform equivalent of the .bat
 ```
 
 Each service has its own `.venv/` (git-ignored), created and installed separately.
@@ -105,6 +106,7 @@ Each service follows the same layout:
 ├── requirements.txt
 ├── .env.example
 ├── pytest.ini
+├── run_tests.py          runs this service's suite with its .venv
 ├── controls/             Flask blueprints
 ├── helpers/              auth, security, responses, HTTP clients
 ├── models/               SQLAlchemy models
@@ -178,16 +180,23 @@ The suites need no MySQL, no running service and no network: every test uses an 
 SQLite database and stubs the catalogue HTTP calls.
 
 ```powershell
+kamal\run_all_tests.bat
+```
+
+The `.bat` calls `run_tests.py` in each service folder. Each local script uses that service's
+own `.venv` and starts the suite in a separate process, because all services use the same
+top-level module names (`config`, `models`, `helpers`, `controls`). The same result is
+available cross-platform with:
+
+```powershell
 py -3.11 kamal\run_tests.py
 ```
 
-The runner starts the three suites in separate processes because all services use the same
-top-level module names (`config`, `models`, `helpers`, `controls`). It picks the interpreter
-from each service's own `.venv`. A single suite can also be run from its service folder:
+A single suite can be run from its service folder:
 
 ```powershell
 cd kamal\user
-.venv\Scripts\python.exe -m pytest
+py -3.11 run_tests.py
 ```
 
 | Suite | Tests | Covers |
