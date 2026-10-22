@@ -1,11 +1,17 @@
 import copy
 import json
+import os
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
 SCENARIOS = ('ok', 'missing', 'broken', 'slow', 'full', 'inactive', 'garbage')
+CORS_ORIGINS = {
+    origin.strip()
+    for origin in os.getenv('CORS_ORIGINS', 'http://localhost:4200').split(',')
+    if origin.strip()
+}
 
 
 def error(code, message, details=None):
@@ -38,6 +44,29 @@ class Catalogue:
     def recorded_calls(self):
         with self.lock:
             return copy.deepcopy(self.calls)
+
+    def all_items(self):
+        with self.lock:
+            scenario = self.scenario
+            items = copy.deepcopy(list(self.items.values()))
+
+        if scenario == 'missing':
+            return 404, error('NOT_FOUND', 'Resource not found.')
+
+        if scenario == 'broken':
+            return 503, error('SERVICE_UNAVAILABLE', 'The service is temporarily unavailable.')
+
+        if scenario == 'inactive':
+            for item in items:
+                item['active'] = False
+                item['available'] = False
+
+        if scenario == 'full':
+            for item in items:
+                if 'availableSeats' in item:
+                    item['availableSeats'] = 0
+
+        return 200, {'data': items}
 
     def item(self, item_id):
         with self.lock:
@@ -155,9 +184,21 @@ def make_handler(catalogue, resource):
         def log_message(self, format, *args):
             return
 
+        def _cors(self):
+            origin = self.headers.get('Origin')
+
+            if origin in CORS_ORIGINS:
+                self.send_header('Access-Control-Allow-Origin', origin)
+                self.send_header('Access-Control-Allow-Credentials', 'true')
+                self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+                self.send_header('Access-Control-Max-Age', '86400')
+                self.send_header('Vary', 'Origin')
+
         def _send(self, status, payload):
             body = json.dumps(payload).encode('utf-8')
             self.send_response(status)
+            self._cors()
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
@@ -165,10 +206,17 @@ def make_handler(catalogue, resource):
 
         def _send_raw(self, status, body, content_type):
             self.send_response(status)
+            self._cors()
             self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+
+        def do_OPTIONS(self):
+            self.send_response(204)
+            self._cors()
+            self.send_header('Content-Length', '0')
+            self.end_headers()
 
         def _body(self):
             length = int(self.headers.get('Content-Length') or 0)
@@ -187,6 +235,17 @@ def make_handler(catalogue, resource):
 
             if path == '/__calls':
                 return self._send(200, {'calls': catalogue.recorded_calls()})
+
+            if len(parts) == 2 and parts[0] == 'api' and parts[1] == resource:
+                scenario = catalogue.current_scenario()
+
+                if scenario == 'slow':
+                    time.sleep(5)
+
+                if scenario == 'garbage':
+                    return self._send_raw(200, b'<html>not json</html>', 'text/html')
+
+                return self._send(*catalogue.all_items())
 
             if len(parts) == 4 and parts[0] == 'api' and parts[1] == resource and parts[3] == 'availability':
                 try:

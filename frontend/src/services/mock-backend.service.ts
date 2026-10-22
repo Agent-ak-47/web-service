@@ -29,6 +29,7 @@ interface KzMockIdentified {
 
 @Injectable({ providedIn: 'root' })
 export class MockBackendService {
+	
     readonly DATASET_KEY = 'kz_mock_dataset';
     readonly VERSION_KEY = 'kz_mock_version';
     readonly USERS_KEY = 'kz_mock_users';
