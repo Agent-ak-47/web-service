@@ -90,14 +90,16 @@ kamal/
 ├── reservation/          reservations + history
 ├── payment/              payments + refunds
 ├── requirements-dev.txt  pytest
-├── run_tests.py          runs each service suite in its own process
-└── .venv/                local virtual environment (git-ignored)
+└── run_tests.py          runs each service suite with its own venv
 ```
+
+Each service has its own `.venv/` (git-ignored), created and installed separately.
 
 Each service follows the same layout:
 
 ```
 <service>/
+├── .venv/                service virtual environment (git-ignored)
 ├── index.py              create_app(), error handlers, /health
 ├── config.py             environment values and defaults
 ├── requirements.txt
@@ -114,15 +116,19 @@ Each service follows the same layout:
 
 ## 5. Setup
 
-### 5.1 Python environment
+### 5.1 Python environments
+
+Each service owns its virtual environment, so it can be installed, started and packaged on
+its own:
 
 ```powershell
 cd "C:\Users\kamal\Desktop\il\web service\project\code"
-py -3.11 -m venv kamal\.venv
-kamal\.venv\Scripts\python.exe -m pip install -r kamal\user\requirements.txt
-kamal\.venv\Scripts\python.exe -m pip install -r kamal\reservation\requirements.txt
-kamal\.venv\Scripts\python.exe -m pip install -r kamal\payment\requirements.txt
-kamal\.venv\Scripts\python.exe -m pip install -r kamal\requirements-dev.txt
+py -3.11 -m venv kamal\user\.venv
+py -3.11 -m venv kamal\reservation\.venv
+py -3.11 -m venv kamal\payment\.venv
+kamal\user\.venv\Scripts\python.exe -m pip install -r kamal\user\requirements.txt -r kamal\requirements-dev.txt
+kamal\reservation\.venv\Scripts\python.exe -m pip install -r kamal\reservation\requirements.txt -r kamal\requirements-dev.txt
+kamal\payment\.venv\Scripts\python.exe -m pip install -r kamal\payment\requirements.txt -r kamal\requirements-dev.txt
 ```
 
 ### 5.2 Database
@@ -159,9 +165,9 @@ Open one terminal per service:
 
 ```powershell
 cd "C:\Users\kamal\Desktop\il\web service\project\code"
-kamal\.venv\Scripts\python.exe kamal\user\index.py
-kamal\.venv\Scripts\python.exe kamal\reservation\index.py
-kamal\.venv\Scripts\python.exe kamal\payment\index.py
+kamal\user\.venv\Scripts\python.exe kamal\user\index.py
+kamal\reservation\.venv\Scripts\python.exe kamal\reservation\index.py
+kamal\payment\.venv\Scripts\python.exe kamal\payment\index.py
 ```
 
 Health checks: `/health` on ports **8083**, **8085** and **8086**.
@@ -172,16 +178,16 @@ The suites need no MySQL, no running service and no network: every test uses an 
 SQLite database and stubs the catalogue HTTP calls.
 
 ```powershell
-kamal\.venv\Scripts\python.exe kamal\run_tests.py
+py -3.11 kamal\run_tests.py
 ```
 
 The runner starts the three suites in separate processes because all services use the same
-top-level module names (`config`, `models`, `helpers`, `controls`). A single suite can also
-be run from its service folder:
+top-level module names (`config`, `models`, `helpers`, `controls`). It picks the interpreter
+from each service's own `.venv`. A single suite can also be run from its service folder:
 
 ```powershell
 cd kamal\user
-..\.venv\Scripts\python.exe -m pytest
+.venv\Scripts\python.exe -m pytest
 ```
 
 | Suite | Tests | Covers |

@@ -1,9 +1,18 @@
 import subprocess
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SERVICES = ('user', 'reservation', 'payment')
+
+
+def interpreter(service):
+    venv = ROOT / service / '.venv'
+
+    for candidate in (venv / 'Scripts' / 'python.exe', venv / 'bin' / 'python'):
+        if candidate.exists():
+            return str(candidate)
+
+    raise SystemExit(f'Missing virtual environment: {venv}')
 
 
 def main():
@@ -12,7 +21,7 @@ def main():
     for service in SERVICES:
         print(f'\n=== {service} ===', flush=True)
         result = subprocess.run(
-            [sys.executable, '-m', 'pytest'],
+            [interpreter(service), '-m', 'pytest'],
             cwd=ROOT / service,
         )
 
