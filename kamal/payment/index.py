@@ -1,3 +1,5 @@
+import traceback
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -41,8 +43,10 @@ def create_app():
         return error('METHOD_NOT_ALLOWED', 'This method is not allowed.', 405)
 
     @app.errorhandler(Exception)
-    def internal_error(_exception):
+    def internal_error(exception):
         db.session.rollback()
+        print(f'[payment] unhandled {exception!r}', flush=True)
+        traceback.print_exc()
 
         return error('INTERNAL_ERROR', 'Internal server error.', 500)
 

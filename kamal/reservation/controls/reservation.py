@@ -114,6 +114,7 @@ def _best_effort_release(item_type, item_id, quantity, reservation_id):
         current_app.logger.warning(
             'Compensating release failed for reservation %s.', reservation_id,
         )
+        traceback.print_exc()
 
 
 def _best_effort_reserve(item_type, item_id, quantity, reservation_id):
@@ -123,6 +124,7 @@ def _best_effort_reserve(item_type, item_id, quantity, reservation_id):
         current_app.logger.warning(
             'Compensating reserve failed for reservation %s.', reservation_id,
         )
+        traceback.print_exc()
 
 
 @reservations_bp.post('')

@@ -1,3 +1,4 @@
+import traceback
 import uuid
 
 from flask import Blueprint, current_app, g, request
@@ -104,6 +105,7 @@ def _best_effort_reserve(item_type, item_id, quantity, reservation_id):
         current_app.logger.warning(
             'Compensating reserve failed for reservation %s.', reservation_id,
         )
+        traceback.print_exc()
 
 
 @payments_bp.post('/reservations/<int:reservation_id>/payment')
@@ -178,8 +180,10 @@ def pay_reservation(reservation_id):
 
         try:
             db.session.commit()
-        except Exception:
+        except Exception as exception:
             db.session.rollback()
+            print(f'[payment] declined payment commit failed: {exception!r}', flush=True)
+            traceback.print_exc()
 
             return error('INTERNAL_ERROR', 'Internal server error.', 500)
 
@@ -214,8 +218,10 @@ def pay_reservation(reservation_id):
 
     try:
         db.session.commit()
-    except Exception:
+    except Exception as exception:
         db.session.rollback()
+        print(f'[payment] payment commit failed: {exception!r}', flush=True)
+        traceback.print_exc()
 
         return error('INTERNAL_ERROR', 'Internal server error.', 500)
 
@@ -282,8 +288,10 @@ def _refund_locked(reservation_id):
             'The catalogue service is temporarily unavailable.',
             502,
         )
-    except Exception:
+    except Exception as exception:
         db.session.rollback()
+        print(f'[payment] refund release failed: {exception!r}', flush=True)
+        traceback.print_exc()
 
         return error('INTERNAL_ERROR', 'Internal server error.', 500)
 
@@ -311,8 +319,10 @@ def _refund_locked(reservation_id):
 
     try:
         db.session.commit()
-    except Exception:
+    except Exception as exception:
         db.session.rollback()
+        print(f'[payment] refund commit failed: {exception!r}', flush=True)
+        traceback.print_exc()
 
         if released:
             _best_effort_reserve(item_type, item_id, quantity, reservation.id)

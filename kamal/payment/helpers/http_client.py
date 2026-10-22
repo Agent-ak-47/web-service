@@ -1,3 +1,5 @@
+import traceback
+
 import requests
 
 from config import Config
@@ -21,5 +23,6 @@ def request_json(method, url, payload=None, attempts=None):
             )
         except (requests.ConnectionError, requests.Timeout) as exception:
             last_error = exception
+            traceback.print_exc()
 
     raise ServiceUnavailable('The dependent service is unavailable.') from last_error

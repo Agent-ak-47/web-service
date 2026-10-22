@@ -1,3 +1,5 @@
+import traceback
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
@@ -47,7 +49,8 @@ def create_app():
             return exception
 
         db.session.rollback()
-        app.logger.exception('Unhandled user service error')
+        print(f'[user] unhandled {exception!r}', flush=True)
+        traceback.print_exc()
 
         return jsonify({'error': {
             'code': 'INTERNAL_ERROR',
