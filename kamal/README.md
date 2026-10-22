@@ -89,6 +89,7 @@ kamal/
 ├── user/                 auth + profile, own .venv and run_tests.py
 ├── reservation/          reservations + history, own .venv and run_tests.py
 ├── payment/              payments + refunds, own .venv and run_tests.py
+├── mock/                 mock flight, package and excursion services
 ├── requirements-dev.txt  pytest
 ├── run_all_tests.bat     runs the three local run_tests.py scripts
 └── run_tests.py          cross-platform equivalent of the .bat
@@ -173,6 +174,27 @@ kamal\payment\.venv\Scripts\python.exe kamal\payment\index.py
 ```
 
 Health checks: `/health` on ports **8083**, **8085** and **8086**.
+
+### 5.5 Mock catalogue services
+
+The flight, package and excursion services are not implemented yet. Their mocks live in
+`kamal/mock/` and listen on the real ports, so the `.env` URLs need no change:
+
+```powershell
+py -3.11 kamal\mock\run_all.py
+```
+
+One mock can also run alone:
+
+```powershell
+py -3.11 kamal\mock\flight\index.py      # 8081
+py -3.11 kamal\mock\package\index.py     # 8082
+py -3.11 kamal\mock\excursion\index.py   # 8084
+```
+
+Each mock exposes `GET /health`, `GET /__calls`, `POST /__reset` and
+`POST /__scenario` with `ok`, `missing`, `broken`, `slow`, `full`, `inactive` or `garbage`.
+Stop with `Ctrl+C`.
 
 ## 6. Tests
 
