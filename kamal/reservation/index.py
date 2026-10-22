@@ -1,3 +1,5 @@
+import traceback
+
 from flask import Flask
 from flask_cors import CORS
 
@@ -44,6 +46,8 @@ def create_app():
     @app.errorhandler(Exception)
     def internal_error(_exception):
         db.session.rollback()
+        print(f'[reservation] unhandled {_exception!r}', flush=True)
+        traceback.print_exc()
 
         return error('INTERNAL_ERROR', 'Internal server error.', 500)
 

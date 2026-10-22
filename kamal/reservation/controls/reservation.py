@@ -1,4 +1,5 @@
 import secrets
+import traceback
 from datetime import datetime, timezone
 from decimal import Decimal
 
@@ -250,8 +251,10 @@ def create_reservation():
             _best_effort_release(item_type, item_id, quantity, reservation_id)
 
         return error('DUPLICATE', 'The reservation could not be created.', 409)
-    except Exception:
+    except Exception as exception:
         db.session.rollback()
+        print(f'[reservation] create_reservation failed: {exception!r}', flush=True)
+        traceback.print_exc()
 
         if held and reservation_id is not None:
             _best_effort_release(item_type, item_id, quantity, reservation_id)
@@ -402,8 +405,10 @@ def update_reservation(reservation_id):
             'The catalogue service is temporarily unavailable.',
             502,
         )
-    except Exception:
+    except Exception as exception:
         db.session.rollback()
+        print(f'[reservation] update_reservation failed: {exception!r}', flush=True)
+        traceback.print_exc()
 
         if stock_changed:
             if delta > 0:
@@ -471,8 +476,10 @@ def cancel_reservation(reservation_id):
             'The catalogue service is temporarily unavailable.',
             502,
         )
-    except Exception:
+    except Exception as exception:
         db.session.rollback()
+        print(f'[reservation] cancel_reservation failed: {exception!r}', flush=True)
+        traceback.print_exc()
 
         if released:
             _best_effort_reserve(
