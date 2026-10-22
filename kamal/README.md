@@ -91,6 +91,7 @@ kamal/
 ├── payment/              payments + refunds, own .venv and run_tests.py
 ├── mock/                 mock flight, package and excursion services
 ├── requirements-dev.txt  pytest
+├── run.bat               starts the mocks and the three services
 ├── run_all_tests.bat     runs the three local run_tests.py scripts
 └── run_tests.py          cross-platform equivalent of the .bat
 ```
@@ -164,7 +165,13 @@ Rules:
 
 ### 5.4 Start the services
 
-Open one terminal per service:
+The launcher opens one window for the mocks and one per service:
+
+```powershell
+kamal\run.bat
+```
+
+Or start them manually, one terminal per process:
 
 ```powershell
 cd "C:\Users\kamal\Desktop\il\web service\project\code"
