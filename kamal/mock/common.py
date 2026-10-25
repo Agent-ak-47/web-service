@@ -72,10 +72,13 @@ def matches(resource, item, query):
             if wanted and not contains(item, field, wanted):
                 return False
 
-        for field in ('departureDate', 'arrivalDate'):
-            wanted = text(query.get(field))
+        for query_field, item_field in (
+            ('departureDate', 'departureTime'),
+            ('arrivalDate', 'arrivalTime'),
+        ):
+            wanted = text(query.get(query_field))
 
-            if wanted and not text(item.get(field)).startswith(wanted):
+            if wanted and not text(item.get(item_field)).startswith(wanted):
                 return False
 
         seats = number(item.get('availableSeats'))

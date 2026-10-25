@@ -657,10 +657,13 @@ export class MockBackendService {
                     }
                 }
 
-                for (const field of ['departureDate', 'arrivalDate']) {
-                    const wanted = this.clean(query.get(field));
+                for (const [queryField, itemField] of [
+                    ['departureDate', 'departureTime'],
+                    ['arrivalDate', 'arrivalTime'],
+                ]) {
+                    const wanted = this.clean(query.get(queryField));
 
-                    if (wanted.length > 0 && !this.fieldOf(item, field).startsWith(wanted)) {
+                    if (wanted.length > 0 && !this.fieldOf(item, itemField).startsWith(wanted)) {
                         return false;
                     }
                 }

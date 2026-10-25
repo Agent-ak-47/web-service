@@ -77,6 +77,20 @@ describe('FlightDetailPage', () => {
     });
 
 
+    it('should render a flight that arrives without times', async () => {
+        const legacy = { ...FLIGHT, departureTime: undefined, arrivalTime: undefined } as unknown as KzFlight;
+        setupLoad({ item: legacy, error: '', signedOut: false });
+        const fixture = TestBed.createComponent(FlightDetailPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.isLoading).toBe(false);
+        expect(fixture.componentInstance.errorMessage).toBe('');
+        expect(fixture.componentInstance.detail?.rows.some((row) => row.value === '-')).toBe(true);
+    });
+
+
     it('should clamp the quantity to the available seats', async () => {
         setupLoad({ item: FLIGHT, error: '', signedOut: false });
         const fixture = TestBed.createComponent(FlightDetailPage);

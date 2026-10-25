@@ -129,4 +129,6 @@ test('an ISO timestamp only compares its date part', () => {
 test('a missing or invalid start date is treated as bookable', () => {
     assert.equal(hasStartDatePassed('', NOW), false);
     assert.equal(hasStartDatePassed('not-a-date', NOW), false);
+    assert.equal(hasStartDatePassed(undefined, NOW), false);
+    assert.equal(hasStartDatePassed(null, NOW), false);
 });

@@ -210,7 +210,8 @@ of printing a `ConnectionAbortedError` traceback.
 The list endpoints honour the contract filters: `search`, `departureCity`, `arrivalCity`,
 `departureDate`, `arrivalDate`, `airline`, `minPrice`, `maxPrice` and `minSeats` for flights;
 `search`, `destination`, `startDate` and price filters for packages; `search`, `location`, `date`,
-`fromDate`, `toDate`, `maxDuration` and price filters for excursions.
+`fromDate`, `toDate`, `maxDuration` and price filters for excursions. Flight payloads expose
+`departureTime`/`arrivalTime`; the `departureDate`/`arrivalDate` query parameters filter those fields.
 
 ## 6. Tests
 

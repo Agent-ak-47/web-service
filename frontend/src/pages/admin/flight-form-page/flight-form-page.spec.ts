@@ -148,6 +148,21 @@ describe('FlightFormPage', () => {
     });
 
 
+    it('should tolerate a flight without times when editing', async () => {
+        routeId = '1';
+        const legacy = { ...FLIGHT, departureTime: undefined, arrivalTime: undefined } as unknown as KzFlight;
+        load.mockResolvedValue({ item: legacy, error: '', signedOut: false });
+        const fixture = TestBed.createComponent(FlightFormPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.isLoading).toBe(false);
+        expect(fixture.componentInstance.form.departureTime).toBe('');
+        expect(fixture.componentInstance.form.arrivalTime).toBe('');
+    });
+
+
     it('should navigate back to the list on cancel', () => {
         const fixture = TestBed.createComponent(FlightFormPage);
         const router = TestBed.inject(Router);
