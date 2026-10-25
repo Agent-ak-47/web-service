@@ -288,6 +288,12 @@ class Catalogue:
 
 def make_handler(catalogue, resource):
     class Handler(BaseHTTPRequestHandler):
+        def handle(self):
+            try:
+                super().handle()
+            except ConnectionError:
+                pass
+
         def log_message(self, format, *args):
             return
 

@@ -204,7 +204,8 @@ py -3.11 kamal\mock\excursion\index.py   # 8084
 
 Each mock exposes `GET /health`, `GET /__calls`, `POST /__reset` and
 `POST /__scenario` with `ok`, `missing`, `broken`, `slow`, `full`, `inactive` or `garbage`.
-Stop with `Ctrl+C`.
+Stop with `Ctrl+C`. A browser tab that reloads or navigates away mid-response is ignored instead
+of printing a `ConnectionAbortedError` traceback.
 
 The list endpoints honour the contract filters: `search`, `departureCity`, `arrivalCity`,
 `departureDate`, `arrivalDate`, `airline`, `minPrice`, `maxPrice` and `minSeats` for flights;
