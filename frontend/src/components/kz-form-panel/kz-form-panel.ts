@@ -1,7 +1,6 @@
 import { Component, input, output } from '@angular/core';
 
 import { KzBtnKind } from '../../models/kz_btn_kind.enum';
-import { KzFieldType } from '../../models/kz_field_type.enum';
 import { KzFormColumns } from '../../models/kz_form_columns.enum';
 import { KzFormField } from '../../models/kz_form_field.interface';
 import { KzFormFieldChange } from '../../models/kz_form_field_change.interface';
@@ -24,7 +23,6 @@ export class KzFormPanel {
     readonly CANCEL_LABEL = KZ_LABELS.cancel;
     readonly PRIMARY_KIND = KzBtnKind.PRIMARY;
     readonly SECONDARY_KIND = KzBtnKind.SECONDARY;
-    readonly FIELD_TYPE = KzFieldType;
 
     readonly title = input<string>('');
     readonly sections = input<KzFormSection[]>([]);

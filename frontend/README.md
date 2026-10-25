@@ -15,8 +15,12 @@ Useful alongside the backend from `kamal\run.bat`, which starts this dev server 
 ## Test
 
 ```bash
-npm test           # Node test runner over tests/*.test.ts
+npm test                 # policy tests, then component tests
+npm run test:policy      # Node test runner over tests/*.test.ts
+npm run test:components  # Angular CLI + Vitest, single run
 ```
+
+Component specs live next to their component (`src/**/*.spec.ts`). Use `npx ng test` for watch mode.
 
 ## Mock accounts
 

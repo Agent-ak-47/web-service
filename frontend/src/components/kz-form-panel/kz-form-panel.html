@@ -8,7 +8,7 @@
         <div [class]="rowClasses(section.columns)">
             @for (field of section.fields; track field.name) {
                 @switch (field.type) {
-                    @case (FIELD_TYPE.IMAGE) {
+                    @case ('image') {
                         <kz-upload-img [label]="field.label" [value]="field.value"
                             [hint]="field.hint" [error]="field.error" [required]="field.required"
                             [disabled]="field.disabled" (valueChange)="onFieldChange(field, $event)" />
