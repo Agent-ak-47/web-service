@@ -23,7 +23,7 @@ the user service is accepted by the reservation and payment services.
 | Task | Result | Status |
 |------|--------|--------|
 | K1 | Sign-up, login, logout, `GET`/`POST /api/auth/me` | Done |
-| K2 | `POST /api/reservations` | Done |
+| K2 | `POST /api/reservations` (past start dates rejected) | Done |
 | K3 | Captured price × quantity, stored once | Done |
 | K4 | `POST /api/reservations/<id>/payment` | Done |
 | K5 | `GET /api/reservations` (own rows; all rows for admins) | Done |
@@ -33,7 +33,7 @@ the user service is accepted by the reservation and payment services.
 | K9 | `POST /api/reservations/<id>/validation` (admin) | Done |
 | K10 | `GET /api/reservations/<id>/history` | Done |
 | K11 | Compensating `release`/`reserve` calls on failure | Done |
-| Tests | 283 backend tests (unit + API) | Done |
+| Tests | 305 backend tests (unit + API) | Done |
 
 ## 3. API
 
@@ -232,7 +232,7 @@ py -3.11 run_tests.py
 | Suite | Tests | Covers |
 |-------|-------|--------|
 | `user/tests` | 78 | Validators, PBKDF2/JWT helpers, register/login/logout/me/update-me, error envelopes |
-| `reservation/tests` | 114 | Catalogue parsing, retry client, serializers, CRUD, cancellation, validation, history, permissions, stock compensation |
+| `reservation/tests` | 136 | Catalogue parsing, retry client, serializers, CRUD, booking/cancellation rules, validation, history, permissions, stock compensation |
 | `payment/tests` | 91 | Card validation, payment methods, declined cards, idempotency, refunds, permissions, compensation |
 
 ## 7. Watch-outs
@@ -246,7 +246,10 @@ py -3.11 run_tests.py
    reference are stored.
 5. **The price is captured** in `unit_price` when the reservation is created.
 6. **The reservation owner is read from the token**, never from the request body.
-7. **Refunding a `CANCELLED` reservation releases the seats again** because cancellation
+7. **Booking stops once the item's start date has passed**, but same-day bookings are still
+   accepted. The check uses the date captured from the catalogue and returns
+   `422 BUSINESS_RULE_VIOLATION`.
+8. **Refunding a `CANCELLED` reservation releases the seats again** because cancellation
    already released them. Tracked in [`md/needs.md`](../md/needs.md).
 
 ## 8. Demo data and test cards

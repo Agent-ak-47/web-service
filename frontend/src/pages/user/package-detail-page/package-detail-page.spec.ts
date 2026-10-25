@@ -15,8 +15,8 @@ const PACKAGE: KzPackage = {
     id: 2,
     name: 'Marrakech Escape',
     destination: 'Marrakech',
-    startDate: '2026-12-01',
-    endDate: '2026-12-05',
+    startDate: '2099-12-01',
+    endDate: '2099-12-05',
     durationNights: 4,
     price: 2000,
     promoPrice: 1500,
@@ -84,6 +84,21 @@ describe('PackageDetailPage', () => {
 
         expect(fixture.componentInstance.detail?.disabled).toBe(true);
         expect(fixture.componentInstance.detail?.disabledLabel).toBe('Booked');
+    });
+
+
+    it('should disable the booking of a package whose start date has passed', async () => {
+        const pastPackage = { ...PACKAGE, startDate: '2020-01-01', endDate: '2020-01-05' };
+        load.mockResolvedValue({ item: pastPackage, error: '', signedOut: false });
+        const fixture = TestBed.createComponent(PackageDetailPage);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        await fixture.componentInstance.onReserve();
+
+        expect(fixture.componentInstance.detail?.disabled).toBe(true);
+        expect(fixture.componentInstance.detail?.disabledLabel).toBe('Expired');
+        expect(reserve).not.toHaveBeenCalled();
     });
 
 

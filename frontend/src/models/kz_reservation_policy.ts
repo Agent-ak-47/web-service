@@ -28,6 +28,11 @@ export function canCancelReservation(
 }
 
 
+export function hasStartDatePassed(startDate: string, now: Date = new Date()): boolean {
+    return daysUntil(startDate, now) < 0;
+}
+
+
 function daysUntil(departureDate: string, now: Date): number {
     const parts = departureDate.slice(0, 10).split('-').map(Number);
 

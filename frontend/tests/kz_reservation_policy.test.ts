@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import type { KzReservation } from '../src/models/kz_reservation.interface.ts';
-import { canCancelReservation } from '../src/models/kz_reservation_policy.ts';
+import { canCancelReservation, hasStartDatePassed } from '../src/models/kz_reservation_policy.ts';
 import { KzReservationStatus } from '../src/models/kz_reservation_status.enum.ts';
 
 const NOW = new Date(2026, 10, 25, 12, 0, 0);
@@ -102,4 +102,31 @@ test('the two day boundary ignores the time of day', () => {
     const lateNow = new Date(2026, 10, 25, 23, 59, 59);
 
     assert.equal(canCancelReservation(reservation, false, lateNow), true);
+});
+
+
+test('a start date before today has passed', () => {
+    assert.equal(hasStartDatePassed('2026-11-24', NOW), true);
+});
+
+
+test('a start date later today has not passed', () => {
+    assert.equal(hasStartDatePassed('2026-11-25', NOW), false);
+});
+
+
+test('a future start date has not passed', () => {
+    assert.equal(hasStartDatePassed('2026-11-26', NOW), false);
+});
+
+
+test('an ISO timestamp only compares its date part', () => {
+    assert.equal(hasStartDatePassed('2026-11-24T23:59:59', NOW), true);
+    assert.equal(hasStartDatePassed('2026-11-25T00:00:01', NOW), false);
+});
+
+
+test('a missing or invalid start date is treated as bookable', () => {
+    assert.equal(hasStartDatePassed('', NOW), false);
+    assert.equal(hasStartDatePassed('not-a-date', NOW), false);
 });

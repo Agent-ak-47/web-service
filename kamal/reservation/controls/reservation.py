@@ -190,6 +190,16 @@ def create_reservation():
             {'itemId': item_id},
         )
 
+    departure_date = departure_date_of(item_type, item)
+
+    if departure_date is not None and departure_date < datetime.now(timezone.utc).date():
+        return error(
+            'BUSINESS_RULE_VIOLATION',
+            'This product can no longer be booked because its start date has passed.',
+            422,
+            {'departureDate': departure_date.isoformat()},
+        )
+
     try:
         available = available_seats_of(item_type, item)
         unit_price = price_of(item_type, item)
@@ -226,7 +236,7 @@ def create_reservation():
         item_label=label,
         quantity=quantity,
         reservation_date=utcnow(),
-        departure_date=departure_date_of(item_type, item),
+        departure_date=departure_date,
         unit_price=unit_price,
         total_amount=total_amount,
         status='PENDING',

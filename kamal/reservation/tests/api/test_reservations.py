@@ -125,6 +125,47 @@ def test_create_reservation_captures_the_departure_date(
     assert response.get_json()['data']['departureDate'] == departure_date
 
 
+@pytest.mark.parametrize(
+    'item_type, date_field',
+    [
+        ('FLIGHT', 'departureTime'),
+        ('PACKAGE', 'startDate'),
+        ('EXCURSION', 'date'),
+    ],
+)
+def test_create_reservation_rejects_an_item_whose_start_date_has_passed(
+    client, auth_for, catalog, item_type, date_field,
+):
+    past = (datetime.now(timezone.utc).date() - timedelta(days=1)).isoformat()
+    catalog.item[date_field] = f'{past}T07:15:00Z' if item_type == 'FLIGHT' else past
+
+    response = create_reservation(
+        client,
+        auth_for(),
+        typeItem=item_type,
+        itemId=7,
+        quantity=1,
+    )
+
+    assert response.status_code == 422
+    error = response.get_json()['error']
+    assert error['code'] == 'BUSINESS_RULE_VIOLATION'
+    assert error['details'] == {'departureDate': past}
+    assert Reservation.query.count() == 0
+    assert ReservationHistory.query.count() == 0
+    assert catalog.reserve_calls == []
+
+
+def test_create_reservation_allows_an_item_starting_today(client, auth_for, catalog):
+    today = datetime.now(timezone.utc).date().isoformat()
+    catalog.item['departureTime'] = f'{today}T07:15:00Z'
+
+    response = create_reservation(client, auth_for())
+
+    assert response.status_code == 201
+    assert response.get_json()['data']['departureDate'] == today
+
+
 def test_create_package_reservation_uses_the_promo_price(client, auth_for, catalog):
     catalog.item = {
         'price': '100.00',

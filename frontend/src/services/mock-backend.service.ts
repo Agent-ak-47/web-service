@@ -12,7 +12,11 @@ import { KzPayment } from '../models/kz_payment.interface';
 import { KzPaymentMethod } from '../models/kz_payment_method.enum';
 import { KzPaymentStatus } from '../models/kz_payment_status.enum';
 import { KzReservation } from '../models/kz_reservation.interface';
-import { CANCELLATION_NOTICE_DAYS, canCancelReservation } from '../models/kz_reservation_policy';
+import {
+    CANCELLATION_NOTICE_DAYS,
+    canCancelReservation,
+    hasStartDatePassed,
+} from '../models/kz_reservation_policy';
 import { KzReservationStatus } from '../models/kz_reservation_status.enum';
 import { KzUserRole } from '../models/kz_user_role.enum';
 import { GlobalService } from './global.service';
@@ -382,6 +386,17 @@ export class MockBackendService {
             return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Item not found.');
         }
 
+        const departureDate = this.departureDateOf(typeItem, itemId);
+
+        if (hasStartDatePassed(departureDate)) {
+            return this.fail(
+                this.UNPROCESSABLE_ENTITY,
+                'BUSINESS_RULE_VIOLATION',
+                'This product can no longer be booked because its start date has passed.',
+                { itemId, departureDate },
+            );
+        }
+
         const available = this.remainingOf(typeItem, itemId);
 
         if (quantity <= 0 || available < quantity) {
@@ -403,7 +418,7 @@ export class MockBackendService {
             totalAmount: Number((unitPrice * quantity).toFixed(2)),
             status: KzReservationStatus.PENDING,
             reservationDate: new Date().toISOString(),
-            departureDate: this.departureDateOf(typeItem, itemId),
+            departureDate,
             cancellationReason: '',
         };
 

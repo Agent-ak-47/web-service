@@ -16,8 +16,8 @@ const FLIGHT: KzFlight = {
     flightNumber: 'AT100',
     departureCity: 'Casablanca',
     arrivalCity: 'Paris',
-    departureTime: '2026-11-04T09:00:00',
-    arrivalTime: '2026-11-04T12:30:00',
+    departureTime: '2099-11-04T09:00:00',
+    arrivalTime: '2099-11-04T12:30:00',
     totalSeats: 120,
     availableSeats: 4,
     price: 1200,
@@ -103,6 +103,25 @@ describe('FlightDetailPage', () => {
         expect(reserve).toHaveBeenCalledWith(KzItemType.FLIGHT, 1, 1);
         expect(navigate).toHaveBeenCalledWith('/payment');
         expect(fixture.componentInstance.isReserving).toBe(false);
+    });
+
+
+    it('should disable the booking of a flight whose start date has passed', async () => {
+        const pastFlight = {
+            ...FLIGHT,
+            departureTime: '2020-01-01T09:00:00',
+            arrivalTime: '2020-01-01T12:30:00',
+        };
+        setupLoad({ item: pastFlight, error: '', signedOut: false });
+        const fixture = TestBed.createComponent(FlightDetailPage);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        await fixture.componentInstance.onReserve();
+
+        expect(fixture.componentInstance.detail?.disabled).toBe(true);
+        expect(fixture.componentInstance.detail?.disabledLabel).toBe('Expired');
+        expect(reserve).not.toHaveBeenCalled();
     });
 
 

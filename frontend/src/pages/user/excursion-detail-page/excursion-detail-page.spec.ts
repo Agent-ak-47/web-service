@@ -14,7 +14,7 @@ const EXCURSION: KzExcursion = {
     id: 3,
     title: 'Medina walking tour',
     location: 'Marrakech',
-    date: '2026-11-04',
+    date: '2099-11-04',
     startTime: '09:00',
     dureeMinutes: 150,
     capacity: 20,
@@ -66,6 +66,24 @@ describe('ExcursionDetailPage', () => {
         await fixture.whenStable();
 
         expect(fixture.componentInstance.errorMessage).toBe(KZ_LABELS.noResult);
+    });
+
+
+    it('should disable the booking of an excursion whose start date has passed', async () => {
+        load.mockResolvedValue({
+            item: { ...EXCURSION, date: '2020-01-01' },
+            error: '',
+            signedOut: false,
+        });
+        const fixture = TestBed.createComponent(ExcursionDetailPage);
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        await fixture.componentInstance.onReserve();
+
+        expect(fixture.componentInstance.detail?.disabled).toBe(true);
+        expect(fixture.componentInstance.detail?.disabledLabel).toBe('Expired');
+        expect(reserve).not.toHaveBeenCalled();
     });
 
 

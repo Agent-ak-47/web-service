@@ -8,6 +8,7 @@ import { KzItemDetailData, KzItemDetailRow } from '../../../models/kz_item_detai
 import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { hasStartDatePassed } from '../../../models/kz_reservation_policy';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
@@ -31,6 +32,7 @@ export class FlightDetailPage implements OnInit {
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
     readonly INACTIVE_LABEL = 'Unavailable';
+    readonly EXPIRED_LABEL = 'Expired';
     readonly ACTIVE_LABEL = 'Available';
     readonly QUANTITY_LABEL = 'Seats';
     readonly PRICE_UNIT = 'per passenger';
@@ -89,7 +91,7 @@ export class FlightDetailPage implements OnInit {
 
 
     async onReserve(): Promise<void> {
-        if (this.item === null || this.isReserving) {
+        if (this.item === null || this.isReserving || this.detail?.disabled === true) {
             return;
         }
 
@@ -156,6 +158,8 @@ export class FlightDetailPage implements OnInit {
 
 
     private buildDetail(item: KzFlight): KzItemDetailData {
+        const pastStart = hasStartDatePassed(item.departureTime);
+
         return {
             id: item.id,
             type: KzItemType.FLIGHT,
@@ -171,8 +175,10 @@ export class FlightDetailPage implements OnInit {
             rows: this.buildRows(item),
             sections: [],
             actionLabel: this.RESERVE_LABEL,
-            disabled: !item.active || item.availableSeats === 0,
-            disabledLabel: item.availableSeats === 0 ? this.SOLD_OUT_LABEL : this.INACTIVE_LABEL,
+            disabled: !item.active || item.availableSeats === 0 || pastStart,
+            disabledLabel: pastStart
+                ? this.EXPIRED_LABEL
+                : item.availableSeats === 0 ? this.SOLD_OUT_LABEL : this.INACTIVE_LABEL,
             maxQuantity: Math.max(1, item.availableSeats),
         };
     }
