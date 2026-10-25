@@ -106,6 +106,8 @@ kamal/
 ├── user/                 auth + profile, own .venv and run_tests.py
 ├── reservation/          reservations + history, own .venv and run_tests.py
 ├── payment/              payments + refunds, own .venv and run_tests.py
+├── docker-compose.yml    the three services in Docker (MySQL stays at the root)
+├── .env.example          values read by docker-compose.yml (→ .env)
 ├── mock/                 mock flight, package and excursion services
 ├── requirements-dev.txt  pytest
 ├── run.bat               starts the mocks, the three services and the Angular dev server
@@ -125,6 +127,8 @@ Each service follows the same layout:
 ├── index.py              create_app(), error handlers, /health
 ├── config.py             environment values and defaults
 ├── requirements.txt
+├── Dockerfile
+├── .dockerignore
 ├── .env.example
 ├── pytest.ini
 ├── run_tests.py          runs this service's suite with its .venv
@@ -203,7 +207,61 @@ kamal\payment\.venv\Scripts\python.exe kamal\payment\index.py
 
 Health checks: `/health` on ports **8083**, **8085** and **8086**.
 
-### 5.5 Mock catalogue services
+### 5.5 Run the three services in Docker
+
+The three services are containerised: one `Dockerfile` per service and one
+`kamal/docker-compose.yml`. The database is **not** redefined there — it stays the shared
+MySQL container of the repository root.
+
+1. Start the shared infrastructure once, at the repository root:
+
+```bash
+docker compose up -d
+```
+
+2. Create the Compose environment file (it holds the shared secrets):
+
+```bash
+cp kamal/.env.example kamal/.env
+```
+
+3. Build and start the three services:
+
+```bash
+docker compose -f kamal/docker-compose.yml up -d --build
+docker compose -f kamal/docker-compose.yml ps        # all three must report "healthy"
+docker compose -f kamal/docker-compose.yml logs -f    # follow the logs
+```
+
+| Container | Image | Host port |
+|-----------|-------|-----------|
+| `travel-agency-kamal-user-service-1` | `kamal-user-service` | 8083 |
+| `travel-agency-kamal-reservation-service-1` | `kamal-reservation-service` | 8085 |
+| `travel-agency-kamal-payment-service-1` | `kamal-payment-service` | 8086 |
+
+Health checks: `curl http://localhost:8083/health`, `http://localhost:8085/health` and
+`http://localhost:8086/health`. The stack joins the `travel_agency_net` network, so the
+containers reach MySQL as `mysql` (`DB_HOST=mysql`, port 3306) — never `127.0.0.1`.
+
+Stop it with `docker compose -f kamal/docker-compose.yml down`; the images and the database
+are kept. A rebuild is only needed after a code change:
+`docker compose -f kamal/docker-compose.yml up -d --build`.
+
+The catalogue services (flight 8081, package 8082, excursion 8084) are **not** containerised:
+the reservation and payment containers reach the mocks running on the host through
+`host.docker.internal`, already configured in `kamal/docker-compose.yml`. Start them with
+`py -3.11 kamal/mock/run_all.py`; without them, `POST /api/reservations` answers
+`502 SERVICE_UNAVAILABLE`.
+
+Notes:
+
+- `.env` files are excluded from the images (`.dockerignore`); every value comes from
+  `kamal/.env` through Compose.
+- The containers run `gunicorn` as a non-root user, and each Dockerfile carries a
+  `HEALTHCHECK` on `/health`.
+- `kamal/.env` must never be committed (it is already covered by `.gitignore`).
+
+### 5.6 Mock catalogue services
 
 The flight, package and excursion services are not implemented yet. Their mocks live in
 `kamal/mock/` and listen on the real ports, so the `.env` URLs need no change:

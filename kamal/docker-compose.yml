@@ -1,0 +1,87 @@
+# ---------------------------------------------------------------------------
+# Kamal's three Flask services.
+#
+#   user-service         8083   auth + profile
+#   reservation-service  8085   reservations + history
+#   payment-service      8086   payments + refunds
+#
+# The database is NOT defined here: it is the shared infrastructure at the
+# repository root (docker-compose.yml, see md/06-docker-architecture.md).
+# Start it first, then this stack:
+#
+#   docker compose up -d                                      # at the repo root
+#   docker compose -f kamal/docker-compose.yml up -d --build   # these 3 services
+#
+# Values (secrets, database account) come from kamal/.env:
+#   cp kamal/.env.example kamal/.env
+# ---------------------------------------------------------------------------
+
+name: travel-agency-kamal
+
+x-common: &common
+  restart: unless-stopped
+  # Same bridge network as the MySQL container of the root compose file.
+  networks:
+    - travel_agency
+  # Lets the containers reach the catalogue services (the mocks) started on
+  # the host machine: http://host.docker.internal:8081 etc.
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  environment: &environment
+    SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is missing from kamal/.env}
+    JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is missing from kamal/.env}
+    DB_HOST: ${DB_HOST:-mysql}
+    DB_PORT: ${DB_PORT:-3306}
+    DB_NAME: ${DB_NAME:-travel_agency}
+    DB_USER: ${DB_USER:-app_user}
+    DB_PASSWORD: ${DB_PASSWORD:-app_pwd_2026}
+    CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
+
+services:
+  user-service:
+    <<: *common
+    build: ./user
+    image: kamal-user-service
+    environment:
+      <<: *environment
+      PORT: "8083"
+      JWT_TTL_MINUTES: ${JWT_TTL_MINUTES:-120}
+    ports:
+      - "8083:8083"
+
+  reservation-service:
+    <<: *common
+    build: ./reservation
+    image: kamal-reservation-service
+    environment:
+      <<: *environment
+      PORT: "8085"
+      FLIGHT_SERVICE_URL: ${FLIGHT_SERVICE_URL:-http://host.docker.internal:8081}
+      PACKAGE_SERVICE_URL: ${PACKAGE_SERVICE_URL:-http://host.docker.internal:8082}
+      EXCURSION_SERVICE_URL: ${EXCURSION_SERVICE_URL:-http://host.docker.internal:8084}
+      SERVICE_TIMEOUT: ${SERVICE_TIMEOUT:-3}
+      SERVICE_ATTEMPTS: ${SERVICE_ATTEMPTS:-2}
+    ports:
+      - "8085:8085"
+
+  payment-service:
+    <<: *common
+    build: ./payment
+    image: kamal-payment-service
+    environment:
+      <<: *environment
+      PORT: "8086"
+      FLIGHT_SERVICE_URL: ${FLIGHT_SERVICE_URL:-http://host.docker.internal:8081}
+      PACKAGE_SERVICE_URL: ${PACKAGE_SERVICE_URL:-http://host.docker.internal:8082}
+      EXCURSION_SERVICE_URL: ${EXCURSION_SERVICE_URL:-http://host.docker.internal:8084}
+      SERVICE_TIMEOUT: ${SERVICE_TIMEOUT:-3}
+      SERVICE_ATTEMPTS: ${SERVICE_ATTEMPTS:-2}
+      DECLINED_CARD_SUFFIX: ${DECLINED_CARD_SUFFIX:-0002}
+    ports:
+      - "8086:8086"
+
+networks:
+  # Created by `docker compose up -d` at the repository root.
+  travel_agency:
+    name: travel_agency_net
+    external: true
