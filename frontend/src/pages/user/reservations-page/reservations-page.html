@@ -21,8 +21,10 @@
                         <span class="pay-amount">{{ reservation.itemLabel }} - {{ reservation.totalAmount | kzMoney }}</span>
                     </div>
                     <div class="pay-actions">
-                        <kz-btn [label]="REMOVE_LABEL" [kind]="REMOVE_KIND" [disabled]="isCancelling"
-                            (clicked)="onRemove(reservation)" />
+                        @if (canCancel(reservation)) {
+                            <kz-btn [label]="REMOVE_LABEL" [kind]="REMOVE_KIND" [disabled]="isCancelling"
+                                (clicked)="onRemove(reservation)" />
+                        }
                         <kz-btn [label]="PAY_LABEL" [kind]="PAY_KIND" [disabled]="isCancelling"
                             (clicked)="onPay(reservation)" />
                     </div>

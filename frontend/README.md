@@ -12,6 +12,12 @@ npm start          # http://localhost:4200
 
 Useful alongside the backend from `kamal\run.bat`, which starts this dev server too.
 
+## Test
+
+```bash
+npm test           # Node test runner over tests/*.test.ts
+```
+
 ## Mock accounts
 
 Both demo accounts share the same password. They exist in the database seed

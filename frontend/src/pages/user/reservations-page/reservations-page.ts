@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzReservation } from '../../../models/kz_reservation.interface';
+import { canCancelReservation } from '../../../models/kz_reservation_policy';
 import {
-    CANCELABLE_RESERVATION_STATUSES,
     KzReservationStatus,
     PAYABLE_RESERVATION_STATUSES,
 } from '../../../models/kz_reservation_status.enum';
@@ -157,12 +157,18 @@ export class ReservationsPage implements OnInit {
 
 
     onRemove(reservation: KzReservation): void {
-        if (this.isCancelling) {
+        if (this.isCancelling || !this.canCancel(reservation)) {
             return;
         }
 
         this.openCancel(reservation);
     }
+
+
+    canCancel(reservation: KzReservation): boolean {
+        return canCancelReservation(reservation, this.authService.isAdmin);
+    }
+
 
 
     onCloseDialog(): void {
@@ -232,6 +238,10 @@ export class ReservationsPage implements OnInit {
 
 
     private openCancel(reservation: KzReservation): void {
+        if (!this.canCancel(reservation)) {
+            return;
+        }
+
         this.cancelTarget = reservation;
         this.cancelReason = this.DEFAULT_CANCEL_REASON;
         this.errorMessage = '';
@@ -317,8 +327,6 @@ export class ReservationsPage implements OnInit {
 
     private buildRows(source: readonly KzReservation[]): KzTableRow[] {
         return source.map((reservation) => {
-            const cancelable = CANCELABLE_RESERVATION_STATUSES.includes(reservation.status);
-
             return {
                 id: reservation.id,
                 cells: {
@@ -329,7 +337,7 @@ export class ReservationsPage implements OnInit {
                     [this.STATUS_KEY]: reservation.status,
                     [this.DATE_KEY]: reservation.reservationDate,
                 },
-                actions: cancelable ? [KzTableAction.CANCEL] : [],
+                actions: this.canCancel(reservation) ? [KzTableAction.CANCEL] : [],
             };
         });
     }

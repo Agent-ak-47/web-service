@@ -12,6 +12,7 @@ import { KzPayment } from '../models/kz_payment.interface';
 import { KzPaymentMethod } from '../models/kz_payment_method.enum';
 import { KzPaymentStatus } from '../models/kz_payment_status.enum';
 import { KzReservation } from '../models/kz_reservation.interface';
+import { CANCELLATION_NOTICE_DAYS, canCancelReservation } from '../models/kz_reservation_policy';
 import { KzReservationStatus } from '../models/kz_reservation_status.enum';
 import { KzUserRole } from '../models/kz_user_role.enum';
 import { GlobalService } from './global.service';
@@ -33,7 +34,7 @@ export class MockBackendService {
     readonly DATASET_KEY = 'kz_mock_dataset';
     readonly VERSION_KEY = 'kz_mock_version';
     readonly USERS_KEY = 'kz_mock_users';
-    readonly DATASET_VERSION = '2';
+    readonly DATASET_VERSION = '3';
     readonly TOKEN_PREFIX = 'kzmock.';
     readonly TOKEN_LIFETIME_HOURS = 12;
     readonly DEMO_PASSWORD = 'Password123!';
@@ -52,6 +53,7 @@ export class MockBackendService {
     readonly FORBIDDEN = 403;
     readonly NOT_FOUND = 404;
     readonly CONFLICT = 409;
+    readonly UNPROCESSABLE_ENTITY = 422;
 
     dataset: KzMockDataset = { flights: [], packages: [], excursions: [], reservations: [] };
     users: KzMockUserAccount[] = [];
@@ -340,7 +342,7 @@ export class MockBackendService {
         }
 
         if (method === 'POST' && action === 'cancellation') {
-            return this.cancelReservation(reservation, String(body['reason'] ?? ''));
+            return this.cancelReservation(reservation, String(body['reason'] ?? ''), token);
         }
 
         if (method === 'POST' && action === 'payment') {
@@ -401,6 +403,7 @@ export class MockBackendService {
             totalAmount: Number((unitPrice * quantity).toFixed(2)),
             status: KzReservationStatus.PENDING,
             reservationDate: new Date().toISOString(),
+            departureDate: this.departureDateOf(typeItem, itemId),
             cancellationReason: '',
         };
 
@@ -412,7 +415,11 @@ export class MockBackendService {
     }
 
 
-    private cancelReservation(reservation: KzReservation, reason: string): Response {
+    private cancelReservation(
+        reservation: KzReservation,
+        reason: string,
+        token: KzMockToken,
+    ): Response {
         const locked: readonly KzReservationStatus[] = [
             KzReservationStatus.REFUNDED,
             KzReservationStatus.EXPIRED,
@@ -420,6 +427,19 @@ export class MockBackendService {
 
         if (locked.includes(reservation.status) || reservation.status === KzReservationStatus.CANCELLED) {
             return this.fail(this.CONFLICT, 'INVALID_STATUS', 'This booking can no longer be cancelled.');
+        }
+
+        if (token.role !== KzUserRole.ADMIN && !canCancelReservation(reservation, false)) {
+            return this.fail(
+                this.UNPROCESSABLE_ENTITY,
+                'BUSINESS_RULE_VIOLATION',
+                `A booking can only be cancelled at least ${CANCELLATION_NOTICE_DAYS} `
+                    + 'days before its start date.',
+                {
+                    departureDate: reservation.departureDate,
+                    minimumDays: CANCELLATION_NOTICE_DAYS,
+                },
+            );
         }
 
         const releasesStock = reservation.status === KzReservationStatus.PENDING
@@ -658,6 +678,25 @@ export class MockBackendService {
         }
 
         return (item as KzPackage).name;
+    }
+
+
+    private departureDateOf(typeItem: string, itemId: number): string {
+        const item = this.findItem(typeItem, itemId);
+
+        if (item === null) {
+            return '';
+        }
+
+        if (typeItem === KzItemType.FLIGHT) {
+            return (item as KzFlight).departureTime.slice(0, 10);
+        }
+
+        if (typeItem === KzItemType.EXCURSION) {
+            return (item as KzExcursion).date;
+        }
+
+        return (item as KzPackage).startDate;
     }
 
 

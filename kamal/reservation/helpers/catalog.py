@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from config import Config
@@ -144,3 +145,20 @@ def label_of(item_type, item):
         label = f'{title} ({location})' if location else title
 
     return label[:160]
+
+
+def departure_date_of(item_type, item):
+    if item_type == 'FLIGHT':
+        value = item.get('departureTime') or item.get('departureDate')
+    elif item_type == 'PACKAGE':
+        value = item.get('startDate')
+    else:
+        value = item.get('date')
+
+    if not isinstance(value, str) or value.strip() == '':
+        return None
+
+    try:
+        return datetime.fromisoformat(value.strip().replace('Z', '+00:00')).date()
+    except ValueError:
+        return None

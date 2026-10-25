@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 import pytest
@@ -5,6 +6,7 @@ import pytest
 from helpers.catalog import (
     ServiceUnavailable,
     available_seats_of,
+    departure_date_of,
     is_item_active,
     label_of,
     price_of,
@@ -111,3 +113,21 @@ def test_label_of_is_limited_to_160_characters():
 
     assert len(label) == 160
     assert label == 'x' * 160
+
+
+@pytest.mark.parametrize(
+    'item_type, item, expected',
+    [
+        ('FLIGHT', {'departureTime': '2026-11-04T07:15:00Z'}, date(2026, 11, 4)),
+        ('FLIGHT', {'departureDate': '2026-11-05T07:15:00Z'}, date(2026, 11, 5)),
+        ('FLIGHT', {'departureTime': '2026-11-04T07:15:00+02:00'}, date(2026, 11, 4)),
+        ('PACKAGE', {'startDate': '2026-11-06'}, date(2026, 11, 6)),
+        ('EXCURSION', {'date': '2026-11-07'}, date(2026, 11, 7)),
+        ('FLIGHT', {}, None),
+        ('PACKAGE', {'startDate': 'soon'}, None),
+        ('EXCURSION', {'date': None}, None),
+    ],
+)
+def test_departure_date_of_reads_the_item_start_date(item_type, item, expected):
+    assert departure_date_of(item_type, item) == expected
+

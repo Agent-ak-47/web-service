@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -32,6 +32,7 @@ def test_reservation_json_serializes_all_public_fields():
         total_amount=Decimal('51.00'),
         status='PENDING',
         reservation_date=datetime(2026, 1, 1, 12, 0, 0),
+        departure_date=date(2026, 1, 2),
         cancellation_reason=None,
     )
 
@@ -47,6 +48,7 @@ def test_reservation_json_serializes_all_public_fields():
         'totalAmount': 51.0,
         'status': 'PENDING',
         'reservationDate': '2026-01-01T12:00:00Z',
+        'departureDate': '2026-01-02',
         'cancellationReason': '',
     }
 
@@ -64,6 +66,7 @@ def test_reservation_json_handles_missing_amounts():
         total_amount=None,
         status='CANCELLED',
         reservation_date=None,
+        departure_date=None,
         cancellation_reason='Changed my mind',
     )
 
@@ -72,6 +75,7 @@ def test_reservation_json_handles_missing_amounts():
     assert payload['unitPrice'] == 0.0
     assert payload['totalAmount'] == 0.0
     assert payload['reservationDate'] == ''
+    assert payload['departureDate'] == ''
     assert payload['cancellationReason'] == 'Changed my mind'
 
 

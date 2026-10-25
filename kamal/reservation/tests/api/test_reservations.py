@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -61,6 +61,68 @@ def test_create_reservation_uses_the_admin_actor(client, auth_for, catalog):
 
     assert response.status_code == 201
     assert ReservationHistory.query.one().actor == 'admin'
+
+
+@pytest.mark.parametrize(
+    'item_type, item, departure_date',
+    [
+        (
+            'FLIGHT',
+            {
+                'price': '25.00',
+                'availableSeats': 5,
+                'active': True,
+                'departureTime': '2026-11-04T07:15:00Z',
+            },
+            '2026-11-04',
+        ),
+        (
+            'FLIGHT',
+            {
+                'price': '25.00',
+                'availableSeats': 5,
+                'active': True,
+                'departureDate': '2026-11-05T07:15:00Z',
+            },
+            '2026-11-05',
+        ),
+        (
+            'PACKAGE',
+            {
+                'price': '25.00',
+                'promoPrice': '20.00',
+                'available': True,
+                'startDate': '2026-11-06',
+            },
+            '2026-11-06',
+        ),
+        (
+            'EXCURSION',
+            {
+                'price': '25.00',
+                'availableSeats': 5,
+                'available': True,
+                'date': '2026-11-07',
+            },
+            '2026-11-07',
+        ),
+    ],
+)
+def test_create_reservation_captures_the_departure_date(
+    client, auth_for, catalog, item_type, item, departure_date,
+):
+    catalog.item = item
+
+    response = create_reservation(
+        client,
+        auth_for(),
+        typeItem=item_type,
+        itemId=7,
+        quantity=1,
+    )
+
+    assert response.status_code == 201
+    assert response.get_json()['data']['departureDate'] == departure_date
 
 
 def test_create_package_reservation_uses_the_promo_price(client, auth_for, catalog):
@@ -610,6 +672,82 @@ def test_cancel_reservation_allows_a_paid_booking(
 
     assert response.status_code == 200
     assert response.get_json()['data']['status'] == 'CANCELLED'
+    assert catalog.release_calls == []
+
+
+@pytest.mark.parametrize('offset', [-1, 0, 1])
+def test_cancel_reservation_rejects_a_client_inside_the_notice_period(
+    client, auth_for, make_reservation, catalog, offset,
+):
+    departure = datetime.now(timezone.utc).date() + timedelta(days=offset)
+    reservation = make_reservation(user_id=1, departure_date=departure)
+
+    response = client.post(
+        f'/api/reservations/{reservation.id}/cancellation',
+        json={},
+        headers=auth_for(user_id=1),
+    )
+
+    assert response.status_code == 422
+    error = response.get_json()['error']
+    assert error['code'] == 'BUSINESS_RULE_VIOLATION'
+    assert error['details'] == {
+        'departureDate': departure.isoformat(),
+        'minimumDays': 2,
+    }
+    assert catalog.release_calls == []
+    assert db.session.get(Reservation, reservation.id).status == 'PENDING'
+
+
+def test_cancel_reservation_allows_a_client_at_the_two_day_boundary(
+    client, auth_for, make_reservation, catalog,
+):
+    departure = datetime.now(timezone.utc).date() + timedelta(days=2)
+    reservation = make_reservation(user_id=1, departure_date=departure)
+
+    response = client.post(
+        f'/api/reservations/{reservation.id}/cancellation',
+        json={},
+        headers=auth_for(user_id=1),
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['status'] == 'CANCELLED'
+
+
+def test_cancel_reservation_allows_an_admin_inside_the_notice_period(
+    client, auth_for, make_reservation, catalog,
+):
+    reservation = make_reservation(
+        user_id=2,
+        departure_date=datetime.now(timezone.utc).date(),
+    )
+
+    response = client.post(
+        f'/api/reservations/{reservation.id}/cancellation',
+        json={},
+        headers=auth_for(user_id=99, role='ADMIN'),
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['status'] == 'CANCELLED'
+
+
+def test_cancel_reservation_falls_back_to_the_catalogue_departure_date(
+    client, auth_for, make_reservation, catalog,
+):
+    departure = datetime.now(timezone.utc).date() + timedelta(days=1)
+    catalog.item['departureTime'] = f'{departure.isoformat()}T07:15:00Z'
+    reservation = make_reservation(user_id=1, departure_date=None)
+
+    response = client.post(
+        f'/api/reservations/{reservation.id}/cancellation',
+        json={},
+        headers=auth_for(user_id=1),
+    )
+
+    assert response.status_code == 422
+    assert response.get_json()['error']['code'] == 'BUSINESS_RULE_VIOLATION'
     assert catalog.release_calls == []
 
 

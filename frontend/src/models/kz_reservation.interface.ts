@@ -13,6 +13,7 @@ export interface KzReservation {
     totalAmount: number;
     status: KzReservationStatus;
     reservationDate: string;
+    departureDate: string;
     cancellationReason: string;
 }
 
@@ -29,5 +30,6 @@ export const DEFAULT_KZ_RESERVATION: KzReservation = {
     totalAmount: 0,
     status: KzReservationStatus.PENDING,
     reservationDate: '',
+    departureDate: '',
     cancellationReason: '',
 };
