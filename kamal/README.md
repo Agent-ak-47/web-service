@@ -111,6 +111,7 @@ kamal/
 ├── mock/                 mock flight, package and excursion services
 ├── requirements-dev.txt  pytest
 ├── run.bat               starts the mocks, the three services and the Angular dev server
+├── run_docker_smoke.py   end-to-end flow test against the containers
 └── run_all_tests.bat     runs the three local run_tests.py scripts
 ```
 
@@ -260,6 +261,18 @@ Notes:
 - The containers run `gunicorn` as a non-root user, and each Dockerfile carries a
   `HEALTHCHECK` on `/health`.
 - `kamal/.env` must never be committed (it is already covered by `.gitignore`).
+
+The whole flow can be replayed against the running containers:
+
+```bash
+py -3.11 kamal/run_docker_smoke.py           # --keep keeps the test account
+```
+
+It registers a throwaway account, creates a reservation, pays with `4242 4242 4242 4242`,
+reads the history, refunds as the demo admin, logs out and deletes the account again
+(15 checks, exit code 0 when all pass). The catalogue is stubbed on port **8081** with a
+future-dated flight — stop the flight mock first — because every item of `kamal/mock`
+starts in the past and the reservation service refuses to book one.
 
 ### 5.6 Mock catalogue services
 
