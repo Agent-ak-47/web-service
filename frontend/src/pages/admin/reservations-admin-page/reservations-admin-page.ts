@@ -63,8 +63,11 @@ export class ReservationsAdminPage implements OnInit {
     readonly DATE_LABEL = 'Date';
     readonly CANCEL_DIALOG_TITLE = 'Cancellation';
     readonly CANCEL_QUESTION = 'Cancel this booking?';
+    readonly CANCEL_CONFIRM_LABEL = 'Yes, cancel';
     readonly REFUND_DIALOG_TITLE = 'Refund';
     readonly REFUND_QUESTION = 'Refund this booking?';
+    readonly REFUND_CONFIRM_LABEL = 'Yes, refund';
+    readonly DISMISS_LABEL = 'No, keep';
     readonly EMPTY_LABEL = KZ_LABELS.emptyReservations;
     readonly SEARCH_KEY = 'search';
     readonly STATUS_KEY = 'status';
@@ -220,7 +223,7 @@ export class ReservationsAdminPage implements OnInit {
 
 
     get confirmLabel(): string {
-        return this.isRefund ? KZ_LABELS.refund : KZ_LABELS.cancel;
+        return this.isRefund ? this.REFUND_CONFIRM_LABEL : this.CANCEL_CONFIRM_LABEL;
     }
 
 

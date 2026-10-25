@@ -31,6 +31,7 @@
         </section>
     }
 
-    <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage" [loading]="isCancelling"
+    <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage"
+        [confirmLabel]="CANCEL_CONFIRM_LABEL" [cancelLabel]="DISMISS_LABEL" [loading]="isCancelling"
         (confirmed)="onConfirmCancel()" (cancelled)="onCloseDialog()" />
 </section>

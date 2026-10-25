@@ -15,5 +15,5 @@
         [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
 
     <kz-dialog [open]="isDialogOpen" [title]="dialogTitle" [message]="dialogMessage" [confirmLabel]="confirmLabel"
-        [loading]="isSubmitting" (confirmed)="onConfirm()" (cancelled)="onCloseDialog()" />
+        [cancelLabel]="DISMISS_LABEL" [loading]="isSubmitting" (confirmed)="onConfirm()" (cancelled)="onCloseDialog()" />
 </section>

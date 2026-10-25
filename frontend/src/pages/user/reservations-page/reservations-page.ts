@@ -50,8 +50,10 @@ export class ReservationsPage implements OnInit {
     readonly PAY_KIND = KzBtnKind.PRIMARY;
     readonly REMOVE_LABEL = 'Cancel';
     readonly REMOVE_KIND = KzBtnKind.SECONDARY;
-    readonly DIALOG_TITLE = KZ_LABELS.cancel;
+    readonly DIALOG_TITLE = 'Cancellation';
     readonly CANCEL_QUESTION = 'Cancel this booking?';
+    readonly CANCEL_CONFIRM_LABEL = 'Yes, cancel';
+    readonly DISMISS_LABEL = 'No, keep';
     readonly DEFAULT_CANCEL_REASON = 'Cancelled by the customer';
 
     readonly REFERENCE_KEY = 'reference';
