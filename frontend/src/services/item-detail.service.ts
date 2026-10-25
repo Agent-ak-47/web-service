@@ -29,27 +29,34 @@ export class ItemDetailService {
 
 
     async load<T>(url: string): Promise<KzItemDetailLoad<T>> {
-        const response = await fetch(url, {
-            method: 'GET',
-            credentials: 'include',
-            headers: this.authService.authHeaders,
-        });
-        const raw: unknown = await response.json();
-        console.log(raw);
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this.authService.authHeaders,
+            });
+            const raw: unknown = await response.json();
+            console.log(raw);
 
-        const parsed = parseResponse<unknown>(raw, response.status);
+            const parsed = parseResponse<unknown>(raw, response.status);
 
-        if (parsed.redirect.length > 0) {
-            this.authService.clearSession();
+            if (parsed.redirect.length > 0) {
+                this.authService.clearSession();
 
-            return { item: null, error: '', signedOut: true };
+                return { item: null, error: '', signedOut: true };
+            }
+
+            if (parsed.error !== null) {
+                return { item: null, error: parsed.error.message, signedOut: false };
+            }
+
+            return { item: parseItem<T>(parsed.data), error: '', signedOut: false };
         }
+        catch (error: unknown) {
+            console.error(error);
 
-        if (parsed.error !== null) {
-            return { item: null, error: parsed.error.message, signedOut: false };
+            return { item: null, error: KZ_LABELS.unexpectedError, signedOut: false };
         }
-
-        return { item: parseItem<T>(parsed.data), error: '', signedOut: false };
     }
 
 
@@ -58,29 +65,36 @@ export class ItemDetailService {
             return { path: this.globalService.pages.signIn, error: '', signedOut: false };
         }
 
-        const response = await fetch(this.globalService.routes.reservations, {
-            method: 'POST',
-            credentials: 'include',
-            headers: this.authService.authHeaders,
-            body: JSON.stringify({ typeItem, itemId, quantity }),
-        });
-        const raw: unknown = await response.json();
-        console.log(raw);
+        try {
+            const response = await fetch(this.globalService.routes.reservations, {
+                method: 'POST',
+                credentials: 'include',
+                headers: this.authService.authHeaders,
+                body: JSON.stringify({ typeItem, itemId, quantity }),
+            });
+            const raw: unknown = await response.json();
+            console.log(raw);
 
-        const parsed = parseResponse<KzReservation>(raw, response.status);
+            const parsed = parseResponse<KzReservation>(raw, response.status);
 
-        if (parsed.redirect.length > 0) {
-            this.authService.clearSession();
+            if (parsed.redirect.length > 0) {
+                this.authService.clearSession();
 
-            return { path: parsed.redirect, error: '', signedOut: true };
+                return { path: parsed.redirect, error: '', signedOut: true };
+            }
+
+            if (parsed.error !== null || parsed.data === null) {
+                return { path: '', error: parsed.error?.message ?? KZ_LABELS.unexpectedError, signedOut: false };
+            }
+
+            this.authService.savePendingReservation(parsed.data);
+
+            return { path: this.globalService.pages.payment, error: '', signedOut: false };
         }
+        catch (error: unknown) {
+            console.error(error);
 
-        if (parsed.error !== null || parsed.data === null) {
-            return { path: '', error: parsed.error?.message ?? KZ_LABELS.unexpectedError, signedOut: false };
+            return { path: '', error: KZ_LABELS.unexpectedError, signedOut: false };
         }
-
-        this.authService.savePendingReservation(parsed.data);
-
-        return { path: this.globalService.pages.payment, error: '', signedOut: false };
     }
 }

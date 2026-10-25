@@ -13,12 +13,15 @@ uml/
 node_modules/
 target/
 __pycache__/
+.pytest_cache/
 .venv/
 dist/
 build/
 
 md/
 *.md
+!/kamal/README.md
+!/frontend/README.md
 
 node_modules/
 public/

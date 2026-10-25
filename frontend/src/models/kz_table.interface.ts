@@ -18,6 +18,7 @@ export interface KzTableColumn {
 export interface KzTableRow {
     id: number;
     cells: Record<string, string | number | boolean | null>;
+    actions?: KzTableAction[];
 }
 
 

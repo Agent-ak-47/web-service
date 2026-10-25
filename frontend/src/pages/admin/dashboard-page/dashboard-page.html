@@ -4,10 +4,6 @@
         <p>{{ PAGE_SUBTITLE }}</p>
     </header>
 
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
-
     @if (isLoading) {
         <kz-loading [label]="LOADING_LABEL" />
     }
@@ -25,4 +21,7 @@
             <kz-data-table [columns]="columns" [rows]="recentRows" [emptyLabel]="EMPTY_LABEL" />
         </section>
     }
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

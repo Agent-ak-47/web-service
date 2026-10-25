@@ -12,6 +12,11 @@ import { KzPayment } from '../models/kz_payment.interface';
 import { KzPaymentMethod } from '../models/kz_payment_method.enum';
 import { KzPaymentStatus } from '../models/kz_payment_status.enum';
 import { KzReservation } from '../models/kz_reservation.interface';
+import {
+    CANCELLATION_NOTICE_DAYS,
+    canCancelReservation,
+    hasStartDatePassed,
+} from '../models/kz_reservation_policy';
 import { KzReservationStatus } from '../models/kz_reservation_status.enum';
 import { KzUserRole } from '../models/kz_user_role.enum';
 import { GlobalService } from './global.service';
@@ -29,10 +34,11 @@ interface KzMockIdentified {
 
 @Injectable({ providedIn: 'root' })
 export class MockBackendService {
+	
     readonly DATASET_KEY = 'kz_mock_dataset';
     readonly VERSION_KEY = 'kz_mock_version';
     readonly USERS_KEY = 'kz_mock_users';
-    readonly DATASET_VERSION = '2';
+    readonly DATASET_VERSION = '3';
     readonly TOKEN_PREFIX = 'kzmock.';
     readonly TOKEN_LIFETIME_HOURS = 12;
     readonly DEMO_PASSWORD = 'Password123!';
@@ -51,6 +57,7 @@ export class MockBackendService {
     readonly FORBIDDEN = 403;
     readonly NOT_FOUND = 404;
     readonly CONFLICT = 409;
+    readonly UNPROCESSABLE_ENTITY = 422;
 
     dataset: KzMockDataset = { flights: [], packages: [], excursions: [], reservations: [] };
     users: KzMockUserAccount[] = [];
@@ -164,14 +171,14 @@ export class MockBackendService {
 
     private async handle(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
         const url = typeof input === 'string' ? input : input.toString();
-        const path = new URL(url, window.location.origin).pathname;
+        const parsed = new URL(url, window.location.origin);
         const method = (init?.method ?? 'GET').toUpperCase();
 
         await this.delay();
 
-        const parts = path.split('/').filter((part) => part.length > 0);
+        const parts = parsed.pathname.split('/').filter((part) => part.length > 0);
 
-        return this.route(parts, method, this.readBody(init), this.readToken(init));
+        return this.route(parts, method, this.readBody(init), this.readToken(init), parsed.searchParams);
     }
 
 
@@ -180,6 +187,7 @@ export class MockBackendService {
         method: string,
         body: KzMockBody,
         token: KzMockToken | null,
+        query: URLSearchParams,
     ): Response {
         const resource = parts[1] ?? '';
         const id = Number(parts[2] ?? '0');
@@ -190,7 +198,7 @@ export class MockBackendService {
         }
 
         if (resource === 'reservations') {
-            return this.routeReservations(method, body, id, action, token);
+            return this.routeReservations(method, body, id, action, token, query);
         }
 
         if (resource === 'payments') {
@@ -199,23 +207,26 @@ export class MockBackendService {
 
         if (resource === 'flights') {
             return this.routeCatalog(
+                resource,
                 () => this.dataset.flights,
                 (items: KzFlight[]) => this.writeFlights(items),
-                method, body, id, action, token);
+                method, body, id, action, token, query);
         }
 
         if (resource === 'packages') {
             return this.routeCatalog(
+                resource,
                 () => this.dataset.packages,
                 (items: KzPackage[]) => this.writePackages(items),
-                method, body, id, action, token);
+                method, body, id, action, token, query);
         }
 
         if (resource === 'excursions') {
             return this.routeCatalog(
+                resource,
                 () => this.dataset.excursions,
                 (items: KzExcursion[]) => this.writeExcursions(items),
-                method, body, id, action, token);
+                method, body, id, action, token, query);
         }
 
         return this.fail(this.NOT_FOUND, 'NOT_FOUND', 'Unknown resource.');
@@ -319,13 +330,14 @@ export class MockBackendService {
         id: number,
         action: string,
         token: KzMockToken | null,
+        query: URLSearchParams,
     ): Response {
         if (token === null) {
             return this.fail(this.UNAUTHENTICATED, 'UNAUTHENTICATED', 'Authentication required.');
         }
 
         if (method === 'GET' && action.length === 0) {
-            return this.page(this.visibleReservations(token));
+            return this.page(this.filterReservations(this.visibleReservations(token), query));
         }
 
         if (method === 'POST' && action.length === 0) {
@@ -339,7 +351,7 @@ export class MockBackendService {
         }
 
         if (method === 'POST' && action === 'cancellation') {
-            return this.cancelReservation(reservation, String(body['reason'] ?? ''));
+            return this.cancelReservation(reservation, String(body['reason'] ?? ''), token);
         }
 
         if (method === 'POST' && action === 'payment') {
@@ -369,6 +381,20 @@ export class MockBackendService {
     }
 
 
+    private filterReservations(items: readonly KzReservation[], query: URLSearchParams): KzReservation[] {
+        const search = this.clean(query.get('search')).toLowerCase();
+        const status = this.clean(query.get('status')).toUpperCase();
+        const typeItem = this.clean(query.get('typeItem')).toUpperCase();
+
+        return items.filter((item) =>
+            (search.length === 0
+                || item.reference.toLowerCase().includes(search)
+                || item.itemLabel.toLowerCase().includes(search))
+            && (status.length === 0 || item.status === status)
+            && (typeItem.length === 0 || item.typeItem === typeItem));
+    }
+
+
     private createReservation(body: KzMockBody, userId: number): Response {
         const typeItem = String(body['typeItem'] ?? '');
         const itemId = Number(body['itemId'] ?? 0);
@@ -377,6 +403,17 @@ export class MockBackendService {
 
         if (item === null) {
             return this.fail(this.NOT_FOUND, 'ITEM_NOT_FOUND', 'Item not found.');
+        }
+
+        const departureDate = this.departureDateOf(typeItem, itemId);
+
+        if (hasStartDatePassed(departureDate)) {
+            return this.fail(
+                this.UNPROCESSABLE_ENTITY,
+                'BUSINESS_RULE_VIOLATION',
+                'This product can no longer be booked because its start date has passed.',
+                { itemId, departureDate },
+            );
         }
 
         const available = this.remainingOf(typeItem, itemId);
@@ -400,6 +437,7 @@ export class MockBackendService {
             totalAmount: Number((unitPrice * quantity).toFixed(2)),
             status: KzReservationStatus.PENDING,
             reservationDate: new Date().toISOString(),
+            departureDate,
             cancellationReason: '',
         };
 
@@ -411,9 +449,12 @@ export class MockBackendService {
     }
 
 
-    private cancelReservation(reservation: KzReservation, reason: string): Response {
+    private cancelReservation(
+        reservation: KzReservation,
+        reason: string,
+        token: KzMockToken,
+    ): Response {
         const locked: readonly KzReservationStatus[] = [
-            KzReservationStatus.PAID,
             KzReservationStatus.REFUNDED,
             KzReservationStatus.EXPIRED,
         ];
@@ -422,9 +463,28 @@ export class MockBackendService {
             return this.fail(this.CONFLICT, 'INVALID_STATUS', 'This booking can no longer be cancelled.');
         }
 
+        if (token.role !== KzUserRole.ADMIN && !canCancelReservation(reservation, false)) {
+            return this.fail(
+                this.UNPROCESSABLE_ENTITY,
+                'BUSINESS_RULE_VIOLATION',
+                `A booking can only be cancelled at least ${CANCELLATION_NOTICE_DAYS} `
+                    + 'days before its start date.',
+                {
+                    departureDate: reservation.departureDate,
+                    minimumDays: CANCELLATION_NOTICE_DAYS,
+                },
+            );
+        }
+
+        const releasesStock = reservation.status === KzReservationStatus.PENDING
+            || reservation.status === KzReservationStatus.CONFIRMED;
+
         reservation.status = KzReservationStatus.CANCELLED;
         reservation.cancellationReason = reason;
-        this.increase(reservation.typeItem, reservation.itemId, reservation.quantity);
+
+        if (releasesStock) {
+            this.increase(reservation.typeItem, reservation.itemId, reservation.quantity);
+        }
 
         return this.ok(this.saveReservation(reservation));
     }
@@ -495,6 +555,7 @@ export class MockBackendService {
 
 
     private routeCatalog<T extends KzMockIdentified>(
+        resource: string,
         read: () => T[],
         write: (items: T[]) => void,
         method: string,
@@ -502,9 +563,10 @@ export class MockBackendService {
         id: number,
         action: string,
         token: KzMockToken | null,
+        query: URLSearchParams,
     ): Response {
         if (method === 'GET') {
-            return this.readCatalog(read(), id, action);
+            return this.readCatalog(resource, read(), id, action, query);
         }
 
         const denied = this.requireAdmin(token);
@@ -546,11 +608,17 @@ export class MockBackendService {
     }
 
 
-    private readCatalog<T extends KzMockIdentified>(items: T[], id: number, action: string): Response {
+    private readCatalog<T extends KzMockIdentified>(
+        resource: string,
+        items: T[],
+        id: number,
+        action: string,
+        query: URLSearchParams,
+    ): Response {
         const index = items.findIndex((entry) => entry.id === id);
 
         if (id === 0) {
-            return this.page(items);
+            return this.page(this.filterCatalog(resource, items, query));
         }
 
         if (action === 'availability') {
@@ -562,6 +630,167 @@ export class MockBackendService {
         }
 
         return this.ok(items[index]);
+    }
+
+
+    private filterCatalog<T extends KzMockIdentified>(
+        resource: string,
+        items: readonly T[],
+        query: URLSearchParams,
+    ): T[] {
+        const search = this.clean(query.get('search')).toLowerCase();
+
+        return items.filter((entry) => {
+            const item = entry as unknown as Record<string, unknown>;
+
+            if (search.length > 0 && !this.searchFields(resource).some((field) =>
+                this.fieldOf(item, field).toLowerCase().includes(search))) {
+                return false;
+            }
+
+            if (resource === 'flights') {
+                for (const field of ['departureCity', 'arrivalCity', 'airline']) {
+                    const wanted = this.clean(query.get(field)).toLowerCase();
+
+                    if (wanted.length > 0 && !this.fieldOf(item, field).toLowerCase().includes(wanted)) {
+                        return false;
+                    }
+                }
+
+                for (const [queryField, itemField] of [
+                    ['departureDate', 'departureTime'],
+                    ['arrivalDate', 'arrivalTime'],
+                ]) {
+                    const wanted = this.clean(query.get(queryField));
+
+                    if (wanted.length > 0 && !this.fieldOf(item, itemField).startsWith(wanted)) {
+                        return false;
+                    }
+                }
+
+                const seats = this.numberOf(item, 'availableSeats');
+                const minSeats = this.numberParam(query, 'minSeats');
+
+                if (seats !== null && minSeats !== null && seats < minSeats) {
+                    return false;
+                }
+            }
+
+            if (resource === 'packages') {
+                const destination = this.clean(query.get('destination')).toLowerCase();
+
+                if (destination.length > 0
+                    && !this.fieldOf(item, 'destination').toLowerCase().includes(destination)) {
+                    return false;
+                }
+
+                const startDate = this.clean(query.get('startDate'));
+
+                if (startDate.length > 0 && !this.fieldOf(item, 'startDate').startsWith(startDate)) {
+                    return false;
+                }
+            }
+
+            if (resource === 'excursions') {
+                const location = this.clean(query.get('location')).toLowerCase();
+
+                if (location.length > 0 && !this.fieldOf(item, 'location').toLowerCase().includes(location)) {
+                    return false;
+                }
+
+                const date = this.clean(query.get('date'));
+
+                if (date.length > 0 && !this.fieldOf(item, 'date').startsWith(date)) {
+                    return false;
+                }
+
+                const fromDate = this.clean(query.get('fromDate'));
+
+                if (fromDate.length > 0 && this.fieldOf(item, 'date') < fromDate) {
+                    return false;
+                }
+
+                const toDate = this.clean(query.get('toDate'));
+
+                if (toDate.length > 0 && this.fieldOf(item, 'date') > toDate) {
+                    return false;
+                }
+
+                const duration = this.numberOf(item, 'dureeMinutes');
+                const maxDuration = this.numberParam(query, 'maxDuration');
+
+                if (duration !== null && maxDuration !== null && duration > maxDuration) {
+                    return false;
+                }
+            }
+
+            const price = this.catalogPrice(item);
+            const minPrice = this.numberParam(query, 'minPrice');
+            const maxPrice = this.numberParam(query, 'maxPrice');
+
+            if (price !== null && minPrice !== null && price < minPrice) {
+                return false;
+            }
+
+            return price === null || maxPrice === null || price <= maxPrice;
+        });
+    }
+
+
+    private searchFields(resource: string): string[] {
+        if (resource === 'flights') {
+            return ['airline', 'flightNumber', 'departureCity', 'arrivalCity'];
+        }
+
+        if (resource === 'packages') {
+            return ['name', 'destination'];
+        }
+
+        if (resource === 'excursions') {
+            return ['title', 'location', 'guide'];
+        }
+
+        return [];
+    }
+
+
+    private clean(value: string | null): string {
+        return (value ?? '').trim();
+    }
+
+
+    private fieldOf(item: Record<string, unknown>, name: string): string {
+        const value = item[name];
+
+        return value === null || value === undefined ? '' : String(value);
+    }
+
+
+    private numberOf(item: Record<string, unknown>, name: string): number | null {
+        const value = Number(item[name]);
+
+        return Number.isFinite(value) ? value : null;
+    }
+
+
+    private numberParam(query: URLSearchParams, name: string): number | null {
+        const raw = this.clean(query.get(name));
+
+        if (raw.length === 0) {
+            return null;
+        }
+
+        const value = Number(raw);
+
+        return Number.isFinite(value) ? value : null;
+    }
+
+
+    private catalogPrice(item: Record<string, unknown>): number | null {
+        const price = this.numberOf(item, 'price');
+        const promo = this.numberOf(item, 'promoPrice');
+
+        return promo !== null && promo > 0 ? promo : price;
     }
 
 
@@ -652,6 +881,25 @@ export class MockBackendService {
         }
 
         return (item as KzPackage).name;
+    }
+
+
+    private departureDateOf(typeItem: string, itemId: number): string {
+        const item = this.findItem(typeItem, itemId);
+
+        if (item === null) {
+            return '';
+        }
+
+        if (typeItem === KzItemType.FLIGHT) {
+            return (item as KzFlight).departureTime.slice(0, 10);
+        }
+
+        if (typeItem === KzItemType.EXCURSION) {
+            return (item as KzExcursion).date;
+        }
+
+        return (item as KzPackage).startDate;
     }
 
 

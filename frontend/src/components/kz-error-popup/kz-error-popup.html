@@ -1,0 +1,24 @@
+@if (open()) {
+    <div class="error-backdrop" (click)="onBackdrop($event)">
+        <div class="error-box" role="alertdialog" aria-modal="true" [attr.aria-label]="title()">
+            <div class="error-header">
+                <div class="error-icon">
+                    <kz-icon [img]="iconImage" [size]="ICON_SIZE" [tone]="ICON_TONE" />
+                </div>
+
+                <div class="error-content">
+                    <h3 class="error-title">{{ title() }}</h3>
+                    <p class="error-message">{{ message() }}</p>
+
+                    @if (hint().length > 0) {
+                        <p class="error-hint">{{ hint() }}</p>
+                    }
+                </div>
+            </div>
+
+            <div class="error-actions">
+                <kz-btn [label]="CLOSE_LABEL" [kind]="CLOSE_KIND" (clicked)="closed.emit()" />
+            </div>
+        </div>
+    </div>
+}

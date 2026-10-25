@@ -1,0 +1,11 @@
+# Local state and secrets must never end up in the image.
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Tests run on the host, not inside the image.
+tests/
+pytest.ini
+run_tests.py

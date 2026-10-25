@@ -27,10 +27,6 @@
 
                 <p class="kz-muted">{{ CARD_HINT }}</p>
 
-                @if (errorMessage.length > 0) {
-                    <p class="kz-error">{{ errorMessage }}</p>
-                }
-
                 <kz-btn [label]="payLabel" [loading]="isPaying" [disabled]="isPaying" [fullWidth]="true"
                     (clicked)="onPay()" />
             </section>
@@ -72,4 +68,7 @@
 
         <kz-btn [label]="BACK_LABEL" (clicked)="goToReservations()" />
     }
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

@@ -9,6 +9,7 @@ import { parseItem, parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzField } from '../../../components/kz-field/kz-field';
 import { DEFAULT_KZ_REGISTER_FORM, KzRegisterForm } from './models/kz_register_form.interface';
 
@@ -16,7 +17,7 @@ import { DEFAULT_KZ_REGISTER_FORM, KzRegisterForm } from './models/kz_register_f
 @Component({
     selector: 'kz-sign-up-page',
     standalone: true,
-    imports: [KzBtn, KzField, RouterLink],
+    imports: [KzBtn, KzErrorPopup, KzField, RouterLink],
     templateUrl: './sign-up-page.html',
     styleUrl: './sign-up-page.css',
 })

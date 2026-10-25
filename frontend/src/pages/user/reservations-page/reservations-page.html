@@ -4,10 +4,6 @@
         <p>{{ PAGE_SUBTITLE }}</p>
     </header>
 
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
-
     <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
         [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
 
@@ -21,8 +17,10 @@
                         <span class="pay-amount">{{ reservation.itemLabel }} - {{ reservation.totalAmount | kzMoney }}</span>
                     </div>
                     <div class="pay-actions">
-                        <kz-btn [label]="REMOVE_LABEL" [kind]="REMOVE_KIND" [disabled]="isCancelling"
-                            (clicked)="onRemove(reservation)" />
+                        @if (canCancel(reservation)) {
+                            <kz-btn [label]="REMOVE_LABEL" [kind]="REMOVE_KIND" [disabled]="isCancelling"
+                                (clicked)="onRemove(reservation)" />
+                        }
                         <kz-btn [label]="PAY_LABEL" [kind]="PAY_KIND" [disabled]="isCancelling"
                             (clicked)="onPay(reservation)" />
                     </div>
@@ -31,6 +29,10 @@
         </section>
     }
 
-    <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage" [loading]="isCancelling"
+    <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage"
+        [confirmLabel]="CANCEL_CONFIRM_LABEL" [cancelLabel]="DISMISS_LABEL" [loading]="isCancelling"
         (confirmed)="onConfirmCancel()" (cancelled)="onCloseDialog()" />
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

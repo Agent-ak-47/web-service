@@ -10,12 +10,14 @@ import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzPackage } from '../../../models/kz_package.interface';
+import { hasStartDatePassed } from '../../../models/kz_reservation_policy';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
 import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -23,7 +25,7 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-package-detail-page',
     standalone: true,
-    imports: [KzBreadcrumb, KzItemDetail, KzLoading],
+    imports: [KzBreadcrumb, KzErrorPopup, KzItemDetail, KzLoading],
     templateUrl: './package-detail-page.html',
     styleUrl: './package-detail-page.css',
 })
@@ -32,6 +34,7 @@ export class PackageDetailPage implements OnInit {
     readonly SECTION_LABEL = 'Packages';
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
+    readonly EXPIRED_LABEL = 'Expired';
     readonly QUANTITY_LABEL = 'Guests';
     readonly PRICE_UNIT = 'per person';
     readonly DESTINATION_LABEL = 'Destination';
@@ -89,7 +92,7 @@ export class PackageDetailPage implements OnInit {
 
 
     async onReserve(): Promise<void> {
-        if (this.item === null || this.isReserving) {
+        if (this.item === null || this.isReserving || this.detail?.disabled === true) {
             return;
         }
 
@@ -151,6 +154,8 @@ export class PackageDetailPage implements OnInit {
 
 
     private buildDetail(item: KzPackage): KzItemDetailData {
+        const pastStart = hasStartDatePassed(item.startDate);
+
         return {
             id: item.id,
             type: KzItemType.PACKAGE,
@@ -169,8 +174,8 @@ export class PackageDetailPage implements OnInit {
                 this.buildExcursionsSection(item.composition.excursions),
             ],
             actionLabel: this.RESERVE_LABEL,
-            disabled: !item.available,
-            disabledLabel: this.SOLD_OUT_LABEL,
+            disabled: !item.available || pastStart,
+            disabledLabel: pastStart ? this.EXPIRED_LABEL : this.SOLD_OUT_LABEL,
             maxQuantity: this.PACKAGE_CAPACITY,
         };
     }

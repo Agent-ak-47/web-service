@@ -5,11 +5,7 @@
     </header>
 
     <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onFiltersChanged($event)"
-        (reseted)="onFiltersReset()" />
-
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
+        (submitted)="onFiltersSubmitted()" (reseted)="onFiltersReset()" />
 
     @if (isLoading) {
         <kz-loading [label]="labels.loading" />
@@ -25,4 +21,7 @@
             }
         </div>
     }
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

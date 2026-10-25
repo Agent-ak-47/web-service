@@ -9,6 +9,7 @@ import { parseItem, parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzField } from '../../../components/kz-field/kz-field';
 import { DEFAULT_KZ_CREDENTIALS_FORM, KzCredentialsForm } from './models/kz_credentials_form.interface';
 
@@ -16,7 +17,7 @@ import { DEFAULT_KZ_CREDENTIALS_FORM, KzCredentialsForm } from './models/kz_cred
 @Component({
     selector: 'kz-sign-in-page',
     standalone: true,
-    imports: [KzBtn, KzField, RouterLink],
+    imports: [KzBtn, KzErrorPopup, KzField, RouterLink],
     templateUrl: './sign-in-page.html',
     styleUrl: './sign-in-page.css',
 })

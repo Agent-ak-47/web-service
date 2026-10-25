@@ -20,6 +20,7 @@ import { parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -27,7 +28,7 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-flight-form-page',
     standalone: true,
-    imports: [KzFormPanel, KzLoading],
+    imports: [KzErrorPopup, KzFormPanel, KzLoading],
     templateUrl: './flight-form-page.html',
     styleUrl: './flight-form-page.css',
 })
@@ -363,8 +364,8 @@ export class FlightFormPage implements KzGuardedForm, OnInit {
             flightNumber: flight.flightNumber,
             departureCity: flight.departureCity,
             arrivalCity: flight.arrivalCity,
-            departureTime: flight.departureTime.slice(0, this.DATE_LENGTH),
-            arrivalTime: flight.arrivalTime.slice(0, this.DATE_LENGTH),
+            departureTime: (flight.departureTime ?? '').slice(0, this.DATE_LENGTH),
+            arrivalTime: (flight.arrivalTime ?? '').slice(0, this.DATE_LENGTH),
             totalSeats: String(flight.totalSeats),
             availableSeats: String(flight.availableSeats),
             price: String(flight.price),

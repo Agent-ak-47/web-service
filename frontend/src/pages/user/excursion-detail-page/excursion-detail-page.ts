@@ -8,12 +8,14 @@ import { KzItemDetailData, KzItemDetailRow } from '../../../models/kz_item_detai
 import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { hasStartDatePassed } from '../../../models/kz_reservation_policy';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
 import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -21,7 +23,7 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-excursion-detail-page',
     standalone: true,
-    imports: [KzBreadcrumb, KzItemDetail, KzLoading],
+    imports: [KzBreadcrumb, KzErrorPopup, KzItemDetail, KzLoading],
     templateUrl: './excursion-detail-page.html',
     styleUrl: './excursion-detail-page.css',
 })
@@ -30,6 +32,7 @@ export class ExcursionDetailPage implements OnInit {
     readonly SECTION_LABEL = 'Excursions';
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
+    readonly EXPIRED_LABEL = 'Expired';
     readonly QUANTITY_LABEL = 'Guests';
     readonly PRICE_UNIT = 'per person';
     readonly LOCATION_LABEL = 'Location';
@@ -87,7 +90,7 @@ export class ExcursionDetailPage implements OnInit {
 
 
     async onReserve(): Promise<void> {
-        if (this.item === null || this.isReserving) {
+        if (this.item === null || this.isReserving || this.detail?.disabled === true) {
             return;
         }
 
@@ -149,6 +152,8 @@ export class ExcursionDetailPage implements OnInit {
 
 
     private buildDetail(item: KzExcursion): KzItemDetailData {
+        const pastStart = hasStartDatePassed(item.date);
+
         return {
             id: item.id,
             type: KzItemType.EXCURSION,
@@ -164,8 +169,8 @@ export class ExcursionDetailPage implements OnInit {
             rows: this.buildRows(item),
             sections: [],
             actionLabel: this.RESERVE_LABEL,
-            disabled: !item.available,
-            disabledLabel: this.SOLD_OUT_LABEL,
+            disabled: !item.available || pastStart,
+            disabledLabel: pastStart ? this.EXPIRED_LABEL : this.SOLD_OUT_LABEL,
             maxQuantity: Math.max(1, item.availableSeats),
         };
     }

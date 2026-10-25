@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 
-import { KzFieldType } from '../../models/kz_field_type.enum';
+import type { KzFieldType } from '../../models/kz_field_type.enum';
 import { KzOption } from '../../models/kz_option.interface';
 
 
@@ -12,11 +12,10 @@ import { KzOption } from '../../models/kz_option.interface';
 })
 export class KzField {
     readonly REQUIRED_MARK = '*';
-    readonly FIELD_TYPE = KzFieldType;
 
     readonly label = input<string>('');
     readonly name = input<string>('');
-    readonly type = input<KzFieldType>(KzFieldType.TEXT);
+    readonly type = input<KzFieldType>('text' as KzFieldType);
     readonly value = input<string>('');
     readonly placeholder = input<string>('');
     readonly hint = input<string>('');
@@ -33,19 +32,19 @@ export class KzField {
 
     get htmlType(): string {
         switch (this.type()) {
-            case KzFieldType.EMAIL:
+            case 'email':
                 return 'email';
-            case KzFieldType.PASSWORD:
+            case 'password':
                 return 'password';
-            case KzFieldType.NUMBER:
+            case 'number':
                 return 'number';
-            case KzFieldType.DATE:
+            case 'date':
                 return 'date';
-            case KzFieldType.TIME:
+            case 'time':
                 return 'time';
-            case KzFieldType.SELECT:
+            case 'select':
                 return 'select';
-            case KzFieldType.TEXTAREA:
+            case 'textarea':
                 return 'textarea';
             default:
                 return 'text';

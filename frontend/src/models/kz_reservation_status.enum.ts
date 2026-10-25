@@ -11,6 +11,13 @@ export enum KzReservationStatus {
 export const CANCELABLE_RESERVATION_STATUSES: readonly KzReservationStatus[] = [
     KzReservationStatus.PENDING,
     KzReservationStatus.CONFIRMED,
+    KzReservationStatus.PAID,
+];
+
+
+export const REFUNDABLE_RESERVATION_STATUSES: readonly KzReservationStatus[] = [
+    KzReservationStatus.PAID,
+    KzReservationStatus.CANCELLED,
 ];
 
 

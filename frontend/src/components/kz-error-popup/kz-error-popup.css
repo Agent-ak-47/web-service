@@ -1,0 +1,107 @@
+:host {
+    display: contents;
+    --size-error-width: 440px;
+}
+
+.error-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+    background-color: var(--overlay);
+    animation: error-fade 160ms ease-out;
+}
+
+.error-box {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    width: 100%;
+    max-width: var(--size-error-width);
+    padding: var(--space-6);
+    background-color: var(--surface);
+    border-top: 4px solid var(--danger);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    animation: error-rise 180ms ease-out;
+}
+
+.error-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+}
+
+.error-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--danger-soft);
+    border-radius: var(--radius-pill);
+}
+
+.error-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.error-title {
+    font-size: var(--font-size-lg);
+    color: var(--text);
+}
+
+.error-message,
+.error-hint {
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+.error-message {
+    color: var(--text-muted);
+}
+
+.error-hint {
+    color: var(--danger);
+}
+
+.error-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .error-backdrop,
+    .error-box {
+        animation: none;
+    }
+}
+
+@keyframes error-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes error-rise {
+    from {
+        transform: translateY(8px) scale(0.98);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}

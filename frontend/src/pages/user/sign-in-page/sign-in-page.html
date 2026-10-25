@@ -11,14 +11,6 @@
         <kz-field [label]="PASSWORD_LABEL" name="password" [type]="PASSWORD_TYPE" [value]="form.password"
             [required]="true" [disabled]="isSending" (valueChange)="onPasswordChange($event)" />
 
-        @if (errorMessage.length > 0) {
-            <p class="kz-error">{{ errorMessage }}</p>
-        }
-
-        @if (unavailableMessage.length > 0) {
-            <p class="kz-muted">{{ unavailableMessage }}</p>
-        }
-
         <kz-btn [label]="submitLabel" [loading]="isSending" [disabled]="isSending" [fullWidth]="true"
             (clicked)="onSubmit()" />
 
@@ -29,4 +21,7 @@
             <a class="kz-link-button is-outline" [routerLink]="signUpPath">{{ SIGN_UP_LABEL }}</a>
         </div>
     </div>
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage" [hint]="unavailableMessage"
+        (closed)="errorMessage = ''; unavailableMessage = ''" />
 </section>

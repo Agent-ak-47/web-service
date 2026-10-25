@@ -52,7 +52,13 @@ export class KzDataTable {
 
 
     get hasActions(): boolean {
-        return this.actions().length > 0;
+        return this.actions().length > 0
+            || this.rows().some((row) => this.rowActions(row).length > 0);
+    }
+
+
+    rowActions(row: KzTableRow): KzTableAction[] {
+        return row.actions ?? this.actions();
     }
 
 

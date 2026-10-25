@@ -13,6 +13,7 @@ import { KzMoneyPipe } from '../../../pipes/kz-money.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import { Stat } from './components/stat/stat';
 
@@ -20,7 +21,7 @@ import { Stat } from './components/stat/stat';
 @Component({
     selector: 'kz-dashboard-page',
     standalone: true,
-    imports: [KzDataTable, KzLoading, Stat],
+    imports: [KzDataTable, KzErrorPopup, KzLoading, Stat],
     templateUrl: './dashboard-page.html',
     styleUrl: './dashboard-page.css',
 })

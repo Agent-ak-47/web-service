@@ -10,6 +10,7 @@ import { KzUser } from '../../../models/kz_user.interface';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzField } from '../../../components/kz-field/kz-field';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import { DEFAULT_KZ_PROFILE_FORM, KzProfileForm } from './models/kz_profile_form.interface';
@@ -18,7 +19,7 @@ import { DEFAULT_KZ_PROFILE_FORM, KzProfileForm } from './models/kz_profile_form
 @Component({
     selector: 'kz-profile-page',
     standalone: true,
-    imports: [KzBtn, KzField, KzLoading],
+    imports: [KzBtn, KzErrorPopup, KzField, KzLoading],
     templateUrl: './profile-page.html',
     styleUrl: './profile-page.css',
 })

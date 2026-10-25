@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzReservation } from '../../../models/kz_reservation.interface';
+import { canCancelReservation } from '../../../models/kz_reservation_policy';
 import {
     KzReservationStatus,
     PAYABLE_RESERVATION_STATUSES,
@@ -21,6 +22,7 @@ import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import {
     DEFAULT_KZ_RESERVATION_COLUMN,
     KzReservationColumn,
@@ -30,7 +32,7 @@ import {
 @Component({
     selector: 'kz-reservations-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzMoneyPipe],
+    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup, KzMoneyPipe],
     templateUrl: './reservations-page.html',
     styleUrl: './reservations-page.css',
 })
@@ -49,8 +51,10 @@ export class ReservationsPage implements OnInit {
     readonly PAY_KIND = KzBtnKind.PRIMARY;
     readonly REMOVE_LABEL = 'Cancel';
     readonly REMOVE_KIND = KzBtnKind.SECONDARY;
-    readonly DIALOG_TITLE = KZ_LABELS.cancel;
+    readonly DIALOG_TITLE = 'Cancellation';
     readonly CANCEL_QUESTION = 'Cancel this booking?';
+    readonly CANCEL_CONFIRM_LABEL = 'Yes, cancel';
+    readonly DISMISS_LABEL = 'No, keep';
     readonly DEFAULT_CANCEL_REASON = 'Cancelled by the customer';
 
     readonly REFERENCE_KEY = 'reference';
@@ -64,7 +68,7 @@ export class ReservationsPage implements OnInit {
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
 
-    readonly actions: KzTableAction[] = [KzTableAction.CANCEL];
+    readonly actions: KzTableAction[] = [];
 
     reservations: KzReservation[] = [];
     rows: KzTableRow[] = [];
@@ -154,12 +158,18 @@ export class ReservationsPage implements OnInit {
 
 
     onRemove(reservation: KzReservation): void {
-        if (this.isCancelling) {
+        if (this.isCancelling || !this.canCancel(reservation)) {
             return;
         }
 
         this.openCancel(reservation);
     }
+
+
+    canCancel(reservation: KzReservation): boolean {
+        return canCancelReservation(reservation, this.authService.isAdmin);
+    }
+
 
 
     onCloseDialog(): void {
@@ -229,6 +239,10 @@ export class ReservationsPage implements OnInit {
 
 
     private openCancel(reservation: KzReservation): void {
+        if (!this.canCancel(reservation)) {
+            return;
+        }
+
         this.cancelTarget = reservation;
         this.cancelReason = this.DEFAULT_CANCEL_REASON;
         this.errorMessage = '';
@@ -313,16 +327,19 @@ export class ReservationsPage implements OnInit {
 
 
     private buildRows(source: readonly KzReservation[]): KzTableRow[] {
-        return source.map((reservation) => ({
-            id: reservation.id,
-            cells: {
-                [this.REFERENCE_KEY]: reservation.reference,
-                [this.ITEM_KEY]: `${reservation.typeItem} - ${reservation.itemLabel}`,
-                [this.QUANTITY_KEY]: reservation.quantity,
-                [this.TOTAL_KEY]: reservation.totalAmount,
-                [this.STATUS_KEY]: reservation.status,
-                [this.DATE_KEY]: reservation.reservationDate,
-            },
-}));
+        return source.map((reservation) => {
+            return {
+                id: reservation.id,
+                cells: {
+                    [this.REFERENCE_KEY]: reservation.reference,
+                    [this.ITEM_KEY]: `${reservation.typeItem} - ${reservation.itemLabel}`,
+                    [this.QUANTITY_KEY]: reservation.quantity,
+                    [this.TOTAL_KEY]: reservation.totalAmount,
+                    [this.STATUS_KEY]: reservation.status,
+                    [this.DATE_KEY]: reservation.reservationDate,
+                },
+                actions: this.canCancel(reservation) ? [KzTableAction.CANCEL] : [],
+            };
+        });
     }
 }
