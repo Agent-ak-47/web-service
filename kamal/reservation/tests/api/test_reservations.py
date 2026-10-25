@@ -366,6 +366,101 @@ def test_list_reservations_is_ordered_newest_first(client, auth_for, make_reserv
     ]
 
 
+def test_list_reservations_filters_by_reference_or_item_label(
+    client, auth_for, make_reservation,
+):
+    alpha = make_reservation(user_id=1, item_label='Alpha desert tour')
+    beta = make_reservation(user_id=1, item_label='Beta city break')
+    make_reservation(user_id=1, item_label='Gamma cruise')
+    headers = auth_for(user_id=1)
+
+    by_reference = client.get(
+        f'/api/reservations?search={alpha.reference}',
+        headers=headers,
+    )
+    by_label = client.get('/api/reservations?search=BETA', headers=headers)
+
+    assert [row['id'] for row in by_reference.get_json()['data']] == [alpha.id]
+    assert [row['id'] for row in by_label.get_json()['data']] == [beta.id]
+
+
+def test_list_reservations_filters_by_status_and_type(client, auth_for, make_reservation):
+    pending = make_reservation(
+        user_id=1,
+        status='PENDING',
+        item_type='FLIGHT',
+        item_label='Paris flight',
+    )
+    paid = make_reservation(
+        user_id=1,
+        status='PAID',
+        item_type='PACKAGE',
+        item_label='Rome package',
+    )
+    headers = auth_for(user_id=1)
+
+    by_status = client.get('/api/reservations?status=paid', headers=headers)
+    by_type = client.get('/api/reservations?typeItem=FLIGHT', headers=headers)
+    combined = client.get(
+        '/api/reservations?status=PAID&typeItem=FLIGHT',
+        headers=headers,
+    )
+
+    assert [row['id'] for row in by_status.get_json()['data']] == [paid.id]
+    assert [row['id'] for row in by_type.get_json()['data']] == [pending.id]
+    assert combined.get_json()['data'] == []
+
+
+def test_list_reservations_combines_search_with_filters(client, auth_for, make_reservation):
+    match = make_reservation(
+        user_id=1,
+        status='PAID',
+        item_type='PACKAGE',
+        item_label='Rome package',
+    )
+    make_reservation(
+        user_id=1,
+        status='PAID',
+        item_type='FLIGHT',
+        item_label='Rome flight',
+    )
+    make_reservation(
+        user_id=1,
+        status='PENDING',
+        item_type='PACKAGE',
+        item_label='Rome package',
+    )
+
+    response = client.get(
+        '/api/reservations?search=rome&status=PAID&typeItem=PACKAGE',
+        headers=auth_for(user_id=1),
+    )
+
+    assert [row['id'] for row in response.get_json()['data']] == [match.id]
+
+
+def test_list_reservations_filters_only_the_owner_rows(
+    client, auth_for, make_reservation,
+):
+    own = make_reservation(user_id=1, item_label='Shared label')
+    make_reservation(user_id=2, item_label='Shared label')
+
+    response = client.get(
+        '/api/reservations?search=shared',
+        headers=auth_for(user_id=1),
+    )
+
+    assert [row['id'] for row in response.get_json()['data']] == [own.id]
+
+
+@pytest.mark.parametrize('query', ['status=NOPE', 'typeItem=HOTEL'])
+def test_list_reservations_rejects_invalid_filters(client, auth_for, query):
+    response = client.get(f'/api/reservations?{query}', headers=auth_for())
+
+    assert response.status_code == 400
+    assert response.get_json()['error']['code'] == 'INVALID_FORMAT'
+
+
 def test_get_reservation_returns_the_owner_row(client, auth_for, make_reservation):
     reservation = make_reservation(user_id=1)
 

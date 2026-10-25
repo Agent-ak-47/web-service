@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_KZ_RESERVATION, KzReservation } from '../../../models/kz_reservation.interface';
@@ -76,27 +77,96 @@ describe('ReservationsAdminPage', () => {
     });
 
 
-    it('should filter the rows by search, status and type', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({
+    it('should send the filters to the server and build the returned rows', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({
             data: [
-                reservation({ id: 1, reference: 'ALPHA' }),
-                reservation({ id: 2, reference: 'BETA', status: KzReservationStatus.PAID, typeItem: 'PACKAGE' }),
+                reservation({ id: 1, reference: 'ALPHA', status: KzReservationStatus.PAID }),
+                reservation({ id: 2, reference: 'BETA', typeItem: 'PACKAGE' }),
             ],
-        })));
+        }));
+        vi.stubGlobal('fetch', fetchMock);
         const fixture = TestBed.createComponent(ReservationsAdminPage);
+        fixture.componentInstance.onFiltersChanged({
+            search: ' alpha ',
+            status: KzReservationStatus.PAID,
+            typeItem: 'PACKAGE',
+        });
+
         await fixture.componentInstance.loadReservations();
 
-        fixture.componentInstance.onFiltersChanged({ search: 'alpha', status: '', type: '' });
-        expect(fixture.componentInstance.rows.length).toBe(1);
-
-        fixture.componentInstance.onFiltersChanged({ search: '', status: KzReservationStatus.PAID, type: '' });
-        expect(fixture.componentInstance.rows[0].id).toBe(2);
-
-        fixture.componentInstance.onFiltersChanged({ search: '', status: '', type: 'PACKAGE' });
-        expect(fixture.componentInstance.rows[0].id).toBe(2);
-
-        fixture.componentInstance.onFiltersReset();
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8085/api/reservations?search=alpha&status=PAID&typeItem=PACKAGE',
+        );
         expect(fixture.componentInstance.rows.length).toBe(2);
+    });
+
+
+    it('should sync the filters to the URL when submitted', async () => {
+        const fixture = TestBed.createComponent(ReservationsAdminPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({
+            search: ' alpha ',
+            status: KzReservationStatus.PAID,
+            typeItem: 'PACKAGE',
+        });
+
+        await fixture.componentInstance.onFiltersSubmitted();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+            queryParams: { search: 'alpha', status: 'PAID', typeItem: 'PACKAGE' },
+        }));
+    });
+
+
+    it('should clear the URL when the filters are reset', async () => {
+        const fixture = TestBed.createComponent(ReservationsAdminPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.search = 'alpha';
+        fixture.componentInstance.statusFilter = KzReservationStatus.PAID;
+        fixture.componentInstance.typeFilter = 'PACKAGE';
+
+        await fixture.componentInstance.onFiltersReset();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
+        expect(fixture.componentInstance.search).toBe('');
+    });
+
+
+    it('should load the initial filters from the URL', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [] }));
+        vi.stubGlobal('fetch', fetchMock);
+        const params = convertToParamMap({
+            search: 'alpha',
+            status: KzReservationStatus.PAID,
+            typeItem: 'PACKAGE',
+        });
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [ReservationsAdminPage],
+            providers: [
+                provideRouter([]),
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        queryParamMap: of(params),
+                        snapshot: { queryParamMap: params },
+                    },
+                },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(ReservationsAdminPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.search).toBe('alpha');
+        expect(fixture.componentInstance.statusFilter).toBe(KzReservationStatus.PAID);
+        expect(fixture.componentInstance.typeFilter).toBe('PACKAGE');
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8085/api/reservations?search=alpha&status=PAID&typeItem=PACKAGE',
+        );
     });
 
 

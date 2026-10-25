@@ -26,14 +26,14 @@ the user service is accepted by the reservation and payment services.
 | K2 | `POST /api/reservations` (past start dates rejected) | Done |
 | K3 | Captured price × quantity, stored once | Done |
 | K4 | `POST /api/reservations/<id>/payment` | Done |
-| K5 | `GET /api/reservations` (own rows; all rows for admins) | Done |
+| K5 | `GET /api/reservations` (own rows; admin search/status/type filters) | Done |
 | K6 | `PATCH`/`POST /api/reservations/<id>` | Done |
 | K7 | `POST /api/reservations/<id>/cancellation` | Done |
 | K8 | `POST /api/payments/<id>/refund` (admin) | Done |
 | K9 | `POST /api/reservations/<id>/validation` (admin) | Done |
 | K10 | `GET /api/reservations/<id>/history` | Done |
 | K11 | Compensating `release`/`reserve` calls on failure | Done |
-| Tests | 305 backend tests (unit + API) | Done |
+| Tests | 311 backend tests (unit + API) | Done |
 
 ## 3. API
 
@@ -62,6 +62,9 @@ Authentication uses `Authorization: Bearer <jeton>`.
 | `POST` | `/api/reservations/<id>/validation` | Admin |
 | `GET` | `/api/reservations/<id>/history` | Owner or admin |
 | `GET` | `/health` | Public |
+
+`GET /api/reservations` accepts `search` (reference or item label), `status` and `typeItem`
+filters; clients still only see their own rows.
 
 ### Payment service — `http://localhost:8086`
 
@@ -232,7 +235,7 @@ py -3.11 run_tests.py
 | Suite | Tests | Covers |
 |-------|-------|--------|
 | `user/tests` | 78 | Validators, PBKDF2/JWT helpers, register/login/logout/me/update-me, error envelopes |
-| `reservation/tests` | 136 | Catalogue parsing, retry client, serializers, CRUD, booking/cancellation rules, validation, history, permissions, stock compensation |
+| `reservation/tests` | 142 | Catalogue parsing, retry client, serializers, CRUD, list filters, booking/cancellation rules, validation, history, permissions, stock compensation |
 | `payment/tests` | 91 | Card validation, payment methods, declined cards, idempotency, refunds, permissions, compensation |
 
 ## 7. Watch-outs

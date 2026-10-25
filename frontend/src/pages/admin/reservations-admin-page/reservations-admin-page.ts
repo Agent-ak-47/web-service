@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
@@ -71,7 +72,7 @@ export class ReservationsAdminPage implements OnInit {
     readonly EMPTY_LABEL = KZ_LABELS.emptyReservations;
     readonly SEARCH_KEY = 'search';
     readonly STATUS_KEY = 'status';
-    readonly TYPE_KEY = 'type';
+    readonly TYPE_KEY = 'typeItem';
     readonly TEXT_TYPE = KzFieldType.TEXT;
     readonly SELECT_TYPE = KzFieldType.SELECT;
 
@@ -85,7 +86,9 @@ export class ReservationsAdminPage implements OnInit {
 
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
+    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
 
     readonly actions: KzTableAction[] = [];
 
@@ -228,7 +231,12 @@ export class ReservationsAdminPage implements OnInit {
 
 
     ngOnInit(): void {
-        this.loadReservations();
+        this.route.queryParamMap
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((params) => {
+                this.applyQueryParams(params);
+                void this.loadReservations();
+            });
     }
 
 
@@ -236,15 +244,22 @@ export class ReservationsAdminPage implements OnInit {
         this.search = values[this.SEARCH_KEY] ?? '';
         this.statusFilter = values[this.STATUS_KEY] ?? '';
         this.typeFilter = values[this.TYPE_KEY] ?? '';
-        this.rows = this.buildRows(this.filterReservations(this.reservations));
     }
 
 
-    onFiltersReset(): void {
+    async onFiltersSubmitted(): Promise<void> {
+        await this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: this.queryParams(),
+        });
+    }
+
+
+    async onFiltersReset(): Promise<void> {
         this.search = '';
         this.statusFilter = '';
         this.typeFilter = '';
-        this.rows = this.buildRows(this.reservations);
+        await this.onFiltersSubmitted();
     }
 
 
@@ -291,7 +306,11 @@ export class ReservationsAdminPage implements OnInit {
         this.errorMessage = '';
 
         try {
-            const response = await fetch(this.globalService.routes.reservations, {
+            const query = new URLSearchParams(this.queryParams()).toString();
+            const url = query.length > 0
+                ? `${this.globalService.routes.reservations}?${query}`
+                : this.globalService.routes.reservations;
+            const response = await fetch(url, {
                 method: 'GET',
                 credentials: 'include',
                 headers: this.authService.authHeaders,
@@ -396,9 +415,36 @@ export class ReservationsAdminPage implements OnInit {
     }
 
 
+    private applyQueryParams(params: ParamMap): void {
+        this.search = params.get(this.SEARCH_KEY) ?? '';
+        this.statusFilter = params.get(this.STATUS_KEY) ?? '';
+        this.typeFilter = params.get(this.TYPE_KEY) ?? '';
+    }
+
+
+    private queryParams(): Record<string, string> {
+        const params: Record<string, string> = {};
+        const search = this.search.trim();
+
+        if (search.length > 0) {
+            params[this.SEARCH_KEY] = search;
+        }
+
+        if (this.statusFilter.length > 0) {
+            params[this.STATUS_KEY] = this.statusFilter;
+        }
+
+        if (this.typeFilter.length > 0) {
+            params[this.TYPE_KEY] = this.typeFilter;
+        }
+
+        return params;
+    }
+
+
     private setReservations(source: KzReservation[]): void {
         this.reservations = this.sortByRecent(source);
-        this.rows = this.buildRows(this.filterReservations(this.reservations));
+        this.rows = this.buildRows(this.reservations);
     }
 
 
@@ -407,23 +453,6 @@ export class ReservationsAdminPage implements OnInit {
             const byDate = second.reservationDate.localeCompare(first.reservationDate);
 
             return byDate !== 0 ? byDate : second.id - first.id;
-        });
-    }
-
-
-    private filterReservations(source: readonly KzReservation[]): KzReservation[] {
-        const search = this.search.trim().toLowerCase();
-
-        return source.filter((reservation) => {
-            const matchesSearch = search.length === 0
-                || reservation.reference.toLowerCase().includes(search)
-                || reservation.itemLabel.toLowerCase().includes(search);
-            const matchesStatus = this.statusFilter.length === 0
-                || reservation.status === (this.statusFilter as KzReservationStatus);
-            const matchesType = this.typeFilter.length === 0
-                || reservation.typeItem === this.typeFilter;
-
-            return matchesSearch && matchesStatus && matchesType;
         });
     }
 

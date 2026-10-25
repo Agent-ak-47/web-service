@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 
 from flask import Blueprint, current_app, g, request
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 
 from helpers.auth import admin_required, login_required
@@ -30,12 +30,14 @@ from models import Reservation, ReservationHistory, db
 reservations_bp = Blueprint('reservations', __name__, url_prefix='/api/reservations')
 
 ITEM_TYPES = ('FLIGHT', 'PACKAGE', 'EXCURSION')
+RESERVATION_STATUSES = ('PENDING', 'CONFIRMED', 'PAID', 'CANCELLED', 'REFUNDED', 'EXPIRED')
 STOCK_HELD_STATUSES = ('PENDING', 'CONFIRMED')
 CANCELLABLE_STATUSES = ('PENDING', 'CONFIRMED', 'PAID')
 CANCELLATION_NOTICE_DAYS = 2
 MONEY_QUANTUM = Decimal('0.01')
 MAX_QUANTITY = 65535
 MAX_TOTAL = Decimal('99999999.99')
+MAX_SEARCH_LENGTH = 120
 
 
 def _body():
@@ -303,10 +305,33 @@ def create_reservation():
 @reservations_bp.get('')
 @login_required
 def list_reservations():
+    search = request.args.get('search', '').strip()[:MAX_SEARCH_LENGTH]
+    status = request.args.get('status', '').strip().upper()
+    item_type = request.args.get('typeItem', '').strip().upper()
+
+    if status and status not in RESERVATION_STATUSES:
+        return error('INVALID_FORMAT', 'The status filter is invalid.')
+
+    if item_type and item_type not in ITEM_TYPES:
+        return error('INVALID_FORMAT', 'The item type filter is invalid.')
+
     query = Reservation.query
 
     if g.role != 'ADMIN':
         query = query.filter(Reservation.user_id == g.user_id)
+
+    if status:
+        query = query.filter(Reservation.status == status)
+
+    if item_type:
+        query = query.filter(Reservation.item_type == item_type)
+
+    if search:
+        pattern = f'%{search}%'
+        query = query.filter(or_(
+            Reservation.reference.ilike(pattern),
+            Reservation.item_label.ilike(pattern),
+        ))
 
     rows = (
         query
