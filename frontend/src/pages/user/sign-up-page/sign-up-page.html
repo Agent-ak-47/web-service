@@ -15,10 +15,6 @@
             [error]="confirmPasswordError" [required]="true" [disabled]="isSending"
             (valueChange)="onConfirmPasswordChange($event)" />
 
-        @if (errorMessage.length > 0) {
-            <p class="kz-error">{{ errorMessage }}</p>
-        }
-
         <kz-btn [label]="submitLabel" [loading]="isSending" [disabled]="isSending" [fullWidth]="true"
             (clicked)="onSubmit()" />
 
@@ -30,4 +26,7 @@
             <a class="kz-link-button is-outline" [routerLink]="signInPath">{{ SIGN_IN_LABEL }}</a>
         </div>
     </div>
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

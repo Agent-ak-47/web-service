@@ -21,13 +21,14 @@ import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 
 
 @Component({
     selector: 'kz-excursions-admin-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzFilterBar],
+    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup, KzFilterBar],
     templateUrl: './excursions-admin-page.html',
     styleUrl: './excursions-admin-page.css',
 })

@@ -22,6 +22,7 @@ import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import {
     DEFAULT_KZ_RESERVATION_COLUMN,
     KzReservationColumn,
@@ -31,7 +32,7 @@ import {
 @Component({
     selector: 'kz-reservations-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzMoneyPipe],
+    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup, KzMoneyPipe],
     templateUrl: './reservations-page.html',
     styleUrl: './reservations-page.css',
 })

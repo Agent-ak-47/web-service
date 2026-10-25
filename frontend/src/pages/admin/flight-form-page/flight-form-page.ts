@@ -20,6 +20,7 @@ import { parseResponse } from '../../../models/kz_response';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzFormPanel } from '../../../components/kz-form-panel/kz-form-panel';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -27,7 +28,7 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-flight-form-page',
     standalone: true,
-    imports: [KzFormPanel, KzLoading],
+    imports: [KzErrorPopup, KzFormPanel, KzLoading],
     templateUrl: './flight-form-page.html',
     styleUrl: './flight-form-page.css',
 })

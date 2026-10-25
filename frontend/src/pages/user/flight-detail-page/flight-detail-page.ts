@@ -15,6 +15,7 @@ import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { ItemDetailService } from '../../../services/item-detail.service';
 import { KzBreadcrumb } from '../../../components/kz-breadcrumb/kz-breadcrumb';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
@@ -22,7 +23,7 @@ import { KzLoading } from '../../../components/kz-loading/kz-loading';
 @Component({
     selector: 'kz-flight-detail-page',
     standalone: true,
-    imports: [KzBreadcrumb, KzItemDetail, KzLoading],
+    imports: [KzBreadcrumb, KzErrorPopup, KzItemDetail, KzLoading],
     templateUrl: './flight-detail-page.html',
     styleUrl: './flight-detail-page.css',
 })

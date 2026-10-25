@@ -1,10 +1,6 @@
 <section class="kz-page kz-container">
     <kz-breadcrumb [items]="breadcrumb" />
 
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
-
     @if (isLoading) {
         <kz-loading [label]="labels.loading" />
     }
@@ -15,4 +11,7 @@
     @else {
         <div class="kz-empty">{{ EMPTY_LABEL }}</div>
     }
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

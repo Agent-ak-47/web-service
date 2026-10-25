@@ -14,6 +14,7 @@ import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzCard } from '../../../components/kz-card/kz-card';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import { KzHeroAction } from './components/hero/hero_action.interface';
 import { Hero } from './components/hero/hero';
@@ -23,7 +24,7 @@ import { KzHomeSection } from './models/kz_home_section.interface';
 @Component({
     selector: 'kz-home-page',
     standalone: true,
-    imports: [Hero, KzCard, KzLoading, RouterLink],
+    imports: [Hero, KzCard, KzErrorPopup, KzLoading, RouterLink],
     templateUrl: './home-page.html',
     styleUrl: './home-page.css',
 })

@@ -12,6 +12,7 @@ import { KzMoneyPipe } from '../../../pipes/kz-money.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzBtn } from '../../../components/kz-btn/kz-btn';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzField } from '../../../components/kz-field/kz-field';
 import { DEFAULT_KZ_CARD_FORM, KzCardForm } from './models/kz_card_form.interface';
 import { DEFAULT_KZ_FORM_ERRORS, KzFormErrors } from './models/kz_form_errors.interface';
@@ -20,7 +21,7 @@ import { DEFAULT_KZ_FORM_ERRORS, KzFormErrors } from './models/kz_form_errors.in
 @Component({
     selector: 'kz-payment-page',
     standalone: true,
-    imports: [KzBtn, KzField, KzMoneyPipe],
+    imports: [KzBtn, KzErrorPopup, KzField, KzMoneyPipe],
     templateUrl: './payment-page.html',
     styleUrl: './payment-page.css',
 })

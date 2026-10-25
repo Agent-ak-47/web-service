@@ -4,10 +4,6 @@
         <p>{{ PAGE_SUBTITLE }}</p>
     </header>
 
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
-
     <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onFiltersChanged($event)"
         (submitted)="onFiltersSubmitted()" (reseted)="onFiltersReset()" />
 
@@ -16,4 +12,7 @@
 
     <kz-dialog [open]="isDialogOpen" [title]="dialogTitle" [message]="dialogMessage" [confirmLabel]="confirmLabel"
         [cancelLabel]="DISMISS_LABEL" [loading]="isSubmitting" (confirmed)="onConfirm()" (cancelled)="onCloseDialog()" />
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

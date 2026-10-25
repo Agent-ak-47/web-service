@@ -19,6 +19,7 @@ import { KzDatePipe } from '../../../pipes/kz-date.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzCard } from '../../../components/kz-card/kz-card';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 import {
@@ -31,7 +32,7 @@ import {
 @Component({
     selector: 'kz-flights-page',
     standalone: true,
-    imports: [KzCard, KzFilterBar, KzLoading],
+    imports: [KzCard, KzErrorPopup, KzFilterBar, KzLoading],
     templateUrl: './flights-page.html',
     styleUrl: './flights-page.css',
 })

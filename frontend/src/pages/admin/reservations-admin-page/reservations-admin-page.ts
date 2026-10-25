@@ -28,13 +28,14 @@ import { AuthService } from '../../../services/auth.service';
 import { GlobalService } from '../../../services/global.service';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
+import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
 import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 
 
 @Component({
     selector: 'kz-reservations-admin-page',
     standalone: true,
-    imports: [KzDataTable, KzDialog, KzFilterBar],
+    imports: [KzDataTable, KzDialog, KzErrorPopup, KzFilterBar],
     templateUrl: './reservations-admin-page.html',
     styleUrl: './reservations-admin-page.css',
 })

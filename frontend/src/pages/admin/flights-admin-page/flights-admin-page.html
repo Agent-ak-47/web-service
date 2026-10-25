@@ -11,13 +11,12 @@
     <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
         (submitted)="onSearchSubmitted()" (reseted)="onSearchReset()" />
 
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
-
     <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
         [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
 
     <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage" [loading]="isDeleting"
         (confirmed)="onConfirmRemove()" (cancelled)="onCloseDialog()" />
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>

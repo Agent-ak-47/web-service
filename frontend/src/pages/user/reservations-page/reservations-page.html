@@ -4,10 +4,6 @@
         <p>{{ PAGE_SUBTITLE }}</p>
     </header>
 
-    @if (errorMessage.length > 0) {
-        <p class="kz-error">{{ errorMessage }}</p>
-    }
-
     <kz-data-table [columns]="columns" [rows]="rows" [actions]="actions" [loading]="isLoading"
         [emptyLabel]="EMPTY_LABEL" (actionDone)="onActionDone($event)" />
 
@@ -36,4 +32,7 @@
     <kz-dialog [open]="isDialogOpen" [title]="DIALOG_TITLE" [message]="dialogMessage"
         [confirmLabel]="CANCEL_CONFIRM_LABEL" [cancelLabel]="DISMISS_LABEL" [loading]="isCancelling"
         (confirmed)="onConfirmCancel()" (cancelled)="onCloseDialog()" />
+
+    <kz-error-popup [open]="errorMessage.length > 0" [message]="errorMessage"
+        (closed)="errorMessage = ''" />
 </section>
