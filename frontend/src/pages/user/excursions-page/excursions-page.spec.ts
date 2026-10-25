@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_KZ_EXCURSION, KzExcursion } from '../../../models/kz_excursion.interface';
@@ -62,16 +63,56 @@ describe('ExcursionsPage', () => {
     });
 
 
-    it('should filter the cards by location and price', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [EXCURSION] })));
+    it('should send the filters to the server and build the returned cards', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [EXCURSION] }));
+        vi.stubGlobal('fetch', fetchMock);
         const fixture = TestBed.createComponent(ExcursionsPage);
+        fixture.componentInstance.onFiltersChanged({
+            location: ' marrakech ',
+            date: '2026-11-04',
+            maxPrice: '400',
+            quantity: '2',
+        });
+
         await fixture.componentInstance.loadExcursions();
 
-        fixture.componentInstance.applyFilters({ location: 'marra', maxPrice: '400' });
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8084/api/excursions'
+            + '?location=marrakech&date=2026-11-04&maxPrice=400',
+        );
         expect(fixture.componentInstance.cards.length).toBe(1);
+        expect(fixture.componentInstance.cards[0].title).toBe('Medina walking tour');
+    });
 
-        fixture.componentInstance.applyFilters({ location: 'fes' });
-        expect(fixture.componentInstance.cards.length).toBe(0);
+
+    it('should sync the filters to the URL when submitted', async () => {
+        const fixture = TestBed.createComponent(ExcursionsPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({
+            location: ' marrakech ',
+            quantity: '2',
+        });
+
+        await fixture.componentInstance.onFiltersSubmitted();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+            queryParams: { location: 'marrakech', quantity: '2' },
+        }));
+        expect(fixture.componentInstance.filtersTouched).toBe(false);
+    });
+
+
+    it('should reset the filters and clear the URL', async () => {
+        const fixture = TestBed.createComponent(ExcursionsPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({ location: 'marrakech' });
+
+        await fixture.componentInstance.onFiltersReset();
+
+        expect(fixture.componentInstance.filter.location).toBe('');
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
     });
 
 
@@ -94,5 +135,30 @@ describe('ExcursionsPage', () => {
         fixture.componentInstance.onOpen({ ...DEFAULT_KZ_ITEM_CARD_DATA, id: EXCURSION.id });
 
         expect(navigate).toHaveBeenCalledWith('/excursions/3');
+    });
+
+
+    it('should load the initial filters from the URL', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [EXCURSION] }));
+        vi.stubGlobal('fetch', fetchMock);
+        const params = convertToParamMap({ location: 'Marrakech', quantity: '2' });
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [ExcursionsPage],
+            providers: [
+                provideRouter([]),
+                { provide: ActivatedRoute, useValue: { queryParamMap: of(params) } },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(ExcursionsPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.filter.location).toBe('Marrakech');
+        expect(fixture.componentInstance.filter.quantity).toBe('2');
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8084/api/excursions?location=Marrakech',
+        );
     });
 });

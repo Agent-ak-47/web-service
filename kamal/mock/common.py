@@ -4,6 +4,7 @@ import os
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
 
 
 SCENARIOS = ('ok', 'missing', 'broken', 'slow', 'full', 'inactive', 'garbage')
@@ -14,8 +15,110 @@ CORS_ORIGINS = {
 }
 
 
+SEARCH_FIELDS = {
+    'flights': ('airline', 'flightNumber', 'departureCity', 'arrivalCity'),
+    'packages': ('name', 'destination'),
+    'excursions': ('title', 'location', 'guide'),
+}
+
+
 def error(code, message, details=None):
     return {'error': {'code': code, 'message': message, 'details': details or {}}}
+
+
+def text(value):
+    return '' if value is None else str(value).strip().lower()
+
+
+def contains(item, field, wanted):
+    return wanted in text(item.get(field))
+
+
+def number(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def price_of(item):
+    price = number(item.get('price'))
+    promo = number(item.get('promoPrice'))
+
+    return promo if promo is not None and promo > 0 else price
+
+
+def within_price(item, query):
+    price = price_of(item)
+    minimum = number(query.get('minPrice'))
+    maximum = number(query.get('maxPrice'))
+
+    if price is not None and minimum is not None and price < minimum:
+        return False
+
+    return price is None or maximum is None or price <= maximum
+
+
+def matches(resource, item, query):
+    search = text(query.get('search'))
+
+    if search and not any(contains(item, field, search) for field in SEARCH_FIELDS.get(resource, ())):
+        return False
+
+    if resource == 'flights':
+        for field in ('departureCity', 'arrivalCity', 'airline'):
+            wanted = text(query.get(field))
+
+            if wanted and not contains(item, field, wanted):
+                return False
+
+        for field in ('departureDate', 'arrivalDate'):
+            wanted = text(query.get(field))
+
+            if wanted and not text(item.get(field)).startswith(wanted):
+                return False
+
+        seats = number(item.get('availableSeats'))
+        minimum = number(query.get('minSeats'))
+
+        if seats is not None and minimum is not None and seats < minimum:
+            return False
+
+    elif resource == 'packages':
+        wanted = text(query.get('destination'))
+
+        if wanted and not contains(item, 'destination', wanted):
+            return False
+
+        start = text(query.get('startDate'))
+
+        if start and not text(item.get('startDate')).startswith(start):
+            return False
+
+    elif resource == 'excursions':
+        wanted = text(query.get('location'))
+
+        if wanted and not contains(item, 'location', wanted):
+            return False
+
+        date = text(item.get('date'))
+
+        if text(query.get('date')) and not date.startswith(text(query.get('date'))):
+            return False
+
+        if text(query.get('fromDate')) and date < text(query.get('fromDate')):
+            return False
+
+        if text(query.get('toDate')) and date > text(query.get('toDate')):
+            return False
+
+        duration = number(item.get('dureeMinutes'))
+        maximum = number(query.get('maxDuration'))
+
+        if duration is not None and maximum is not None and duration > maximum:
+            return False
+
+    return within_price(item, query)
 
 
 class Catalogue:
@@ -45,7 +148,9 @@ class Catalogue:
         with self.lock:
             return copy.deepcopy(self.calls)
 
-    def all_items(self):
+    def all_items(self, query=None):
+        query = query or {}
+
         with self.lock:
             scenario = self.scenario
             items = copy.deepcopy(list(self.items.values()))
@@ -65,6 +170,8 @@ class Catalogue:
             for item in items:
                 if 'availableSeats' in item:
                     item['availableSeats'] = 0
+
+        items = [item for item in items if matches(self.resource, item, query)]
 
         return 200, {'data': items}
 
@@ -227,8 +334,10 @@ def make_handler(catalogue, resource):
                 return None
 
         def do_GET(self):
-            path = self.path.split('?', 1)[0]
+            parsed = urlparse(self.path)
+            path = parsed.path
             parts = path.strip('/').split('/')
+            query = {name: values[-1] for name, values in parse_qs(parsed.query).items()}
 
             if path == '/health':
                 return self._send(200, {'status': 'ok'})
@@ -245,7 +354,7 @@ def make_handler(catalogue, resource):
                 if scenario == 'garbage':
                     return self._send_raw(200, b'<html>not json</html>', 'text/html')
 
-                return self._send(*catalogue.all_items())
+                return self._send(*catalogue.all_items(query))
 
             if len(parts) == 4 and parts[0] == 'api' and parts[1] == resource and parts[3] == 'availability':
                 try:

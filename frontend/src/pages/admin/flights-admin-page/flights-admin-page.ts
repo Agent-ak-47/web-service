@@ -1,11 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
 import { KzFlight } from '../../../models/kz_flight.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import {
     KzCellFormat,
@@ -60,7 +62,9 @@ export class FlightsAdminPage implements OnInit {
 
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
+    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
 
     readonly actions: KzTableAction[] = [KzTableAction.EDIT, KzTableAction.REMOVE];
 
@@ -144,7 +148,12 @@ export class FlightsAdminPage implements OnInit {
 
 
     ngOnInit(): void {
-        this.loadFlights();
+        this.route.queryParamMap
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((params) => {
+                this.applyQueryParams(params);
+                void this.loadFlights();
+            });
     }
 
 
@@ -154,12 +163,21 @@ export class FlightsAdminPage implements OnInit {
 
 
     onSearchChanged(values: Record<string, string>): void {
-        this.applySearch(values[this.SEARCH_KEY] ?? '');
+        this.search = values[this.SEARCH_KEY] ?? '';
     }
 
 
-    onSearchReset(): void {
-        this.applySearch('');
+    async onSearchSubmitted(): Promise<void> {
+        await this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: this.queryParams(),
+        });
+    }
+
+
+    async onSearchReset(): Promise<void> {
+        this.search = '';
+        await this.onSearchSubmitted();
     }
 
 
@@ -206,7 +224,7 @@ export class FlightsAdminPage implements OnInit {
         this.errorMessage = '';
 
         try {
-            const response = await fetch(this.globalService.routes.flights, {
+            const response = await fetch(addQuery(this.globalService.routes.flights, this.queryParams()), {
                 method: 'GET',
                 credentials: 'include',
                 headers: this.authService.authHeaders,
@@ -283,30 +301,19 @@ export class FlightsAdminPage implements OnInit {
     }
 
 
-    private applySearch(value: string): void {
-        this.search = value;
-        this.rows = this.buildRows(this.filterFlights(this.flights));
+    private applyQueryParams(params: ParamMap): void {
+        this.search = params.get(this.SEARCH_KEY) ?? '';
+    }
+
+
+    private queryParams(): KzQueryParams {
+        return cleanQueryParams({ [this.SEARCH_KEY]: this.search });
     }
 
 
     private setFlights(source: KzFlight[]): void {
         this.flights = source;
-        this.rows = this.buildRows(this.filterFlights(source));
-    }
-
-
-    private filterFlights(source: readonly KzFlight[]): KzFlight[] {
-        const search = this.search.trim().toLowerCase();
-
-        if (search.length === 0) {
-            return [...source];
-        }
-
-        return source.filter((flight) =>
-            flight.airline.toLowerCase().includes(search)
-            || flight.flightNumber.toLowerCase().includes(search)
-            || flight.departureCity.toLowerCase().includes(search)
-            || flight.arrivalCity.toLowerCase().includes(search));
+        this.rows = this.buildRows(source);
     }
 
 

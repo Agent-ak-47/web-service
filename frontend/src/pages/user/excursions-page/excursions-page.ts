@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzExcursion } from '../../../models/kz_excursion.interface';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
@@ -10,6 +11,7 @@ import { KzItemCardData } from '../../../models/kz_item_card_data.interface';
 import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { KzReservation } from '../../../models/kz_reservation.interface';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
@@ -53,7 +55,9 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
     private readonly datePipe = inject(KzDatePipe);
+    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
 
     excursions: KzExcursion[] = [];
     cards: KzItemCardData[] = [];
@@ -114,7 +118,12 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
 
 
     ngOnInit(): void {
-        this.loadExcursions();
+        this.route.queryParamMap
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((params) => {
+                this.applyQueryParams(params);
+                void this.loadExcursions();
+            });
     }
 
 
@@ -129,9 +138,18 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
     }
 
 
-    onFiltersReset(): void {
+    async onFiltersSubmitted(): Promise<void> {
+        this.filtersTouched = false;
+        await this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: this.queryParams(),
+        });
+    }
+
+
+    async onFiltersReset(): Promise<void> {
         this.filter = { ...DEFAULT_KZ_EXCURSION_FILTER };
-        this.applyFilters({});
+        await this.onFiltersSubmitted();
     }
 
 
@@ -140,7 +158,7 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
         this.errorMessage = '';
 
         try {
-            const response = await fetch(this.globalService.routes.excursions, {
+            const response = await fetch(addQuery(this.globalService.routes.excursions, this.apiParams()), {
                 method: 'GET',
                 credentials: 'include',
                 headers: this.authService.authHeaders,
@@ -163,8 +181,8 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
                 return;
             }
 
-            this.excursions = parseList<KzExcursion>(parsed.data);
-            this.applyFilters({});
+            this.setExcursions(parseList<KzExcursion>(parsed.data));
+            this.filtersTouched = false;
         }
         catch (error: unknown) {
             console.error(error);
@@ -176,15 +194,48 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
     }
 
 
-    applyFilters(values: Record<string, string>): void {
+    private applyFilters(values: Record<string, string>): void {
         this.filter = {
             location: values['location'] ?? this.filter.location,
             date: values['date'] ?? this.filter.date,
             maxPrice: values['maxPrice'] ?? this.filter.maxPrice,
             quantity: values['quantity'] ?? this.filter.quantity,
         };
+    }
 
-        this.cards = this.buildCards(this.filterExcursions(this.excursions));
+
+    private applyQueryParams(params: ParamMap): void {
+        this.filter = {
+            location: params.get('location') ?? '',
+            date: params.get('date') ?? '',
+            maxPrice: params.get('maxPrice') ?? '',
+            quantity: params.get('quantity') ?? String(DEFAULT_KZ_EXCURSION_QUANTITY),
+        };
+    }
+
+
+    private queryParams(): KzQueryParams {
+        const params = cleanQueryParams({
+            location: this.filter.location,
+            date: this.filter.date,
+            maxPrice: this.filter.maxPrice,
+            quantity: this.filter.quantity,
+        });
+
+        if (params['quantity'] === String(DEFAULT_KZ_EXCURSION_QUANTITY)) {
+            delete params['quantity'];
+        }
+
+        return params;
+    }
+
+
+    private apiParams(): KzQueryParams {
+        return cleanQueryParams({
+            location: this.filter.location,
+            date: this.filter.date,
+            maxPrice: this.filter.maxPrice,
+        });
     }
 
 
@@ -205,19 +256,9 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
     }
 
 
-    private filterExcursions(source: readonly KzExcursion[]): KzExcursion[] {
-        const location = this.filter.location.trim().toLowerCase();
-        const date = this.filter.date;
-        const maxPrice = Number(this.filter.maxPrice);
-
-        return source.filter((item) => {
-            const matchesLocation = location.length === 0
-                || item.location.toLowerCase().includes(location);
-            const matchesDate = date.length === 0 || item.date.startsWith(date);
-            const matchesPrice = this.filter.maxPrice.length === 0 || item.price <= maxPrice;
-
-            return matchesLocation && matchesDate && matchesPrice;
-        });
+    private setExcursions(source: KzExcursion[]): void {
+        this.excursions = source;
+        this.cards = this.buildCards(source);
     }
 
 

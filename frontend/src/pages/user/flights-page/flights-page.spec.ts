@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_KZ_ITEM_CARD_DATA } from '../../../models/kz_item_card_data.interface';
@@ -64,16 +65,57 @@ describe('FlightsPage', () => {
     });
 
 
-    it('should filter the cards by departure, arrival and price', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [FLIGHT] })));
+    it('should send the filters to the server and build the returned cards', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [FLIGHT] }));
+        vi.stubGlobal('fetch', fetchMock);
         const fixture = TestBed.createComponent(FlightsPage);
+        fixture.componentInstance.onFiltersChanged({
+            departureCity: ' casa ',
+            arrivalCity: 'Paris',
+            departureDate: '2026-11-04',
+            maxPrice: '1300',
+            quantity: '2',
+        });
+
         await fixture.componentInstance.loadFlights();
 
-        fixture.componentInstance.applyFilters({ departureCity: 'casa', maxPrice: '1300' });
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8081/api/flights'
+            + '?departureCity=casa&arrivalCity=Paris&departureDate=2026-11-04&maxPrice=1300',
+        );
         expect(fixture.componentInstance.cards.length).toBe(1);
+        expect(fixture.componentInstance.cards[0].title).toBe('Casablanca - Paris');
+    });
 
-        fixture.componentInstance.applyFilters({ departureCity: 'rabat' });
-        expect(fixture.componentInstance.cards.length).toBe(0);
+
+    it('should sync the filters to the URL when submitted', async () => {
+        const fixture = TestBed.createComponent(FlightsPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({
+            departureCity: ' casa ',
+            quantity: '2',
+        });
+
+        await fixture.componentInstance.onFiltersSubmitted();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+            queryParams: { departureCity: 'casa', quantity: '2' },
+        }));
+        expect(fixture.componentInstance.filtersTouched).toBe(false);
+    });
+
+
+    it('should reset the filters and clear the URL', async () => {
+        const fixture = TestBed.createComponent(FlightsPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({ departureCity: 'casa' });
+
+        await fixture.componentInstance.onFiltersReset();
+
+        expect(fixture.componentInstance.filter.departureCity).toBe('');
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
     });
 
 
@@ -99,5 +141,30 @@ describe('FlightsPage', () => {
         fixture.componentInstance.onOpen({ ...DEFAULT_KZ_ITEM_CARD_DATA, id: 9 });
 
         expect(navigate).toHaveBeenCalledWith('/flights/9');
+    });
+
+
+    it('should load the initial filters from the URL', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [FLIGHT] }));
+        vi.stubGlobal('fetch', fetchMock);
+        const params = convertToParamMap({ departureCity: 'casa', quantity: '2' });
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [FlightsPage],
+            providers: [
+                provideRouter([]),
+                { provide: ActivatedRoute, useValue: { queryParamMap: of(params) } },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(FlightsPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.filter.departureCity).toBe('casa');
+        expect(fixture.componentInstance.filter.quantity).toBe('2');
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8081/api/flights?departureCity=casa',
+        );
     });
 });

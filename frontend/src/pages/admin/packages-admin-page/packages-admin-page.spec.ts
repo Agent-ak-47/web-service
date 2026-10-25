@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_KZ_PACKAGE, KzPackage } from '../../../models/kz_package.interface';
@@ -55,19 +56,43 @@ describe('PackagesAdminPage', () => {
     });
 
 
-    it('should filter the packages and reset the search', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [PACKAGE] })));
+    it('should send the search to the server and build the returned rows', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [PACKAGE] }));
+        vi.stubGlobal('fetch', fetchMock);
         const fixture = TestBed.createComponent(PackagesAdminPage);
+        fixture.componentInstance.onSearchChanged({ search: ' marrakech ' });
+
         await fixture.componentInstance.loadPackages();
 
+        expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:8082/api/packages?search=marrakech');
+        expect(fixture.componentInstance.rows.length).toBe(1);
+    });
+
+
+    it('should sync the search to the URL when submitted', async () => {
+        const fixture = TestBed.createComponent(PackagesAdminPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onSearchChanged({ search: ' marrakech ' });
+
+        await fixture.componentInstance.onSearchSubmitted();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+            queryParams: { search: 'marrakech' },
+        }));
+    });
+
+
+    it('should clear the search and the URL when reset', async () => {
+        const fixture = TestBed.createComponent(PackagesAdminPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
         fixture.componentInstance.onSearchChanged({ search: 'marrakech' });
-        expect(fixture.componentInstance.rows.length).toBe(1);
 
-        fixture.componentInstance.onSearchChanged({ search: 'agadir' });
-        expect(fixture.componentInstance.rows.length).toBe(0);
+        await fixture.componentInstance.onSearchReset();
 
-        fixture.componentInstance.onSearchReset();
-        expect(fixture.componentInstance.rows.length).toBe(1);
+        expect(fixture.componentInstance.search).toBe('');
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
     });
 
 
@@ -101,5 +126,27 @@ describe('PackagesAdminPage', () => {
 
         expect(fixture.componentInstance.packages.length).toBe(0);
         expect(fixture.componentInstance.isDialogOpen).toBe(false);
+    });
+
+
+    it('should load the initial search from the URL', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [PACKAGE] }));
+        vi.stubGlobal('fetch', fetchMock);
+        const params = convertToParamMap({ search: 'marrakech' });
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [PackagesAdminPage],
+            providers: [
+                provideRouter([]),
+                { provide: ActivatedRoute, useValue: { queryParamMap: of(params) } },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(PackagesAdminPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.search).toBe('marrakech');
+        expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:8082/api/packages?search=marrakech');
     });
 });

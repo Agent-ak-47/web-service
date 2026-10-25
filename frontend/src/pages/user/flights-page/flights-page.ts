@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
@@ -10,6 +11,7 @@ import { KzItemCardData } from '../../../models/kz_item_card_data.interface';
 import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { KzReservation } from '../../../models/kz_reservation.interface';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
@@ -57,7 +59,9 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
     private readonly datePipe = inject(KzDatePipe);
+    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
 
     flights: KzFlight[] = [];
     cards: KzItemCardData[] = [];
@@ -126,7 +130,12 @@ export class FlightsPage implements KzGuardedForm, OnInit {
 
 
     ngOnInit(): void {
-        this.loadFlights();
+        this.route.queryParamMap
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((params) => {
+                this.applyQueryParams(params);
+                void this.loadFlights();
+            });
     }
 
 
@@ -141,9 +150,18 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     }
 
 
-    onFiltersReset(): void {
+    async onFiltersSubmitted(): Promise<void> {
+        this.filtersTouched = false;
+        await this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: this.queryParams(),
+        });
+    }
+
+
+    async onFiltersReset(): Promise<void> {
         this.filter = { ...DEFAULT_KZ_FLIGHT_FILTER };
-        this.applyFilters({});
+        await this.onFiltersSubmitted();
     }
 
 
@@ -152,7 +170,7 @@ export class FlightsPage implements KzGuardedForm, OnInit {
         this.errorMessage = '';
 
         try {
-            const response = await fetch(this.globalService.routes.flights, {
+            const response = await fetch(addQuery(this.globalService.routes.flights, this.apiParams()), {
                 method: 'GET',
                 credentials: 'include',
                 headers: this.authService.authHeaders,
@@ -175,8 +193,8 @@ export class FlightsPage implements KzGuardedForm, OnInit {
                 return;
             }
 
-            this.flights = parseList<KzFlight>(parsed.data);
-            this.applyFilters({});
+            this.setFlights(parseList<KzFlight>(parsed.data));
+            this.filtersTouched = false;
         }
         catch (error: unknown) {
             console.error(error);
@@ -188,7 +206,7 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     }
 
 
-    applyFilters(values: Record<string, string>): void {
+    private applyFilters(values: Record<string, string>): void {
         this.filter = {
             departureCity: values['departureCity'] ?? this.filter.departureCity,
             arrivalCity: values['arrivalCity'] ?? this.filter.arrivalCity,
@@ -196,8 +214,44 @@ export class FlightsPage implements KzGuardedForm, OnInit {
             maxPrice: values['maxPrice'] ?? this.filter.maxPrice,
             quantity: values['quantity'] ?? this.filter.quantity,
         };
+    }
 
-        this.cards = this.buildCards(this.filterFlights(this.flights));
+
+    private applyQueryParams(params: ParamMap): void {
+        this.filter = {
+            departureCity: params.get('departureCity') ?? '',
+            arrivalCity: params.get('arrivalCity') ?? '',
+            departureDate: params.get('departureDate') ?? '',
+            maxPrice: params.get('maxPrice') ?? '',
+            quantity: params.get('quantity') ?? String(DEFAULT_KZ_FLIGHT_QUANTITY),
+        };
+    }
+
+
+    private queryParams(): KzQueryParams {
+        const params = cleanQueryParams({
+            departureCity: this.filter.departureCity,
+            arrivalCity: this.filter.arrivalCity,
+            departureDate: this.filter.departureDate,
+            maxPrice: this.filter.maxPrice,
+            quantity: this.filter.quantity,
+        });
+
+        if (params['quantity'] === String(DEFAULT_KZ_FLIGHT_QUANTITY)) {
+            delete params['quantity'];
+        }
+
+        return params;
+    }
+
+
+    private apiParams(): KzQueryParams {
+        return cleanQueryParams({
+            departureCity: this.filter.departureCity,
+            arrivalCity: this.filter.arrivalCity,
+            departureDate: this.filter.departureDate,
+            maxPrice: this.filter.maxPrice,
+        });
     }
 
 
@@ -218,22 +272,9 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     }
 
 
-    private filterFlights(source: readonly KzFlight[]): KzFlight[] {
-        const departure = this.filter.departureCity.trim().toLowerCase();
-        const arrival = this.filter.arrivalCity.trim().toLowerCase();
-        const date = this.filter.departureDate;
-        const maxPrice = Number(this.filter.maxPrice);
-
-        return source.filter((flight) => {
-            const matchesDeparture = departure.length === 0
-                || flight.departureCity.toLowerCase().includes(departure);
-            const matchesArrival = arrival.length === 0
-                || flight.arrivalCity.toLowerCase().includes(arrival);
-            const matchesDate = date.length === 0 || flight.departureTime.startsWith(date);
-            const matchesPrice = this.filter.maxPrice.length === 0 || flight.price <= maxPrice;
-
-            return matchesDeparture && matchesArrival && matchesDate && matchesPrice;
-        });
+    private setFlights(source: KzFlight[]): void {
+        this.flights = source;
+        this.cards = this.buildCards(source);
     }
 
 

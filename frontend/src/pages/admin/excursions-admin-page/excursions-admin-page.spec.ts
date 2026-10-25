@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_KZ_EXCURSION, KzExcursion } from '../../../models/kz_excursion.interface';
@@ -57,16 +58,43 @@ describe('ExcursionsAdminPage', () => {
     });
 
 
-    it('should filter the excursions by title, location and guide', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [EXCURSION] })));
+    it('should send the search to the server and build the returned rows', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [EXCURSION] }));
+        vi.stubGlobal('fetch', fetchMock);
         const fixture = TestBed.createComponent(ExcursionsAdminPage);
+        fixture.componentInstance.onSearchChanged({ search: ' youssef ' });
+
         await fixture.componentInstance.loadExcursions();
 
-        fixture.componentInstance.onSearchChanged({ search: 'youssef' });
+        expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:8084/api/excursions?search=youssef');
         expect(fixture.componentInstance.rows.length).toBe(1);
+    });
 
-        fixture.componentInstance.onSearchChanged({ search: 'fes' });
-        expect(fixture.componentInstance.rows.length).toBe(0);
+
+    it('should sync the search to the URL when submitted', async () => {
+        const fixture = TestBed.createComponent(ExcursionsAdminPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onSearchChanged({ search: ' youssef ' });
+
+        await fixture.componentInstance.onSearchSubmitted();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+            queryParams: { search: 'youssef' },
+        }));
+    });
+
+
+    it('should clear the search and the URL when reset', async () => {
+        const fixture = TestBed.createComponent(ExcursionsAdminPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onSearchChanged({ search: 'youssef' });
+
+        await fixture.componentInstance.onSearchReset();
+
+        expect(fixture.componentInstance.search).toBe('');
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
     });
 
 
@@ -100,5 +128,27 @@ describe('ExcursionsAdminPage', () => {
 
         expect(fixture.componentInstance.excursions.length).toBe(0);
         expect(fixture.componentInstance.isDialogOpen).toBe(false);
+    });
+
+
+    it('should load the initial search from the URL', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [EXCURSION] }));
+        vi.stubGlobal('fetch', fetchMock);
+        const params = convertToParamMap({ search: 'youssef' });
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [ExcursionsAdminPage],
+            providers: [
+                provideRouter([]),
+                { provide: ActivatedRoute, useValue: { queryParamMap: of(params) } },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(ExcursionsAdminPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.search).toBe('youssef');
+        expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:8084/api/excursions?search=youssef');
     });
 });

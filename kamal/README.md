@@ -206,6 +206,11 @@ Each mock exposes `GET /health`, `GET /__calls`, `POST /__reset` and
 `POST /__scenario` with `ok`, `missing`, `broken`, `slow`, `full`, `inactive` or `garbage`.
 Stop with `Ctrl+C`.
 
+The list endpoints honour the contract filters: `search`, `departureCity`, `arrivalCity`,
+`departureDate`, `arrivalDate`, `airline`, `minPrice`, `maxPrice` and `minSeats` for flights;
+`search`, `destination`, `startDate` and price filters for packages; `search`, `location`, `date`,
+`fromDate`, `toDate`, `maxDuration` and price filters for excursions.
+
 ## 6. Tests
 
 The suites need no MySQL, no running service and no network: every test uses an in-memory

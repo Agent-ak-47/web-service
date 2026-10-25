@@ -5,7 +5,7 @@
     </header>
 
     <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onFiltersChanged($event)"
-        (reseted)="onFiltersReset()" />
+        (submitted)="onFiltersSubmitted()" (reseted)="onFiltersReset()" />
 
     @if (errorMessage.length > 0) {
         <p class="kz-error">{{ errorMessage }}</p>

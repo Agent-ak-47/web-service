@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
@@ -10,6 +11,7 @@ import { KzItemType } from '../../../models/kz_item_type.enum';
 import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzPackage } from '../../../models/kz_package.interface';
+import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { KzReservation } from '../../../models/kz_reservation.interface';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
@@ -53,7 +55,9 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
     private readonly datePipe = inject(KzDatePipe);
+    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
 
     packages: KzPackage[] = [];
     cards: KzItemCardData[] = [];
@@ -114,7 +118,12 @@ export class PackagesPage implements KzGuardedForm, OnInit {
 
 
     ngOnInit(): void {
-        this.loadPackages();
+        this.route.queryParamMap
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((params) => {
+                this.applyQueryParams(params);
+                void this.loadPackages();
+            });
     }
 
 
@@ -129,9 +138,18 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     }
 
 
-    onFiltersReset(): void {
+    async onFiltersSubmitted(): Promise<void> {
+        this.filtersTouched = false;
+        await this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: this.queryParams(),
+        });
+    }
+
+
+    async onFiltersReset(): Promise<void> {
         this.filter = { ...DEFAULT_KZ_PACKAGE_FILTER };
-        this.applyFilters({});
+        await this.onFiltersSubmitted();
     }
 
 
@@ -140,7 +158,7 @@ export class PackagesPage implements KzGuardedForm, OnInit {
         this.errorMessage = '';
 
         try {
-            const response = await fetch(this.globalService.routes.packages, {
+            const response = await fetch(addQuery(this.globalService.routes.packages, this.apiParams()), {
                 method: 'GET',
                 credentials: 'include',
                 headers: this.authService.authHeaders,
@@ -163,8 +181,8 @@ export class PackagesPage implements KzGuardedForm, OnInit {
                 return;
             }
 
-            this.packages = parseList<KzPackage>(parsed.data);
-            this.applyFilters({});
+            this.setPackages(parseList<KzPackage>(parsed.data));
+            this.filtersTouched = false;
         }
         catch (error: unknown) {
             console.error(error);
@@ -176,15 +194,48 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     }
 
 
-    applyFilters(values: Record<string, string>): void {
+    private applyFilters(values: Record<string, string>): void {
         this.filter = {
             destination: values['destination'] ?? this.filter.destination,
             startDate: values['startDate'] ?? this.filter.startDate,
             maxPrice: values['maxPrice'] ?? this.filter.maxPrice,
             quantity: values['quantity'] ?? this.filter.quantity,
         };
+    }
 
-        this.cards = this.buildCards(this.filterPackages(this.packages));
+
+    private applyQueryParams(params: ParamMap): void {
+        this.filter = {
+            destination: params.get('destination') ?? '',
+            startDate: params.get('startDate') ?? '',
+            maxPrice: params.get('maxPrice') ?? '',
+            quantity: params.get('quantity') ?? String(DEFAULT_KZ_PACKAGE_QUANTITY),
+        };
+    }
+
+
+    private queryParams(): KzQueryParams {
+        const params = cleanQueryParams({
+            destination: this.filter.destination,
+            startDate: this.filter.startDate,
+            maxPrice: this.filter.maxPrice,
+            quantity: this.filter.quantity,
+        });
+
+        if (params['quantity'] === String(DEFAULT_KZ_PACKAGE_QUANTITY)) {
+            delete params['quantity'];
+        }
+
+        return params;
+    }
+
+
+    private apiParams(): KzQueryParams {
+        return cleanQueryParams({
+            destination: this.filter.destination,
+            startDate: this.filter.startDate,
+            maxPrice: this.filter.maxPrice,
+        });
     }
 
 
@@ -205,20 +256,9 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     }
 
 
-    private filterPackages(source: readonly KzPackage[]): KzPackage[] {
-        const destination = this.filter.destination.trim().toLowerCase();
-        const date = this.filter.startDate;
-        const maxPrice = Number(this.filter.maxPrice);
-
-        return source.filter((item) => {
-            const matchesDestination = destination.length === 0
-                || item.destination.toLowerCase().includes(destination);
-            const matchesDate = date.length === 0 || item.startDate.startsWith(date);
-            const price = item.promoPrice > 0 ? item.promoPrice : item.price;
-            const matchesPrice = this.filter.maxPrice.length === 0 || price <= maxPrice;
-
-            return matchesDestination && matchesDate && matchesPrice;
-        });
+    private setPackages(source: KzPackage[]): void {
+        this.packages = source;
+        this.cards = this.buildCards(source);
     }
 
 

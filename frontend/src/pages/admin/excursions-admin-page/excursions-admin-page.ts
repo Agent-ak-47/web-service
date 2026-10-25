@@ -1,11 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzExcursion } from '../../../models/kz_excursion.interface';
 import { KzFieldType } from '../../../models/kz_field_type.enum';
 import { KzFilterField } from '../../../models/kz_filter_field.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
+import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import {
     KzCellFormat,
@@ -62,7 +64,9 @@ export class ExcursionsAdminPage implements OnInit {
 
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
+    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
 
     readonly actions: KzTableAction[] = [KzTableAction.EDIT, KzTableAction.REMOVE];
 
@@ -151,7 +155,12 @@ export class ExcursionsAdminPage implements OnInit {
 
 
     ngOnInit(): void {
-        this.loadExcursions();
+        this.route.queryParamMap
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((params) => {
+                this.applyQueryParams(params);
+                void this.loadExcursions();
+            });
     }
 
 
@@ -161,12 +170,21 @@ export class ExcursionsAdminPage implements OnInit {
 
 
     onSearchChanged(values: Record<string, string>): void {
-        this.applySearch(values[this.SEARCH_KEY] ?? '');
+        this.search = values[this.SEARCH_KEY] ?? '';
     }
 
 
-    onSearchReset(): void {
-        this.applySearch('');
+    async onSearchSubmitted(): Promise<void> {
+        await this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: this.queryParams(),
+        });
+    }
+
+
+    async onSearchReset(): Promise<void> {
+        this.search = '';
+        await this.onSearchSubmitted();
     }
 
 
@@ -213,7 +231,7 @@ export class ExcursionsAdminPage implements OnInit {
         this.errorMessage = '';
 
         try {
-            const response = await fetch(this.globalService.routes.excursions, {
+            const response = await fetch(addQuery(this.globalService.routes.excursions, this.queryParams()), {
                 method: 'GET',
                 credentials: 'include',
                 headers: this.authService.authHeaders,
@@ -290,29 +308,19 @@ export class ExcursionsAdminPage implements OnInit {
     }
 
 
-    private applySearch(value: string): void {
-        this.search = value;
-        this.rows = this.buildRows(this.filterExcursions(this.excursions));
+    private applyQueryParams(params: ParamMap): void {
+        this.search = params.get(this.SEARCH_KEY) ?? '';
+    }
+
+
+    private queryParams(): KzQueryParams {
+        return cleanQueryParams({ [this.SEARCH_KEY]: this.search });
     }
 
 
     private setExcursions(source: KzExcursion[]): void {
         this.excursions = source;
-        this.rows = this.buildRows(this.filterExcursions(source));
-    }
-
-
-    private filterExcursions(source: readonly KzExcursion[]): KzExcursion[] {
-        const search = this.search.trim().toLowerCase();
-
-        if (search.length === 0) {
-            return [...source];
-        }
-
-        return source.filter((item) =>
-            item.title.toLowerCase().includes(search)
-            || item.location.toLowerCase().includes(search)
-            || item.guide.toLowerCase().includes(search));
+        this.rows = this.buildRows(source);
     }
 
 

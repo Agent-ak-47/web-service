@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_KZ_ITEM_CARD_DATA } from '../../../models/kz_item_card_data.interface';
@@ -61,16 +62,56 @@ describe('PackagesPage', () => {
     });
 
 
-    it('should filter the cards by destination and price', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [PACKAGE] })));
+    it('should send the filters to the server and build the returned cards', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [PACKAGE] }));
+        vi.stubGlobal('fetch', fetchMock);
         const fixture = TestBed.createComponent(PackagesPage);
+        fixture.componentInstance.onFiltersChanged({
+            destination: ' marrakech ',
+            startDate: '2026-12-01',
+            maxPrice: '1600',
+            quantity: '2',
+        });
+
         await fixture.componentInstance.loadPackages();
 
-        fixture.componentInstance.applyFilters({ destination: 'marrakech', maxPrice: '1600' });
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8082/api/packages'
+            + '?destination=marrakech&startDate=2026-12-01&maxPrice=1600',
+        );
         expect(fixture.componentInstance.cards.length).toBe(1);
+        expect(fixture.componentInstance.cards[0].price).toBe(1500);
+    });
 
-        fixture.componentInstance.applyFilters({ maxPrice: '1000' });
-        expect(fixture.componentInstance.cards.length).toBe(0);
+
+    it('should sync the filters to the URL when submitted', async () => {
+        const fixture = TestBed.createComponent(PackagesPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({
+            destination: ' marrakech ',
+            quantity: '2',
+        });
+
+        await fixture.componentInstance.onFiltersSubmitted();
+
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({
+            queryParams: { destination: 'marrakech', quantity: '2' },
+        }));
+        expect(fixture.componentInstance.filtersTouched).toBe(false);
+    });
+
+
+    it('should reset the filters and clear the URL', async () => {
+        const fixture = TestBed.createComponent(PackagesPage);
+        const router = TestBed.inject(Router);
+        const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        fixture.componentInstance.onFiltersChanged({ destination: 'marrakech' });
+
+        await fixture.componentInstance.onFiltersReset();
+
+        expect(fixture.componentInstance.filter.destination).toBe('');
+        expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: {} }));
     });
 
 
@@ -93,5 +134,30 @@ describe('PackagesPage', () => {
         fixture.componentInstance.onOpen({ ...DEFAULT_KZ_ITEM_CARD_DATA, id: PACKAGE.id });
 
         expect(navigate).toHaveBeenCalledWith('/packages/2');
+    });
+
+
+    it('should load the initial filters from the URL', async () => {
+        const fetchMock = vi.fn().mockResolvedValue(response({ data: [PACKAGE] }));
+        vi.stubGlobal('fetch', fetchMock);
+        const params = convertToParamMap({ destination: 'Marrakech', quantity: '2' });
+        TestBed.resetTestingModule();
+        await TestBed.configureTestingModule({
+            imports: [PackagesPage],
+            providers: [
+                provideRouter([]),
+                { provide: ActivatedRoute, useValue: { queryParamMap: of(params) } },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(PackagesPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.filter.destination).toBe('Marrakech');
+        expect(fixture.componentInstance.filter.quantity).toBe('2');
+        expect(fetchMock.mock.calls[0][0]).toBe(
+            'http://localhost:8082/api/packages?destination=Marrakech',
+        );
     });
 });
