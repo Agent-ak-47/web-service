@@ -85,6 +85,20 @@ Responses use one of two envelopes:
 { "error": { "code": "INVALID_FORMAT", "message": "...", "details": { } } }
 ```
 
+Notes the code makes that the tables above do not show:
+
+- `POST /api/auth/register` answers **`201`** with the full session envelope
+  (`{ jeton, expiration, user }`), not just a user; `409 DUPLICATE` when the email exists and
+  `400 INVALID_FORMAT` when the password is shorter than 8 characters.
+- `POST /api/auth/logout` answers `{ "data": { "success": true } }`; `GET /api/auth/me`
+  answers the user object, `POST /api/auth/me` the session envelope.
+- `/health` is **not** enveloped on the user service (`{ "status": "ok" }`) while the other two
+  answer `{ "data": { "service": "…", "status": "ok", "port": … } }`.
+- `GET /api/reservations` answers a bare array (max 100 rows, no pagination), `PATCH` **and**
+  `POST /api/reservations/<id>` both update the quantity, and the refund route used by the
+  frontend is `POST /api/reservations/<id>/refund` (the `/api/payments/<id>/refund` variant also
+  exists).
+
 ## 4. Structure
 
 ```
@@ -94,10 +108,12 @@ kamal/
 ├── payment/              payments + refunds, own .venv and run_tests.py
 ├── mock/                 mock flight, package and excursion services
 ├── requirements-dev.txt  pytest
-├── run.bat               starts the mocks and the three services
-├── run_all_tests.bat     runs the three local run_tests.py scripts
-└── run_tests.py          cross-platform equivalent of the .bat
+├── run.bat               starts the mocks, the three services and the Angular dev server
+└── run_all_tests.bat     runs the three local run_tests.py scripts
 ```
+
+There is **no `kamal/run_tests.py` at the root**: the cross-platform entry point is
+`run_all_tests.bat`, and each service folder has its own `run_tests.py`.
 
 Each service has its own `.venv/` (git-ignored), created and installed separately.
 
@@ -147,7 +163,9 @@ Apply the shared schema once, in order:
 3. `db/init/90-seed.sql`
 
 The local MySQL instance is expected on `127.0.0.1:3306` with database
-`travel_agency`. Docker is only used when explicitly requested.
+`travel_agency`. Docker is only used when explicitly requested. The code default for
+`DB_PORT` is **3307** (the Compose published port), so `DB_PORT=3306` must be set in every
+`.env` for the local instance.
 
 ### 5.3 Environment files
 
@@ -225,11 +243,12 @@ kamal\run_all_tests.bat
 
 The `.bat` calls `run_tests.py` in each service folder. Each local script uses that service's
 own `.venv` and starts the suite in a separate process, because all services use the same
-top-level module names (`config`, `models`, `helpers`, `controls`). The same result is
-available cross-platform with:
+top-level module names (`config`, `models`, `helpers`, `controls`). There is no root
+`run_tests.py`; run each suite directly instead (one process per service). The mock helper
+tests are separate and need an interpreter with `pytest` (any service venv works):
 
 ```powershell
-py -3.11 kamal\run_tests.py
+kamal\reservation\.venv\Scripts\python.exe -m pytest kamal\mock\tests -q   # 6 tests
 ```
 
 A single suite can be run from its service folder:
@@ -244,6 +263,9 @@ py -3.11 run_tests.py
 | `user/tests` | 78 | Validators, PBKDF2/JWT helpers, register/login/logout/me/update-me, error envelopes |
 | `reservation/tests` | 142 | Catalogue parsing, retry client, serializers, CRUD, list filters, booking/cancellation rules, validation, history, permissions, stock compensation |
 | `payment/tests` | 91 | Card validation, payment methods, declined cards, idempotency, refunds, permissions, compensation |
+| `mock/tests` | 6 | Shared scenario / filter helpers of the mock catalogue |
+
+Total: **311** service tests + 6 mock tests.
 
 ## 7. Watch-outs
 
@@ -259,8 +281,10 @@ py -3.11 run_tests.py
 7. **Booking stops once the item's start date has passed**, but same-day bookings are still
    accepted. The check uses the date captured from the catalogue and returns
    `422 BUSINESS_RULE_VIOLATION`.
-8. **Refunding a `CANCELLED` reservation releases the seats again** because cancellation
-   already released them. Tracked in [`md/needs.md`](../md/needs.md).
+8. **A refund releases the seats exactly once.** Cancelling a `PAID` booking does not release
+   (the money has not moved), the refund does; cancelling a `PENDING`/`CONFIRMED` booking
+   releases immediately and leaves no successful payment to refund. Details in
+   [`md/07`](../md/07-sequence-reservation-payment.md) § 3.
 
 ## 8. Demo data and test cards
 
