@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 import pytest
 
@@ -64,6 +64,17 @@ def test_card_payment_succeeds(client, auth_for, make_reservation, future_expiry
     assert history.status_after == 'PAID'
     assert history.actor == 'client'
     assert history.comment == 'Payment accepted (CARD)'
+
+
+def test_payment_answer_returns_the_reservation_departure_date(
+    client, auth_for, make_reservation,
+):
+    reservation = make_reservation(user_id=1, departure_date=date(2026, 2, 3))
+
+    response = pay(client, auth_for(user_id=1), reservation.id, method='CASH')
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['reservation']['departureDate'] == '2026-02-03'
 
 
 def test_confirmed_reservation_can_be_paid(client, auth_for, make_reservation):

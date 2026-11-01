@@ -18,6 +18,8 @@ __pycache__/
 dist/
 build/
 
+
+design/
 md/
 *.md
 !/kamal/README.md
