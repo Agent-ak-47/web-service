@@ -44,6 +44,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('ReservationsPage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [ReservationsPage],
             providers: [provideRouter([])],
@@ -108,8 +109,8 @@ describe('ReservationsPage', () => {
 
 
     it('should let an administrator cancel a booking departing soon', () => {
-        sessionStorage.setItem('kz_token', 'token');
-        sessionStorage.setItem('kz_user', JSON.stringify({
+        localStorage.setItem('kz_token', 'token');
+        localStorage.setItem('kz_user', JSON.stringify({
             ...DEFAULT_KZ_AUTH_SESSION.user,
             role: KzUserRole.ADMIN,
         }));

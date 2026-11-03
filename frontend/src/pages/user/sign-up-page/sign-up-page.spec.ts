@@ -22,6 +22,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('SignUpPage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [SignUpPage],
             providers: [provideRouter([])],
@@ -62,7 +63,7 @@ describe('SignUpPage', () => {
         fixture.componentInstance.onConfirmPasswordChange('Password123!');
         await fixture.componentInstance.onSubmit();
 
-        expect(sessionStorage.getItem('kz_token')).toBe('new-token');
+        expect(localStorage.getItem('kz_token')).toBe('new-token');
         expect(navigate).toHaveBeenCalledWith('/profile');
     });
 

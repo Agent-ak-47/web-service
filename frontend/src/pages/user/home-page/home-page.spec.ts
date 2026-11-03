@@ -57,6 +57,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('HomePage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [HomePage],
             providers: [provideRouter([])],

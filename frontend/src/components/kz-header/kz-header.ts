@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { KzBtnKind } from '../../models/kz_btn_kind.enum';
@@ -40,6 +40,7 @@ export class KzHeader {
     private readonly globalService = inject(GlobalService);
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
+    private readonly changeDetector = inject(ChangeDetectorRef);
 
     readonly navLinks: KzNavLink[] = [
         {
@@ -63,6 +64,14 @@ export class KzHeader {
     ];
 
     isMenuOpen = false;
+
+
+    @HostListener('window:storage', ['$event'])
+    onStorage(event: StorageEvent): void {
+        if (event.key === this.authService.TOKEN_KEY || event.key === this.authService.USER_KEY) {
+            this.changeDetector.detectChanges();
+        }
+    }
 
 
     get appName(): string {
