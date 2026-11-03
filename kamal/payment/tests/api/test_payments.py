@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
@@ -310,6 +310,41 @@ def test_refund_releases_stock_and_records_the_payment(
     assert history.status_after == 'REFUNDED'
     assert history.actor == 'admin'
     assert history.comment == 'Refund issued'
+
+
+def test_refund_allows_an_admin_after_the_start_date(
+    client, auth_for, make_reservation, make_payment, catalog,
+):
+    departure = datetime.now(timezone.utc).date() - timedelta(days=6)
+    reservation = make_reservation(
+        user_id=1,
+        status='PAID',
+        departure_date=departure,
+    )
+    make_payment(reservation.id, status='SUCCEEDED')
+
+    response = refund(client, auth_for(user_id=99, role='ADMIN'), reservation.id)
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['reservation']['status'] == 'REFUNDED'
+
+
+def test_refund_allows_an_admin_long_after_the_start_date(
+    client, auth_for, make_reservation, make_payment, catalog,
+):
+    departure = datetime.now(timezone.utc).date() - timedelta(days=30)
+    reservation = make_reservation(
+        user_id=1,
+        status='PAID',
+        departure_date=departure,
+    )
+    make_payment(reservation.id, status='SUCCEEDED')
+
+    response = refund(client, auth_for(user_id=99, role='ADMIN'), reservation.id)
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['reservation']['status'] == 'REFUNDED'
+    assert db.session.get(Reservation, reservation.id).status == 'REFUNDED'
 
 
 def test_cancelled_reservation_with_a_payment_can_be_refunded(

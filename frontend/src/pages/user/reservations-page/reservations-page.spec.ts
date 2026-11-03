@@ -86,13 +86,43 @@ describe('ReservationsPage', () => {
     });
 
 
-    it('should refuse to cancel a booking departing too soon', () => {
+    it('should refuse to cancel a booking whose start date has arrived', () => {
         const fixture = TestBed.createComponent(ReservationsPage);
-        const past = reservation({ id: 1, departureDate: dateOffset(1) });
+        const today = reservation({ id: 1, departureDate: dateOffset(0) });
+
+        fixture.componentInstance.onRemove(today);
+
+        expect(fixture.componentInstance.isDialogOpen).toBe(false);
+    });
+
+
+    it('should refuse to cancel a booking whose start date has passed', () => {
+        const fixture = TestBed.createComponent(ReservationsPage);
+        const past = reservation({ id: 1, departureDate: dateOffset(-30) });
 
         fixture.componentInstance.onRemove(past);
 
         expect(fixture.componentInstance.isDialogOpen).toBe(false);
+    });
+
+
+    it('should refuse to cancel a booking one day before the start date', () => {
+        const fixture = TestBed.createComponent(ReservationsPage);
+        const tomorrow = reservation({ id: 1, departureDate: dateOffset(1) });
+
+        fixture.componentInstance.onRemove(tomorrow);
+
+        expect(fixture.componentInstance.isDialogOpen).toBe(false);
+    });
+
+
+    it('should open the cancellation dialog two days before the start date', () => {
+        const fixture = TestBed.createComponent(ReservationsPage);
+        const inTwoDays = reservation({ id: 1, departureDate: dateOffset(2) });
+
+        fixture.componentInstance.onRemove(inTwoDays);
+
+        expect(fixture.componentInstance.isDialogOpen).toBe(true);
     });
 
 
@@ -108,16 +138,16 @@ describe('ReservationsPage', () => {
     });
 
 
-    it('should let an administrator cancel a booking departing soon', () => {
+    it('should let an administrator cancel a booking whatever the start date', () => {
         localStorage.setItem('kz_token', 'token');
         localStorage.setItem('kz_user', JSON.stringify({
             ...DEFAULT_KZ_AUTH_SESSION.user,
             role: KzUserRole.ADMIN,
         }));
         const fixture = TestBed.createComponent(ReservationsPage);
-        const soon = reservation({ id: 1, departureDate: dateOffset(1) });
+        const recent = reservation({ id: 1, departureDate: dateOffset(-30) });
 
-        fixture.componentInstance.onRemove(soon);
+        fixture.componentInstance.onRemove(recent);
 
         expect(fixture.componentInstance.isDialogOpen).toBe(true);
     });

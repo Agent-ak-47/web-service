@@ -33,7 +33,7 @@ ITEM_TYPES = ('FLIGHT', 'PACKAGE', 'EXCURSION')
 RESERVATION_STATUSES = ('PENDING', 'CONFIRMED', 'PAID', 'CANCELLED', 'REFUNDED', 'EXPIRED')
 STOCK_HELD_STATUSES = ('PENDING', 'CONFIRMED')
 CANCELLABLE_STATUSES = ('PENDING', 'CONFIRMED', 'PAID')
-CANCELLATION_NOTICE_DAYS = 2
+CLIENT_CANCELLATION_NOTICE_DAYS = 2
 MONEY_QUANTUM = Decimal('0.01')
 MAX_QUANTITY = 65535
 MAX_TOTAL = Decimal('99999999.99')
@@ -133,13 +133,11 @@ def _departure_date(reservation):
     return departure_date_of(reservation.item_type, item)
 
 
-def _client_can_cancel(departure):
-    if departure is None:
+def _can_cancel(departure, is_admin):
+    if departure is None or is_admin:
         return True
 
-    remaining = (departure - datetime.now(timezone.utc).date()).days
-
-    return remaining >= CANCELLATION_NOTICE_DAYS
+    return (departure - datetime.now(timezone.utc).date()).days >= CLIENT_CANCELLATION_NOTICE_DAYS
 
 
 def _best_effort_reserve(item_type, item_id, quantity, reservation_id):
@@ -499,22 +497,21 @@ def cancel_reservation(reservation_id):
 
         return error('INVALID_STATUS', 'This reservation cannot be cancelled.', 409)
 
-    if g.role != 'ADMIN':
-        departure = _departure_date(reservation)
+    departure = _departure_date(reservation)
 
-        if not _client_can_cancel(departure):
-            db.session.rollback()
+    if not _can_cancel(departure, g.role == 'ADMIN'):
+        db.session.rollback()
 
-            return error(
-                'BUSINESS_RULE_VIOLATION',
-                f'A booking can only be cancelled at least {CANCELLATION_NOTICE_DAYS} '
-                'days before its start date.',
-                422,
-                {
-                    'departureDate': departure.isoformat(),
-                    'minimumDays': CANCELLATION_NOTICE_DAYS,
-                },
-            )
+        return error(
+            'BUSINESS_RULE_VIOLATION',
+            f'A booking can only be cancelled {CLIENT_CANCELLATION_NOTICE_DAYS} days '
+            'before its start date.',
+            422,
+            {
+                'departureDate': departure.isoformat() if departure is not None else '',
+                'noticeDays': CLIENT_CANCELLATION_NOTICE_DAYS,
+            },
+        )
 
     body = _body() or {}
     reason = str(body.get('reason') or '').strip()[:255] or 'Cancelled by the customer'

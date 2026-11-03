@@ -25,6 +25,14 @@ function reservation(overrides: Partial<KzReservation>): KzReservation {
 }
 
 
+function dateOffset(days: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    return date.toISOString().slice(0, 10);
+}
+
+
 function response(body: unknown, status = 200): { status: number; json: () => Promise<unknown> } {
     return { status, json: async () => body };
 }
@@ -74,6 +82,49 @@ describe('ReservationsAdminPage', () => {
         expect(paid?.actions).toContain(KzTableAction.REFUND);
         expect(fixture.componentInstance.rows.find((row) => row.id === 3)?.actions)
             .toEqual([KzTableAction.REFUND]);
+    });
+
+
+    it('should keep the cancel and refund actions whatever the start date', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({
+            data: [
+                reservation({
+                    id: 1,
+                    status: KzReservationStatus.PAID,
+                    departureDate: dateOffset(-30),
+                }),
+                reservation({
+                    id: 2,
+                    reference: 'REF-2',
+                    status: KzReservationStatus.PAID,
+                    departureDate: dateOffset(-6),
+                }),
+            ],
+        })));
+        const fixture = TestBed.createComponent(ReservationsAdminPage);
+
+        await fixture.componentInstance.loadReservations();
+
+        const old = fixture.componentInstance.rows.find((row) => row.id === 1);
+        expect(old?.actions).toContain(KzTableAction.CANCEL);
+        expect(old?.actions).toContain(KzTableAction.REFUND);
+        const recent = fixture.componentInstance.rows.find((row) => row.id === 2);
+        expect(recent?.actions).toContain(KzTableAction.CANCEL);
+        expect(recent?.actions).toContain(KzTableAction.REFUND);
+    });
+
+
+    it('should open the cancel dialog for a booking whose start date passed long ago', () => {
+        const fixture = TestBed.createComponent(ReservationsAdminPage);
+        fixture.componentInstance.reservations = [reservation({
+            id: 1,
+            status: KzReservationStatus.PAID,
+            departureDate: dateOffset(-30),
+        })];
+
+        fixture.componentInstance.onActionDone({ action: KzTableAction.CANCEL, rowId: 1 });
+
+        expect(fixture.componentInstance.isDialogOpen).toBe(true);
     });
 
 
