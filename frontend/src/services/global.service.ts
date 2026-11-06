@@ -13,7 +13,7 @@ export class GlobalService {
     readonly IMGS_FOLDER = 'imgs/';
     readonly DATA_URL_PREFIX = 'data:';
     readonly MOCK_DATA_FOLDER = 'data/';
-    readonly MOCK_MODE = false;
+    readonly MOCK_MODE = true;
     readonly BACKEND_URL = 'http://localhost:8083';
     readonly RESERVATION_SERVICE_URL = 'http://localhost:8085';
     readonly PAYMENT_SERVICE_URL = 'http://localhost:8086';

@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "airline": "Royal Air Maroc",
+        "flightNumber": "AT 411",
+        "departureCity": "Paris",
+        "arrivalCity": "Marrakech",
+        "departureTime": "2026-06-01T08:30:00",
+        "arrivalTime": "2026-06-01T11:45:00",
+        "totalSeats": 180,
+        "availableSeats": 54,
+        "price": 1450,
+        "imageUrl": "imgs/flight-1.jpg",
+        "active": true
+    },
+    {
+        "id": 2,
+        "airline": "Air France",
+        "flightNumber": "AF 208",
+        "departureCity": "New York",
+        "arrivalCity": "Casablanca",
+        "departureTime": "2026-06-10T19:15:00",
+        "arrivalTime": "2026-06-11T08:05:00",
+        "totalSeats": 220,
+        "availableSeats": 87,
+        "price": 3200,
+        "imageUrl": "imgs/flight-2.jpg",
+        "active": true
+    },
+    {
+        "id": 3,
+        "airline": "Turkish Airlines",
+        "flightNumber": "TK 617",
+        "departureCity": "Istanbul",
+        "arrivalCity": "Marrakech",
+        "departureTime": "2026-07-12T06:40:00",
+        "arrivalTime": "2026-07-12T11:20:00",
+        "totalSeats": 160,
+        "availableSeats": 23,
+        "price": 980,
+        "imageUrl": "imgs/flight-3.jpg",
+        "active": true
+    }
+]
