@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------------------
+# Excursion service (Marwan).
+#
+#   excursion-service  8084   excursions + capacity movements
+#
+# The database is NOT defined here: it is the shared infrastructure at the
+# repository root (docker-compose.yml, see md/06-docker-architecture.md).
+# Start it first, then this stack:
+#
+#   docker compose up -d                                          # at the repo root
+#   docker compose -f marwan/docker-compose.yml up -d --build      # this service
+#
+# Values (secrets, database account) come from marwan/.env:
+#   cp marwan/.env.example marwan/.env
+# ---------------------------------------------------------------------------
+
+name: travel-agency-marwan
+
+services:
+  excursion-service:
+    restart: unless-stopped
+    build: ./backend
+    image: excursion-service
+    networks:
+      - travel_agency
+    environment:
+      PORT: "8084"
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-travel_agency}
+      DB_USER: ${DB_USER:-app_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is missing from marwan/.env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is missing from marwan/.env}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
+    ports:
+      - "8084:8084"
+
+networks:
+  # Created by `docker compose up -d` at the repository root.
+  travel_agency:
+    name: travel_agency_net
+    external: true
