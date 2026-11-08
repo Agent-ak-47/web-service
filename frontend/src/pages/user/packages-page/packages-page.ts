@@ -29,6 +29,9 @@ import {
 } from './models/kz_package_filter.interface';
 
 
+const MS_PER_DAY = 86400000;
+
+
 @Component({
     selector: 'kz-packages-page',
     standalone: true,
@@ -281,7 +284,7 @@ export class PackagesPage implements KzGuardedForm, OnInit {
                     label: this.DATES_LABEL,
                     value: `${this.datePipe.transform(item.startDate)} - ${this.datePipe.transform(item.endDate)}`,
                 },
-                { label: this.NIGHTS_LABEL, value: String(item.durationNights) },
+                { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
                 {
                     label: this.DISCOUNT_LABEL,
                     value: item.discountPercentage > 0
@@ -293,6 +296,18 @@ export class PackagesPage implements KzGuardedForm, OnInit {
             disabled: !item.available,
             disabledLabel: this.SOLD_OUT_LABEL,
         }));
+    }
+
+
+    private calculateNights(item: KzPackage): number {
+        const start = Date.parse(`${item.startDate.slice(0, 10)}T00:00:00Z`);
+        const end = Date.parse(`${item.endDate.slice(0, 10)}T00:00:00Z`);
+
+        if (Number.isNaN(start) || Number.isNaN(end)) {
+            return item.durationNights;
+        }
+
+        return Math.max(0, Math.round((end - start) / MS_PER_DAY));
     }
 
 

@@ -22,6 +22,9 @@ import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail'
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
 
+const MS_PER_DAY = 86400000;
+
+
 @Component({
     selector: 'kz-package-detail-page',
     standalone: true,
@@ -188,7 +191,7 @@ export class PackageDetailPage implements OnInit {
                 label: this.DATES_LABEL,
                 value: `${this.datePipe.transform(item.startDate)} - ${this.datePipe.transform(item.endDate)}`,
             },
-            { label: this.NIGHTS_LABEL, value: String(item.durationNights) },
+            { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
             { label: this.DISCOUNT_LABEL, value: `${item.discountPercentage}%` },
         ];
 
@@ -197,6 +200,18 @@ export class PackageDetailPage implements OnInit {
         }
 
         return rows;
+    }
+
+
+    private calculateNights(item: KzPackage): number {
+        const start = Date.parse(`${item.startDate.slice(0, 10)}T00:00:00Z`);
+        const end = Date.parse(`${item.endDate.slice(0, 10)}T00:00:00Z`);
+
+        if (Number.isNaN(start) || Number.isNaN(end)) {
+            return item.durationNights;
+        }
+
+        return Math.max(0, Math.round((end - start) / MS_PER_DAY));
     }
 
 

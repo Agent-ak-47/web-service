@@ -63,6 +63,20 @@ describe('PackagesPage', () => {
     });
 
 
+    it('should calculate the nights from the start and end dates', async () => {
+        const item = { ...PACKAGE, startDate: '2026-12-01T00:00:00', endDate: '2026-12-06T00:00:00', durationNights: 99 };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [item] })));
+        const fixture = TestBed.createComponent(PackagesPage);
+
+        await fixture.componentInstance.loadPackages();
+
+        const nights = fixture.componentInstance.cards[0].meta.find(
+            (meta) => meta.label === fixture.componentInstance.NIGHTS_LABEL,
+        );
+        expect(nights?.value).toBe('5');
+    });
+
+
     it('should send the filters to the server and build the returned cards', async () => {
         const fetchMock = vi.fn().mockResolvedValue(response({ data: [PACKAGE] }));
         vi.stubGlobal('fetch', fetchMock);
