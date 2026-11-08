@@ -1,0 +1,33 @@
+# Local state and secrets must never end up in the image.
+.env
+.env.*
+!.env.example
+
+# Build output: the image compiles its own jar.
+target/
+
+# IDE, VCS and OS files.
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.git
+.gitignore
+.gitattributes
+.DS_Store
+Thumbs.db
+
+# Docs and Docker files are not needed to build the jar.
+HELP.md
+TESTS-TODO.md
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Tests run on the host, not inside the image (they are skipped in the build).
+surefire-reports/
+*.log
+
+# Windows wrapper: the image uses the POSIX `mvnw`.
+mvnw.cmd
