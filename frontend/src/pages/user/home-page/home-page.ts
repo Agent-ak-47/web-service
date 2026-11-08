@@ -159,7 +159,7 @@ export class HomePage implements OnInit {
             badgeTone: KzTone.SUCCESS,
             meta: [
                 { label: this.DESTINATION_LABEL, value: item.destination },
-                { label: this.DATES_LABEL, value: `${this.datePipe.transform(item.startDate)} - ${this.datePipe.transform(item.endDate)}` },
+                { label: this.DATES_LABEL, value: `${this.datePipe.transformDateTime(item.startDate)} - ${this.datePipe.transformDateTime(item.endDate)}` },
                 { label: this.NIGHTS_LABEL, value: String(item.durationNights) },
             ],
             actionLabel: this.DISCOVER_LABEL,

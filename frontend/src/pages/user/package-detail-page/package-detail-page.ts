@@ -41,7 +41,8 @@ export class PackageDetailPage implements OnInit {
     readonly QUANTITY_LABEL = 'Guests';
     readonly PRICE_UNIT = 'per person';
     readonly DESTINATION_LABEL = 'Destination';
-    readonly DATES_LABEL = 'Dates';
+    readonly START_DATE_LABEL = 'Start date';
+    readonly END_DATE_LABEL = 'End date';
     readonly NIGHTS_LABEL = 'Nights';
     readonly DISCOUNT_LABEL = 'Discount';
     readonly OLD_PRICE_LABEL = 'Regular price';
@@ -187,10 +188,8 @@ export class PackageDetailPage implements OnInit {
     private buildRows(item: KzPackage): KzItemDetailRow[] {
         const rows: KzItemDetailRow[] = [
             { label: this.DESTINATION_LABEL, value: item.destination },
-            {
-                label: this.DATES_LABEL,
-                value: `${this.datePipe.transform(item.startDate)} - ${this.datePipe.transform(item.endDate)}`,
-            },
+            { label: this.START_DATE_LABEL, value: this.datePipe.transformDateTime(item.startDate) },
+            { label: this.END_DATE_LABEL, value: this.datePipe.transformDateTime(item.endDate) },
             { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
             { label: this.DISCOUNT_LABEL, value: `${item.discountPercentage}%` },
         ];

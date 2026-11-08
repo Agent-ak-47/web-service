@@ -41,6 +41,17 @@ export class KzDatePipe implements PipeTransform {
     }
 
 
+    transformDateTime(value: string | null | undefined): string {
+        if (value === null || value === undefined || value.length === 0) {
+            return this.EMPTY_VALUE;
+        }
+
+        const normalized = value.includes('T') ? value : `${value}T00:00:00`;
+
+        return this.transform(normalized, true);
+    }
+
+
     transformTime(value: string | null | undefined): string {
         if (value === null || value === undefined || value.length === 0) {
             return this.EMPTY_VALUE;

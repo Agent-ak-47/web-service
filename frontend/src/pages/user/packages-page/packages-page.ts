@@ -50,7 +50,8 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
     readonly PRICE_UNIT = 'per person';
-    readonly DATES_LABEL = 'Dates';
+    readonly START_DATE_LABEL = 'Start date';
+    readonly END_DATE_LABEL = 'End date';
     readonly NIGHTS_LABEL = 'Nights';
     readonly DISCOUNT_LABEL = 'Discount';
     readonly NO_DISCOUNT_LABEL = '-';
@@ -280,10 +281,8 @@ export class PackagesPage implements KzGuardedForm, OnInit {
             badgeTone: KzTone.SUCCESS,
             meta: [
                 { label: this.DESTINATION_LABEL, value: item.destination },
-                {
-                    label: this.DATES_LABEL,
-                    value: `${this.datePipe.transform(item.startDate)} - ${this.datePipe.transform(item.endDate)}`,
-                },
+                { label: this.START_DATE_LABEL, value: this.datePipe.transformDateTime(item.startDate) },
+                { label: this.END_DATE_LABEL, value: this.datePipe.transformDateTime(item.endDate) },
                 { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
                 {
                     label: this.DISCOUNT_LABEL,
