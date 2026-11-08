@@ -1,0 +1,9 @@
+{
+    "id": 2,
+    "name": "Client",
+    "email": "client@agency.travel",
+    "role": "CLIENT",
+    "phone": "",
+    "address": "",
+    "password": ""
+}
