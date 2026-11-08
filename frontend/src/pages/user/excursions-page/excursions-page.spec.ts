@@ -60,6 +60,7 @@ describe('ExcursionsPage', () => {
 
         expect(fixture.componentInstance.excursions.length).toBe(1);
         expect(fixture.componentInstance.cards[0].title).toBe('Medina walking tour');
+        expect(fixture.componentInstance.cards[0].meta[1].value).toMatch(/09:00\s?AM/i);
         expect(fixture.componentInstance.cards[0].meta[2].value).toBe('2h 30min');
     });
 
