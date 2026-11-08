@@ -233,7 +233,7 @@ export class PackageDetailPage implements OnInit {
             title: this.EXCURSIONS_TITLE,
             rows: excursions.map((excursion) => ({
                 label: excursion.title,
-                value: `${excursion.date} ${excursion.startTime} - ${excursion.location}`,
+                value: `${this.datePipe.transform(excursion.date)} ${this.datePipe.transformTime(excursion.startTime)} - ${excursion.location}`,
             })),
         };
     }

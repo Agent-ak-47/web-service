@@ -228,7 +228,7 @@ export class HomePage implements OnInit {
             badgeTone: KzTone.NEUTRAL,
             meta: [
                 { label: this.LOCATION_LABEL, value: item.location },
-                { label: this.DATE_LABEL, value: `${this.datePipe.transform(item.date)} ${this.datePipe.transform(item.startTime, true).slice(-5)}` },
+                { label: this.DATE_LABEL, value: this.datePipe.transform(`${item.date.slice(0, 10)}T${item.startTime}`, true) },
                 { label: this.DURATION_LABEL, value: this.formatDuration(item.dureeMinutes) },
                 { label: this.GUIDE_LABEL, value: item.guide },
             ],

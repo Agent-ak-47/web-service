@@ -180,7 +180,7 @@ export class ExcursionDetailPage implements OnInit {
         return [
             { label: this.LOCATION_LABEL, value: item.location },
             { label: this.DATE_LABEL, value: this.datePipe.transform(item.date) },
-            { label: this.TIME_LABEL, value: item.startTime },
+            { label: this.TIME_LABEL, value: this.datePipe.transformTime(item.startTime) },
             { label: this.DURATION_LABEL, value: this.formatDuration(item.dureeMinutes) },
             { label: this.GUIDE_LABEL, value: item.guide },
             { label: this.CAPACITY_LABEL, value: String(item.capacity) },
