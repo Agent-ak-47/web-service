@@ -24,6 +24,7 @@ md/
 *.md
 !/kamal/README.md
 !/frontend/README.md
+!/package-service/README.md
 !/marwan/README.md
 
 node_modules/

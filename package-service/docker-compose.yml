@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# Youssef's Package service (Spring Boot) - port 8082.
+#
+# The database is NOT defined here: it is the shared infrastructure at the
+# repository root (docker-compose.yml). Start it first, then this service:
+#
+#   docker compose up -d                                              # at the repo root
+#   docker compose -f package-service/docker-compose.yml up -d --build
+#
+# Secrets (DB_PASSWORD, JWT_SECRET) come from package-service/.env:
+#   cp package-service/.env.example package-service/.env
+#
+# The connection settings below are fixed on purpose and NOT read from .env:
+# .env holds the values for running on the host (127.0.0.1:3307, localhost),
+# which do not work from inside a container.
+# ---------------------------------------------------------------------------
+
+name: travel-agency-package
+
+services:
+  package-service:
+    build: .
+    image: package-service
+    container_name: travel_agency_package
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    # Same bridge network as the MySQL container of the root compose file.
+    networks:
+      - travel_agency
+    # Lets the container reach the Flight/Excursion services (or the mocks)
+    # started on the host machine: http://host.docker.internal:8081 etc.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      PORT: "8082"
+      # Inside the network the MySQL service is `mysql` on its internal port 3306.
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-travel_agency}
+      DB_USER: ${DB_USER:-app_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is missing from package-service/.env}
+      # Must be identical to JWT_SECRET of Kamal's services.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is missing from package-service/.env}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
+      # Override with DOCKER_*_SERVICE_URL in .env once these services run in Docker too.
+      FLIGHT_SERVICE_URL: ${DOCKER_FLIGHT_SERVICE_URL:-http://host.docker.internal:8081}
+      EXCURSION_SERVICE_URL: ${DOCKER_EXCURSION_SERVICE_URL:-http://host.docker.internal:8084}
+      SERVICE_TIMEOUT: ${SERVICE_TIMEOUT:-5}
+
+networks:
+  # Created by `docker compose up -d` at the repository root.
+  travel_agency:
+    name: travel_agency_net
+    external: true
