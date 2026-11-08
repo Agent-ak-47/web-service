@@ -811,8 +811,8 @@ def test_cancel_reservation_allows_a_paid_booking(
     assert catalog.release_calls == []
 
 
-@pytest.mark.parametrize('offset', [-1, 0, 1])
-def test_cancel_reservation_rejects_a_client_inside_the_notice_period(
+@pytest.mark.parametrize('offset', [-30, -1, 0, 1])
+def test_cancel_reservation_rejects_a_client_with_less_than_two_days_notice(
     client, auth_for, make_reservation, catalog, offset,
 ):
     departure = datetime.now(timezone.utc).date() + timedelta(days=offset)
@@ -829,13 +829,13 @@ def test_cancel_reservation_rejects_a_client_inside_the_notice_period(
     assert error['code'] == 'BUSINESS_RULE_VIOLATION'
     assert error['details'] == {
         'departureDate': departure.isoformat(),
-        'minimumDays': 2,
+        'noticeDays': 2,
     }
     assert catalog.release_calls == []
     assert db.session.get(Reservation, reservation.id).status == 'PENDING'
 
 
-def test_cancel_reservation_allows_a_client_at_the_two_day_boundary(
+def test_cancel_reservation_allows_a_client_two_days_before_the_start_date(
     client, auth_for, make_reservation, catalog,
 ):
     departure = datetime.now(timezone.utc).date() + timedelta(days=2)
@@ -851,13 +851,27 @@ def test_cancel_reservation_allows_a_client_at_the_two_day_boundary(
     assert response.get_json()['data']['status'] == 'CANCELLED'
 
 
-def test_cancel_reservation_allows_an_admin_inside_the_notice_period(
+def test_cancel_reservation_allows_an_admin_after_the_start_date(
     client, auth_for, make_reservation, catalog,
 ):
-    reservation = make_reservation(
-        user_id=2,
-        departure_date=datetime.now(timezone.utc).date(),
+    departure = datetime.now(timezone.utc).date() - timedelta(days=6)
+    reservation = make_reservation(user_id=2, departure_date=departure)
+
+    response = client.post(
+        f'/api/reservations/{reservation.id}/cancellation',
+        json={},
+        headers=auth_for(user_id=99, role='ADMIN'),
     )
+
+    assert response.status_code == 200
+    assert response.get_json()['data']['status'] == 'CANCELLED'
+
+
+def test_cancel_reservation_allows_an_admin_long_after_the_start_date(
+    client, auth_for, make_reservation, catalog,
+):
+    departure = datetime.now(timezone.utc).date() - timedelta(days=30)
+    reservation = make_reservation(user_id=2, departure_date=departure)
 
     response = client.post(
         f'/api/reservations/{reservation.id}/cancellation',
@@ -872,7 +886,7 @@ def test_cancel_reservation_allows_an_admin_inside_the_notice_period(
 def test_cancel_reservation_falls_back_to_the_catalogue_departure_date(
     client, auth_for, make_reservation, catalog,
 ):
-    departure = datetime.now(timezone.utc).date() + timedelta(days=1)
+    departure = datetime.now(timezone.utc).date()
     catalog.item['departureTime'] = f'{departure.isoformat()}T07:15:00Z'
     reservation = make_reservation(user_id=1, departure_date=None)
 

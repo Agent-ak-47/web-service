@@ -271,7 +271,7 @@ export class ReservationsAdminPage implements OnInit {
 
         const target = this.reservations.find((reservation) => reservation.id === event.rowId);
 
-        if (target === undefined) {
+        if (target === undefined || !this.actionsFor(target).includes(event.action)) {
             return;
         }
 
@@ -470,19 +470,19 @@ export class ReservationsAdminPage implements OnInit {
                 [this.STATUS_CELL_KEY]: reservation.status,
                 [this.DATE_CELL_KEY]: reservation.reservationDate,
             },
-            actions: this.actionsFor(reservation.status),
+            actions: this.actionsFor(reservation),
         }));
     }
 
 
-    private actionsFor(status: KzReservationStatus): KzTableAction[] {
+    private actionsFor(reservation: KzReservation): KzTableAction[] {
         const actions: KzTableAction[] = [];
 
-        if (CANCELABLE_RESERVATION_STATUSES.includes(status)) {
+        if (CANCELABLE_RESERVATION_STATUSES.includes(reservation.status)) {
             actions.push(KzTableAction.CANCEL);
         }
 
-        if (REFUNDABLE_RESERVATION_STATUSES.includes(status)) {
+        if (REFUNDABLE_RESERVATION_STATUSES.includes(reservation.status)) {
             actions.push(KzTableAction.REFUND);
         }
 

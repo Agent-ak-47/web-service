@@ -1,12 +1,12 @@
 import type { KzReservation } from './kz_reservation.interface';
 
 
-export const CANCELLATION_NOTICE_DAYS = 2;
 export const CANCELABLE_RESERVATION_STATUSES: readonly string[] = [
     'PENDING',
     'CONFIRMED',
     'PAID',
 ];
+export const CLIENT_CANCELLATION_NOTICE_DAYS = 2;
 
 const DAY_MS = 86400000;
 
@@ -20,11 +20,11 @@ export function canCancelReservation(
         return false;
     }
 
-    if (isAdmin || !reservation.departureDate) {
+    if (isAdmin) {
         return true;
     }
 
-    return daysUntil(reservation.departureDate, now) >= CANCELLATION_NOTICE_DAYS;
+    return daysUntil(reservation.departureDate, now) >= CLIENT_CANCELLATION_NOTICE_DAYS;
 }
 
 

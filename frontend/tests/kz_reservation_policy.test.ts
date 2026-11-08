@@ -28,6 +28,13 @@ function buildReservation(overrides: Partial<KzReservation> = {}): KzReservation
 }
 
 
+test('a client can cancel four days before the start date', () => {
+    const reservation = buildReservation({ departureDate: '2026-11-29' });
+
+    assert.equal(canCancelReservation(reservation, false, NOW), true);
+});
+
+
 test('a client can cancel exactly two days before the start date', () => {
     const reservation = buildReservation({ departureDate: '2026-11-27' });
 
@@ -56,6 +63,13 @@ test('a client cannot cancel after the start date', () => {
 });
 
 
+test('a client cannot cancel long after the start date', () => {
+    const reservation = buildReservation({ departureDate: '2026-09-01' });
+
+    assert.equal(canCancelReservation(reservation, false, NOW), false);
+});
+
+
 test('an admin can cancel on the start date', () => {
     const reservation = buildReservation({ departureDate: '2026-11-25' });
 
@@ -63,8 +77,22 @@ test('an admin can cancel on the start date', () => {
 });
 
 
-test('an admin can cancel after the start date', () => {
-    const reservation = buildReservation({ departureDate: '2026-11-01' });
+test('an admin can cancel six days after the start date', () => {
+    const reservation = buildReservation({ departureDate: '2026-11-19' });
+
+    assert.equal(canCancelReservation(reservation, true, NOW), true);
+});
+
+
+test('an admin can cancel seven days after the start date', () => {
+    const reservation = buildReservation({ departureDate: '2026-11-18' });
+
+    assert.equal(canCancelReservation(reservation, true, NOW), true);
+});
+
+
+test('an admin can cancel no matter how long ago the start date passed', () => {
+    const reservation = buildReservation({ departureDate: '2026-09-01' });
 
     assert.equal(canCancelReservation(reservation, true, NOW), true);
 });
@@ -97,7 +125,7 @@ test('a client can cancel a legacy booking without a departure date', () => {
 });
 
 
-test('the two day boundary ignores the time of day', () => {
+test('the notice boundary ignores the time of day', () => {
     const reservation = buildReservation({ departureDate: '2026-11-27' });
     const lateNow = new Date(2026, 10, 25, 23, 59, 59);
 

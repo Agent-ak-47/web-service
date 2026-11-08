@@ -23,6 +23,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('SignInPage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [SignInPage],
             providers: [provideRouter([])],
@@ -70,7 +71,7 @@ describe('SignInPage', () => {
         await fixture.componentInstance.onSubmit();
 
         expect(fetchMock).toHaveBeenCalledOnce();
-        expect(sessionStorage.getItem('kz_token')).toBe('token');
+        expect(localStorage.getItem('kz_token')).toBe('token');
         expect(navigate).toHaveBeenCalledWith('/');
     });
 

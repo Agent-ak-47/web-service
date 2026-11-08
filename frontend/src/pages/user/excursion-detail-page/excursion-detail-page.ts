@@ -37,7 +37,6 @@ export class ExcursionDetailPage implements OnInit {
     readonly PRICE_UNIT = 'per person';
     readonly LOCATION_LABEL = 'Location';
     readonly DATE_LABEL = 'Date';
-    readonly TIME_LABEL = 'Time';
     readonly DURATION_LABEL = 'Duration';
     readonly GUIDE_LABEL = 'Guide';
     readonly CAPACITY_LABEL = 'Capacity';
@@ -179,8 +178,7 @@ export class ExcursionDetailPage implements OnInit {
     private buildRows(item: KzExcursion): KzItemDetailRow[] {
         return [
             { label: this.LOCATION_LABEL, value: item.location },
-            { label: this.DATE_LABEL, value: this.datePipe.transform(item.date) },
-            { label: this.TIME_LABEL, value: item.startTime },
+            { label: this.DATE_LABEL, value: this.datePipe.transform(`${item.date.slice(0, 10)}T${item.startTime}`, true) },
             { label: this.DURATION_LABEL, value: this.formatDuration(item.dureeMinutes) },
             { label: this.GUIDE_LABEL, value: item.guide },
             { label: this.CAPACITY_LABEL, value: String(item.capacity) },

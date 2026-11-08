@@ -132,6 +132,7 @@ def make_reservation():
         item_type='FLIGHT',
         item_id=10,
         item_label='Air X AX1 Paris -> Rome',
+        departure_date=None,
         cancellation_reason=None,
     ):
         unit = Decimal(str(unit_price))
@@ -143,6 +144,7 @@ def make_reservation():
             item_label=item_label,
             quantity=quantity,
             reservation_date=datetime(2026, 1, 1),
+            departure_date=departure_date,
             unit_price=unit,
             total_amount=unit * quantity,
             status=status,

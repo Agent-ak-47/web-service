@@ -33,6 +33,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('PaymentPage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [PaymentPage],
             providers: [provideRouter([])],
