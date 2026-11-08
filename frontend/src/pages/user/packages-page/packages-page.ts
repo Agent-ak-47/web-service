@@ -309,7 +309,7 @@ export class PackagesPage implements KzGuardedForm, OnInit {
         const end = Date.parse(`${item.endDate.slice(0, 10)}T00:00:00Z`);
 
         if (Number.isNaN(start) || Number.isNaN(end)) {
-            return item.durationNights;
+            return item.durationNights ?? 0;
         }
 
         return Math.max(0, Math.round((end - start) / MS_PER_DAY));

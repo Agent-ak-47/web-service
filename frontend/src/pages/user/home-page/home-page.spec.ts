@@ -95,9 +95,27 @@ describe('HomePage', () => {
 
         expect(fixture.componentInstance.sections.length).toBe(3);
         expect(fixture.componentInstance.sections[0].cards[0].price).toBe(1500);
+        expect(fixture.componentInstance.sections[0].cards[0].meta[3].value).toBe('4');
         expect(fixture.componentInstance.sections[1].cards[0].title).toBe('Casablanca - Paris');
         expect(fixture.componentInstance.sections[2].cards[0].meta[2].value).toBe('2h 30min');
         expect(fixture.componentInstance.isLoading).toBe(false);
+    });
+
+
+    it('should compute the nights from the dates when the duration is missing', async () => {
+        const packageWithoutNights = { ...PACKAGE, durationNights: null };
+        vi.stubGlobal('fetch', vi.fn((url: string) => {
+            if (url.includes('packages')) {
+                return Promise.resolve(response({ data: [packageWithoutNights] }));
+            }
+
+            return Promise.resolve(response({ data: [] }));
+        }));
+        const fixture = TestBed.createComponent(HomePage);
+
+        await fixture.componentInstance.loadHighlights();
+
+        expect(fixture.componentInstance.sections[0].cards[0].meta[3].value).toBe('4');
     });
 
 

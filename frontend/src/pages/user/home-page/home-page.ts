@@ -21,6 +21,9 @@ import { Hero } from './components/hero/hero';
 import { KzHomeSection } from './models/kz_home_section.interface';
 
 
+const MS_PER_DAY = 86400000;
+
+
 @Component({
     selector: 'kz-home-page',
     standalone: true,
@@ -39,7 +42,8 @@ export class HomePage implements OnInit {
     readonly EXCURSIONS_SUBTITLE = 'Discover the destination with a local guide.';
     readonly NIGHTS_LABEL = 'Nights';
     readonly DESTINATION_LABEL = 'Destination';
-    readonly DATES_LABEL = 'Dates';
+    readonly START_DATE_LABEL = 'Start date';
+    readonly END_DATE_LABEL = 'End date';
     readonly GUIDE_LABEL = 'Guide';
     readonly LOCATION_LABEL = 'Location';
     readonly DATE_LABEL = 'Date';
@@ -159,8 +163,9 @@ export class HomePage implements OnInit {
             badgeTone: KzTone.SUCCESS,
             meta: [
                 { label: this.DESTINATION_LABEL, value: item.destination },
-                { label: this.DATES_LABEL, value: `${this.datePipe.transformDateTime(item.startDate)} - ${this.datePipe.transformDateTime(item.endDate)}` },
-                { label: this.NIGHTS_LABEL, value: String(item.durationNights) },
+                { label: this.START_DATE_LABEL, value: this.datePipe.transformDateTime(item.startDate) },
+                { label: this.END_DATE_LABEL, value: this.datePipe.transformDateTime(item.endDate) },
+                { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
             ],
             actionLabel: this.DISCOVER_LABEL,
             disabled: !item.available,
@@ -247,6 +252,18 @@ export class HomePage implements OnInit {
             icon: KzIconName.COMPASS,
             cards,
         };
+    }
+
+
+    private calculateNights(item: KzPackage): number {
+        const start = Date.parse(`${item.startDate.slice(0, 10)}T00:00:00Z`);
+        const end = Date.parse(`${item.endDate.slice(0, 10)}T00:00:00Z`);
+
+        if (Number.isNaN(start) || Number.isNaN(end)) {
+            return item.durationNights ?? 0;
+        }
+
+        return Math.max(0, Math.round((end - start) / MS_PER_DAY));
     }
 
 
