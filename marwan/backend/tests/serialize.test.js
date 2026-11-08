@@ -16,7 +16,7 @@ test('excursionJson maps snake_case columns to the frozen camelCase contract', (
     available_places: 41,
     price: 190,
     guide: 'Selim',
-    image_url: 'imgs/palace/riad-courtyard-02.jpeg',
+    image_url: 'imgs/excursion-2.jpg',
     active: 1,
   };
 
@@ -32,7 +32,7 @@ test('excursionJson maps snake_case columns to the frozen camelCase contract', (
     availableSeats: 41,
     price: 190,
     guide: 'Selim',
-    imageUrl: 'imgs/palace/riad-courtyard-02.jpeg',
+    imageUrl: 'imgs/excursion-2.jpg',
     available: true,
   });
 });
