@@ -13,6 +13,7 @@ import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { KzReservation } from '../../../models/kz_reservation.interface';
+import { hasStartDatePassed } from '../../../models/kz_reservation_policy';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
@@ -48,6 +49,7 @@ export class FlightsPage implements KzGuardedForm, OnInit {
     readonly ARRIVAL_PLACEHOLDER = 'Paris';
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
+    readonly EXPIRED_LABEL = 'Expired';
     readonly INACTIVE_LABEL = 'Unavailable';
     readonly PRICE_UNIT = 'per passenger';
     readonly DEPART_LABEL = 'Departure';
@@ -274,34 +276,40 @@ export class FlightsPage implements KzGuardedForm, OnInit {
 
 
     private setFlights(source: KzFlight[]): void {
-        this.flights = source;
-        this.cards = this.buildCards(source);
+        this.flights = [...source].sort((first, second) => second.departureTime.localeCompare(first.departureTime));
+        this.cards = this.buildCards(this.flights);
     }
 
 
     private buildCards(source: readonly KzFlight[]): KzItemCardData[] {
-        return source.map((flight) => ({
-            id: flight.id,
-            type: KzItemType.FLIGHT,
-            title: `${flight.departureCity} - ${flight.arrivalCity}`,
-            subtitle: `${flight.airline} ${flight.flightNumber}`,
-            icon: KzIconName.PLANE,
-            imageUrl: flight.imageUrl,
-            price: flight.price,
-            unitLabel: this.PRICE_UNIT,
-            badge: flight.active ? this.SEATS_LABEL : this.INACTIVE_LABEL,
-            badgeTone: flight.active ? KzTone.NEUTRAL : KzTone.DANGER,
-            meta: [
-                { label: this.DEPART_LABEL, value: this.datePipe.transform(flight.departureTime, true) },
-                { label: this.ARRIVAL_TIME_LABEL, value: this.datePipe.transform(flight.arrivalTime, true) },
-                { label: this.COMPANY_LABEL, value: flight.airline },
-                { label: this.NUMBER_LABEL, value: flight.flightNumber },
-                { label: this.SEATS_LABEL, value: String(flight.availableSeats) },
-            ],
-            actionLabel: this.RESERVE_LABEL,
-            disabled: !flight.active || flight.availableSeats < this.requestedQuantity,
-            disabledLabel: flight.availableSeats === 0 ? this.SOLD_OUT_LABEL : this.INACTIVE_LABEL,
-        }));
+        return source.map((flight) => {
+            const pastStart = hasStartDatePassed(flight.departureTime);
+
+            return {
+                id: flight.id,
+                type: KzItemType.FLIGHT,
+                title: `${flight.departureCity} - ${flight.arrivalCity}`,
+                subtitle: `${flight.airline} ${flight.flightNumber}`,
+                icon: KzIconName.PLANE,
+                imageUrl: flight.imageUrl,
+                price: flight.price,
+                unitLabel: this.PRICE_UNIT,
+                badge: flight.active ? this.SEATS_LABEL : this.INACTIVE_LABEL,
+                badgeTone: flight.active ? KzTone.NEUTRAL : KzTone.DANGER,
+                meta: [
+                    { label: this.DEPART_LABEL, value: this.datePipe.transform(flight.departureTime, true) },
+                    { label: this.ARRIVAL_TIME_LABEL, value: this.datePipe.transform(flight.arrivalTime, true) },
+                    { label: this.COMPANY_LABEL, value: flight.airline },
+                    { label: this.NUMBER_LABEL, value: flight.flightNumber },
+                    { label: this.SEATS_LABEL, value: String(flight.availableSeats) },
+                ],
+                actionLabel: this.RESERVE_LABEL,
+                disabled: !flight.active || flight.availableSeats < this.requestedQuantity || pastStart,
+                disabledLabel: pastStart
+                    ? this.EXPIRED_LABEL
+                    : flight.availableSeats === 0 ? this.SOLD_OUT_LABEL : this.INACTIVE_LABEL,
+            };
+        });
     }
 
 

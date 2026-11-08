@@ -13,6 +13,7 @@ import { KzLabels } from '../../../models/kz_labels.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { KzReservation } from '../../../models/kz_reservation.interface';
+import { hasStartDatePassed } from '../../../models/kz_reservation_policy';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
@@ -46,6 +47,7 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
     readonly LOCATION_PLACEHOLDER = 'Marrakech';
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
+    readonly EXPIRED_LABEL = 'Expired';
     readonly PRICE_UNIT = 'per person';
     readonly DURATION_LABEL = 'Duration';
     readonly GUIDE_LABEL = 'Guide';
@@ -258,37 +260,41 @@ export class ExcursionsPage implements KzGuardedForm, OnInit {
 
 
     private setExcursions(source: KzExcursion[]): void {
-        this.excursions = source;
-        this.cards = this.buildCards(source);
+        this.excursions = [...source].sort((first, second) => second.date.localeCompare(first.date));
+        this.cards = this.buildCards(this.excursions);
     }
 
 
     private buildCards(source: readonly KzExcursion[]): KzItemCardData[] {
-        return source.map((item) => ({
-            id: item.id,
-            type: KzItemType.EXCURSION,
-            title: item.title,
-            subtitle: item.location,
-            icon: KzIconName.COMPASS,
-            imageUrl: item.imageUrl,
-            price: item.price,
-            unitLabel: this.PRICE_UNIT,
-            badge: '',
-            badgeTone: KzTone.NEUTRAL,
-            meta: [
-                { label: this.LOCATION_LABEL, value: item.location },
-                {
-                    label: this.DATE_LABEL,
-                    value: this.datePipe.transform(`${item.date.slice(0, 10)}T${item.startTime}`, true),
-                },
-                { label: this.DURATION_LABEL, value: this.formatDuration(item.dureeMinutes) },
-                { label: this.GUIDE_LABEL, value: item.guide },
-                { label: this.SEATS_LABEL, value: String(item.availableSeats) },
-            ],
-            actionLabel: this.RESERVE_LABEL,
-            disabled: !item.available,
-            disabledLabel: this.SOLD_OUT_LABEL,
-        }));
+        return source.map((item) => {
+            const pastStart = hasStartDatePassed(item.date);
+
+            return {
+                id: item.id,
+                type: KzItemType.EXCURSION,
+                title: item.title,
+                subtitle: item.location,
+                icon: KzIconName.COMPASS,
+                imageUrl: item.imageUrl,
+                price: item.price,
+                unitLabel: this.PRICE_UNIT,
+                badge: '',
+                badgeTone: KzTone.NEUTRAL,
+                meta: [
+                    { label: this.LOCATION_LABEL, value: item.location },
+                    {
+                        label: this.DATE_LABEL,
+                        value: this.datePipe.transform(`${item.date.slice(0, 10)}T${item.startTime}`, true),
+                    },
+                    { label: this.DURATION_LABEL, value: this.formatDuration(item.dureeMinutes) },
+                    { label: this.GUIDE_LABEL, value: item.guide },
+                    { label: this.SEATS_LABEL, value: String(item.availableSeats) },
+                ],
+                actionLabel: this.RESERVE_LABEL,
+                disabled: !item.available || pastStart,
+                disabledLabel: pastStart ? this.EXPIRED_LABEL : this.SOLD_OUT_LABEL,
+            };
+        });
     }
 
 

@@ -63,6 +63,30 @@ describe('PackagesPage', () => {
     });
 
 
+    it('should sort the packages by start date, newest first', async () => {
+        const earlier = { ...PACKAGE, id: 1, startDate: '2026-12-01T00:00:00', endDate: '2026-12-05T00:00:00' };
+        const later = { ...PACKAGE, id: 2, startDate: '2027-01-01T00:00:00', endDate: '2027-01-05T00:00:00' };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [earlier, later] })));
+        const fixture = TestBed.createComponent(PackagesPage);
+
+        await fixture.componentInstance.loadPackages();
+
+        expect(fixture.componentInstance.cards[0].id).toBe(later.id);
+    });
+
+
+    it('should mark a package whose start date has passed as expired', async () => {
+        const past = { ...PACKAGE, startDate: '2020-01-01T00:00:00', endDate: '2020-01-05T00:00:00' };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [past] })));
+        const fixture = TestBed.createComponent(PackagesPage);
+
+        await fixture.componentInstance.loadPackages();
+
+        expect(fixture.componentInstance.cards[0].disabled).toBe(true);
+        expect(fixture.componentInstance.cards[0].disabledLabel).toBe('Expired');
+    });
+
+
     it('should calculate the nights from the start and end dates', async () => {
         const item = { ...PACKAGE, startDate: '2026-12-01T00:00:00', endDate: '2026-12-06T00:00:00', durationNights: 99 };
         vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [item] })));

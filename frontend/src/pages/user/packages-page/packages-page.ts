@@ -13,6 +13,7 @@ import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzPackage } from '../../../models/kz_package.interface';
 import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { KzReservation } from '../../../models/kz_reservation.interface';
+import { hasStartDatePassed } from '../../../models/kz_reservation_policy';
 import { parseList, parseResponse } from '../../../models/kz_response';
 import { KzTone } from '../../../models/kz_tone.enum';
 import { KzDatePipe } from '../../../pipes/kz-date.pipe';
@@ -49,6 +50,7 @@ export class PackagesPage implements KzGuardedForm, OnInit {
     readonly DESTINATION_PLACEHOLDER = 'Marrakech';
     readonly RESERVE_LABEL = 'Book';
     readonly SOLD_OUT_LABEL = 'Booked';
+    readonly EXPIRED_LABEL = 'Expired';
     readonly PRICE_UNIT = 'per person';
     readonly START_DATE_LABEL = 'Start date';
     readonly END_DATE_LABEL = 'End date';
@@ -262,39 +264,43 @@ export class PackagesPage implements KzGuardedForm, OnInit {
 
 
     private setPackages(source: KzPackage[]): void {
-        this.packages = source;
-        this.cards = this.buildCards(source);
+        this.packages = [...source].sort((first, second) => second.startDate.localeCompare(first.startDate));
+        this.cards = this.buildCards(this.packages);
     }
 
 
     private buildCards(source: readonly KzPackage[]): KzItemCardData[] {
-        return source.map((item) => ({
-            id: item.id,
-            type: KzItemType.PACKAGE,
-            title: item.name,
-            subtitle: item.destination,
-            icon: KzIconName.SUITCASE,
-            imageUrl: item.imageUrl,
-            price: item.promoPrice > 0 ? item.promoPrice : item.price,
-            unitLabel: this.PRICE_UNIT,
-            badge: item.discountPercentage > 0 ? `-${item.discountPercentage}%` : '',
-            badgeTone: KzTone.SUCCESS,
-            meta: [
-                { label: this.DESTINATION_LABEL, value: item.destination },
-                { label: this.START_DATE_LABEL, value: this.datePipe.transformDateTime(item.startDate) },
-                { label: this.END_DATE_LABEL, value: this.datePipe.transformDateTime(item.endDate) },
-                { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
-                {
-                    label: this.DISCOUNT_LABEL,
-                    value: item.discountPercentage > 0
-                        ? `-${item.discountPercentage}%`
-                        : this.NO_DISCOUNT_LABEL,
-                },
-            ],
-            actionLabel: this.RESERVE_LABEL,
-            disabled: !item.available,
-            disabledLabel: this.SOLD_OUT_LABEL,
-        }));
+        return source.map((item) => {
+            const pastStart = hasStartDatePassed(item.startDate);
+
+            return {
+                id: item.id,
+                type: KzItemType.PACKAGE,
+                title: item.name,
+                subtitle: item.destination,
+                icon: KzIconName.SUITCASE,
+                imageUrl: item.imageUrl,
+                price: item.promoPrice > 0 ? item.promoPrice : item.price,
+                unitLabel: this.PRICE_UNIT,
+                badge: item.discountPercentage > 0 ? `-${item.discountPercentage}%` : '',
+                badgeTone: KzTone.SUCCESS,
+                meta: [
+                    { label: this.DESTINATION_LABEL, value: item.destination },
+                    { label: this.START_DATE_LABEL, value: this.datePipe.transformDateTime(item.startDate) },
+                    { label: this.END_DATE_LABEL, value: this.datePipe.transformDateTime(item.endDate) },
+                    { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
+                    {
+                        label: this.DISCOUNT_LABEL,
+                        value: item.discountPercentage > 0
+                            ? `-${item.discountPercentage}%`
+                            : this.NO_DISCOUNT_LABEL,
+                    },
+                ],
+                actionLabel: this.RESERVE_LABEL,
+                disabled: !item.available || pastStart,
+                disabledLabel: pastStart ? this.EXPIRED_LABEL : this.SOLD_OUT_LABEL,
+            };
+        });
     }
 
 
