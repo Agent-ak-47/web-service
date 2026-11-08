@@ -26,6 +26,7 @@ function signIn(role: KzUserRole): void {
 describe('KzHeader', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [KzHeader],
             providers: [provideRouter([])],

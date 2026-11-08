@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "name": "Marrakech & Atlas Escape",
+        "description": "A week between the medina and the mountains.",
+        "destination": "Marrakech",
+        "durationNights": 6,
+        "price": 3400,
+        "startDate": "2026-06-05",
+        "endDate": "2026-06-11",
+        "discountPercentage": 10,
+        "promoPrice": 3060,
+        "imageUrl": "imgs/package-1.jpg",
+        "available": true,
+        "composition": {
+            "flights": [],
+            "excursions": []
+        }
+    },
+    {
+        "id": 2,
+        "name": "Istanbul & Bosphorus Week",
+        "description": "Discover the old city and the Bosphorus.",
+        "destination": "Istanbul",
+        "durationNights": 5,
+        "price": 2900,
+        "startDate": "2026-07-14",
+        "endDate": "2026-07-19",
+        "discountPercentage": 0,
+        "promoPrice": 0,
+        "imageUrl": "imgs/package-2.jpg",
+        "available": true,
+        "composition": {
+            "flights": [],
+            "excursions": []
+        }
+    },
+    {
+        "id": 3,
+        "name": "Sahara Adventure",
+        "description": "Three days in the Agafay desert.",
+        "destination": "Agafay",
+        "durationNights": 3,
+        "price": 1800,
+        "startDate": "2026-06-07",
+        "endDate": "2026-06-10",
+        "discountPercentage": 15,
+        "promoPrice": 1530,
+        "imageUrl": "imgs/package-3.jpg",
+        "available": true,
+        "composition": {
+            "flights": [],
+            "excursions": []
+        }
+    }
+]

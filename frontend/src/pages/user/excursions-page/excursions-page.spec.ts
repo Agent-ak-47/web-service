@@ -32,6 +32,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('ExcursionsPage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [ExcursionsPage],
             providers: [provideRouter([])],
@@ -59,7 +60,32 @@ describe('ExcursionsPage', () => {
 
         expect(fixture.componentInstance.excursions.length).toBe(1);
         expect(fixture.componentInstance.cards[0].title).toBe('Medina walking tour');
+        expect(fixture.componentInstance.cards[0].meta[1].value).toMatch(/09:00\s?AM/i);
         expect(fixture.componentInstance.cards[0].meta[2].value).toBe('2h 30min');
+    });
+
+
+    it('should sort the excursions by date, newest first', async () => {
+        const earlier = { ...EXCURSION, id: 1, date: '2026-11-04' };
+        const later = { ...EXCURSION, id: 2, date: '2027-01-01' };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [earlier, later] })));
+        const fixture = TestBed.createComponent(ExcursionsPage);
+
+        await fixture.componentInstance.loadExcursions();
+
+        expect(fixture.componentInstance.cards[0].id).toBe(later.id);
+    });
+
+
+    it('should mark an excursion whose date has passed as expired', async () => {
+        const past = { ...EXCURSION, date: '2020-01-01' };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [past] })));
+        const fixture = TestBed.createComponent(ExcursionsPage);
+
+        await fixture.componentInstance.loadExcursions();
+
+        expect(fixture.componentInstance.cards[0].disabled).toBe(true);
+        expect(fixture.componentInstance.cards[0].disabledLabel).toBe('Expired');
     });
 
 

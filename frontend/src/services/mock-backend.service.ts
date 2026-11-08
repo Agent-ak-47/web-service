@@ -13,7 +13,7 @@ import { KzPaymentMethod } from '../models/kz_payment_method.enum';
 import { KzPaymentStatus } from '../models/kz_payment_status.enum';
 import { KzReservation } from '../models/kz_reservation.interface';
 import {
-    CANCELLATION_NOTICE_DAYS,
+    CLIENT_CANCELLATION_NOTICE_DAYS,
     canCancelReservation,
     hasStartDatePassed,
 } from '../models/kz_reservation_policy';
@@ -351,7 +351,11 @@ export class MockBackendService {
         }
 
         if (method === 'POST' && action === 'cancellation') {
-            return this.cancelReservation(reservation, String(body['reason'] ?? ''), token);
+            return this.cancelReservation(
+                reservation,
+                String(body['reason'] ?? ''),
+                token.role === KzUserRole.ADMIN,
+            );
         }
 
         if (method === 'POST' && action === 'payment') {
@@ -452,7 +456,7 @@ export class MockBackendService {
     private cancelReservation(
         reservation: KzReservation,
         reason: string,
-        token: KzMockToken,
+        isAdmin: boolean,
     ): Response {
         const locked: readonly KzReservationStatus[] = [
             KzReservationStatus.REFUNDED,
@@ -463,16 +467,13 @@ export class MockBackendService {
             return this.fail(this.CONFLICT, 'INVALID_STATUS', 'This booking can no longer be cancelled.');
         }
 
-        if (token.role !== KzUserRole.ADMIN && !canCancelReservation(reservation, false)) {
+        if (!canCancelReservation(reservation, isAdmin)) {
             return this.fail(
                 this.UNPROCESSABLE_ENTITY,
                 'BUSINESS_RULE_VIOLATION',
-                `A booking can only be cancelled at least ${CANCELLATION_NOTICE_DAYS} `
-                    + 'days before its start date.',
-                {
-                    departureDate: reservation.departureDate,
-                    minimumDays: CANCELLATION_NOTICE_DAYS,
-                },
+                `A booking can only be cancelled ${CLIENT_CANCELLATION_NOTICE_DAYS} days `
+                + 'before its start date.',
+                { departureDate: reservation.departureDate, noticeDays: CLIENT_CANCELLATION_NOTICE_DAYS },
             );
         }
 

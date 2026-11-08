@@ -24,6 +24,8 @@ def reservation_json(reservation):
         'totalAmount': float(reservation.total_amount or 0),
         'status': reservation.status,
         'reservationDate': iso_datetime(reservation.reservation_date),
+        'departureDate': reservation.departure_date.isoformat()
+        if reservation.departure_date is not None else '',
         'cancellationReason': reservation.cancellation_reason or '',
     }
 

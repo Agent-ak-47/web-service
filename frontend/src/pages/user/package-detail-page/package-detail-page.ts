@@ -22,6 +22,9 @@ import { KzItemDetail } from '../../../components/kz-item-detail/kz-item-detail'
 import { KzLoading } from '../../../components/kz-loading/kz-loading';
 
 
+const MS_PER_DAY = 86400000;
+
+
 @Component({
     selector: 'kz-package-detail-page',
     standalone: true,
@@ -38,7 +41,8 @@ export class PackageDetailPage implements OnInit {
     readonly QUANTITY_LABEL = 'Guests';
     readonly PRICE_UNIT = 'per person';
     readonly DESTINATION_LABEL = 'Destination';
-    readonly DATES_LABEL = 'Dates';
+    readonly START_DATE_LABEL = 'Start date';
+    readonly END_DATE_LABEL = 'End date';
     readonly NIGHTS_LABEL = 'Nights';
     readonly DISCOUNT_LABEL = 'Discount';
     readonly OLD_PRICE_LABEL = 'Regular price';
@@ -184,11 +188,9 @@ export class PackageDetailPage implements OnInit {
     private buildRows(item: KzPackage): KzItemDetailRow[] {
         const rows: KzItemDetailRow[] = [
             { label: this.DESTINATION_LABEL, value: item.destination },
-            {
-                label: this.DATES_LABEL,
-                value: `${this.datePipe.transform(item.startDate)} - ${this.datePipe.transform(item.endDate)}`,
-            },
-            { label: this.NIGHTS_LABEL, value: String(item.durationNights) },
+            { label: this.START_DATE_LABEL, value: this.datePipe.transformDateTime(item.startDate) },
+            { label: this.END_DATE_LABEL, value: this.datePipe.transformDateTime(item.endDate) },
+            { label: this.NIGHTS_LABEL, value: String(this.calculateNights(item)) },
             { label: this.DISCOUNT_LABEL, value: `${item.discountPercentage}%` },
         ];
 
@@ -197,6 +199,18 @@ export class PackageDetailPage implements OnInit {
         }
 
         return rows;
+    }
+
+
+    private calculateNights(item: KzPackage): number {
+        const start = Date.parse(`${item.startDate.slice(0, 10)}T00:00:00Z`);
+        const end = Date.parse(`${item.endDate.slice(0, 10)}T00:00:00Z`);
+
+        if (Number.isNaN(start) || Number.isNaN(end)) {
+            return item.durationNights ?? 0;
+        }
+
+        return Math.max(0, Math.round((end - start) / MS_PER_DAY));
     }
 
 
@@ -218,7 +232,7 @@ export class PackageDetailPage implements OnInit {
             title: this.EXCURSIONS_TITLE,
             rows: excursions.map((excursion) => ({
                 label: excursion.title,
-                value: `${excursion.date} ${excursion.startTime} - ${excursion.location}`,
+                value: `${this.datePipe.transform(excursion.date)} ${this.datePipe.transformTime(excursion.startTime)} - ${excursion.location}`,
             })),
         };
     }

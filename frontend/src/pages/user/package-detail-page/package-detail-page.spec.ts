@@ -64,6 +64,24 @@ describe('PackageDetailPage', () => {
     });
 
 
+    it('should calculate the nights from the start and end dates', async () => {
+        load.mockResolvedValue({
+            item: { ...PACKAGE, startDate: '2099-12-01', endDate: '2099-12-06', durationNights: 99 },
+            error: '',
+            signedOut: false,
+        });
+        const fixture = TestBed.createComponent(PackageDetailPage);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const nights = fixture.componentInstance.detail?.rows.find(
+            (row) => row.label === fixture.componentInstance.NIGHTS_LABEL,
+        );
+        expect(nights?.value).toBe('5');
+    });
+
+
     it('should show the empty message when the package does not exist', async () => {
         load.mockResolvedValue({ item: null, error: '', signedOut: false });
         const fixture = TestBed.createComponent(PackageDetailPage);

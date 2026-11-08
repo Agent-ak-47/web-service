@@ -32,6 +32,7 @@ function response(body: unknown, status = 200): { status: number; json: () => Pr
 describe('FlightsPage', () => {
     beforeEach(async () => {
         sessionStorage.clear();
+        localStorage.clear();
         await TestBed.configureTestingModule({
             imports: [FlightsPage],
             providers: [provideRouter([])],
@@ -62,6 +63,30 @@ describe('FlightsPage', () => {
         expect(fixture.componentInstance.cards[0].price).toBe(1200);
         expect(fixture.componentInstance.cards[0].meta.length).toBe(5);
         expect(fixture.componentInstance.isLoading).toBe(false);
+    });
+
+
+    it('should sort the flights by departure time, newest first', async () => {
+        const earlier = { ...FLIGHT, id: 1, departureTime: '2026-11-04T09:00:00' };
+        const later = { ...FLIGHT, id: 2, departureTime: '2027-01-01T09:00:00' };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [earlier, later] })));
+        const fixture = TestBed.createComponent(FlightsPage);
+
+        await fixture.componentInstance.loadFlights();
+
+        expect(fixture.componentInstance.cards[0].id).toBe(later.id);
+    });
+
+
+    it('should mark a flight whose departure date has passed as expired', async () => {
+        const past = { ...FLIGHT, departureTime: '2020-01-01T09:00:00', arrivalTime: '2020-01-01T12:00:00' };
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ data: [past] })));
+        const fixture = TestBed.createComponent(FlightsPage);
+
+        await fixture.componentInstance.loadFlights();
+
+        expect(fixture.componentInstance.cards[0].disabled).toBe(true);
+        expect(fixture.componentInstance.cards[0].disabledLabel).toBe('Expired');
     });
 
 

@@ -1,0 +1,47 @@
+[
+    {
+        "id": 1,
+        "title": "Marrakech medina tour",
+        "location": "Marrakech",
+        "description": "Guided tour of the medina and the souks.",
+        "date": "2026-06-06",
+        "startTime": "09:00:00",
+        "dureeMinutes": 180,
+        "capacity": 30,
+        "availableSeats": 12,
+        "price": 120,
+        "imageUrl": "imgs/excursion-1.jpg",
+        "guide": "Youssef",
+        "available": true
+    },
+    {
+        "id": 2,
+        "title": "Bosphorus boat cruise",
+        "location": "Istanbul",
+        "description": "Sunset cruise with buffet.",
+        "date": "2026-07-15",
+        "startTime": "18:00:00",
+        "dureeMinutes": 150,
+        "capacity": 80,
+        "availableSeats": 41,
+        "price": 190,
+        "imageUrl": "imgs/excursion-3.jpg",
+        "guide": "Selim",
+        "available": true
+    },
+    {
+        "id": 3,
+        "title": "Agafay desert excursion",
+        "location": "Marrakech",
+        "description": "Dinner and a show under the stars.",
+        "date": "2026-06-07",
+        "startTime": "16:00:00",
+        "dureeMinutes": 300,
+        "capacity": 40,
+        "availableSeats": 25,
+        "price": 260,
+        "imageUrl": "imgs/excursion-2.jpg",
+        "guide": "Hassan",
+        "available": true
+    }
+]

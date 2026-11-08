@@ -18,16 +18,26 @@ __pycache__/
 dist/
 build/
 
+
+design/
 md/
 *.md
 !/kamal/README.md
 !/frontend/README.md
 !/package-service/README.md
+!/marwan/README.md
 
 node_modules/
-public/
+# Angular static assets live in frontend/src/public (source), so ignore only a
+# root-level public/ directory rather than every folder named "public".
+/public/
 .angular/
 tui.json
 dist/
 
 .vscode/
+
+# Mock data kept locally
+/kamal/mock/excursion/excursions.json
+/kamal/mock/flight/flights.json
+/kamal/mock/package/packages.json

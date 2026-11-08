@@ -1,0 +1,9 @@
+{
+    "id": 1,
+    "name": "Administrator",
+    "email": "admin@agency.travel",
+    "role": "ADMIN",
+    "phone": "",
+    "address": "",
+    "password": ""
+}

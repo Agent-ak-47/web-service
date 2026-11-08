@@ -15,6 +15,7 @@ class Reservation(db.Model):
     item_label = db.Column(db.String(160), nullable=True)
     quantity = db.Column(db.SmallInteger, nullable=False, default=1)
     reservation_date = db.Column(db.DateTime, nullable=False)
+    departure_date = db.Column(db.Date, nullable=True)
     unit_price = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     total_amount = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     status = db.Column(

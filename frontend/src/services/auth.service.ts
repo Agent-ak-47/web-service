@@ -15,12 +15,12 @@ export class AuthService {
 
 
     get token(): string {
-        return sessionStorage.getItem(this.TOKEN_KEY) ?? '';
+        return localStorage.getItem(this.TOKEN_KEY) ?? '';
     }
 
 
     get user(): KzUser {
-        const raw = sessionStorage.getItem(this.USER_KEY);
+        const raw = localStorage.getItem(this.USER_KEY);
 
         if (raw === null) {
             return { ...DEFAULT_KZ_USER };
@@ -79,8 +79,8 @@ export class AuthService {
 
 
     saveSession(session: KzAuthSession): void {
-        sessionStorage.setItem(this.TOKEN_KEY, session.jeton);
-        sessionStorage.setItem(this.USER_KEY, JSON.stringify(session.user));
+        localStorage.setItem(this.TOKEN_KEY, session.jeton);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(session.user));
     }
 
 
@@ -110,7 +110,9 @@ export class AuthService {
 
 
     clearSession(): void {
-        sessionStorage.removeItem(this.TOKEN_KEY);
-        sessionStorage.removeItem(this.USER_KEY);
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_KEY);
         sessionStorage.removeItem(this.PENDING_RESERVATION_KEY);
-    }}
+    }
+}
+

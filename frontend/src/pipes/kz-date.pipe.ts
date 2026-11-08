@@ -19,6 +19,11 @@ export class KzDatePipe implements PipeTransform {
         hour: '2-digit',
         minute: '2-digit',
     };
+    readonly TIME_OPTIONS: Intl.DateTimeFormatOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+    };
+    readonly TIME_PATTERN = /(\d{2}):(\d{2})/;
 
 
     transform(value: string | null | undefined, withTime = false): string {
@@ -33,5 +38,33 @@ export class KzDatePipe implements PipeTransform {
         }
 
         return new Intl.DateTimeFormat('en-US', withTime ? this.DATETIME_OPTIONS : this.DATE_OPTIONS).format(date);
+    }
+
+
+    transformDateTime(value: string | null | undefined): string {
+        if (value === null || value === undefined || value.length === 0) {
+            return this.EMPTY_VALUE;
+        }
+
+        const normalized = value.includes('T') ? value : `${value}T00:00:00`;
+
+        return this.transform(normalized, true);
+    }
+
+
+    transformTime(value: string | null | undefined): string {
+        if (value === null || value === undefined || value.length === 0) {
+            return this.EMPTY_VALUE;
+        }
+
+        const match = value.match(this.TIME_PATTERN);
+
+        if (match === null) {
+            return this.EMPTY_VALUE;
+        }
+
+        const date = new Date(`2000-01-01T${match[1]}:${match[2]}`);
+
+        return new Intl.DateTimeFormat('en-US', this.TIME_OPTIONS).format(date);
     }
 }
