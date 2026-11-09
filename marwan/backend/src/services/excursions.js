@@ -1,4 +1,8 @@
 import { pool } from '../db.js';
+import {
+  availabilityAfterRelease,
+  checkReserveAvailability,
+} from '../domain/excursion.js';
 
 const SORT_COLUMNS = {
   price: 'price',
@@ -184,32 +188,17 @@ export async function reserve(id, quantity, reservationId) {
       return { status: 404, body: { code: 'NOT_FOUND' } };
     }
 
-    if (!item.active) {
+    const decision = checkReserveAvailability(item, quantity);
+
+    if (!decision.ok) {
       await connection.rollback();
 
       return {
         status: 409,
         body: {
-          code: 'INSUFFICIENT_AVAILABILITY',
-          message: 'This excursion is not available.',
-          details: { itemId: id },
-        },
-      };
-    }
-
-    if (item.available_places < quantity) {
-      await connection.rollback();
-
-      return {
-        status: 409,
-        body: {
-          code: 'INSUFFICIENT_AVAILABILITY',
-          message: `Only ${item.available_places} place(s) are left for this excursion.`,
-          details: {
-            itemId: id,
-            requested: quantity,
-            available: item.available_places,
-          },
+          code: decision.code,
+          message: decision.message,
+          details: decision.details,
         },
       };
     }
@@ -264,7 +253,7 @@ export async function release(id, quantity, reservationId) {
       return { status: 404, body: { code: 'NOT_FOUND' } };
     }
 
-    const available = Math.min(item.capacity, item.available_places + quantity);
+    const available = availabilityAfterRelease(item, quantity);
 
     await connection.query(
       'UPDATE excursions SET available_places = ? WHERE id = ?',
