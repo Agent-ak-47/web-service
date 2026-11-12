@@ -63,6 +63,10 @@ def test_create_reservation_uses_the_admin_actor(client, auth_for, catalog):
     assert ReservationHistory.query.one().actor == 'admin'
 
 
+def future_day(days):
+    return (datetime.now(timezone.utc).date() + timedelta(days=days)).isoformat()
+
+
 @pytest.mark.parametrize(
     'item_type, item, departure_date',
     [
@@ -72,9 +76,9 @@ def test_create_reservation_uses_the_admin_actor(client, auth_for, catalog):
                 'price': '25.00',
                 'availableSeats': 5,
                 'active': True,
-                'departureTime': '2026-11-04T07:15:00Z',
+                'departureTime': f'{future_day(1)}T07:15:00Z',
             },
-            '2026-11-04',
+            future_day(1),
         ),
         (
             'FLIGHT',
@@ -82,9 +86,9 @@ def test_create_reservation_uses_the_admin_actor(client, auth_for, catalog):
                 'price': '25.00',
                 'availableSeats': 5,
                 'active': True,
-                'departureDate': '2026-11-05T07:15:00Z',
+                'departureDate': f'{future_day(2)}T07:15:00Z',
             },
-            '2026-11-05',
+            future_day(2),
         ),
         (
             'PACKAGE',
@@ -92,9 +96,9 @@ def test_create_reservation_uses_the_admin_actor(client, auth_for, catalog):
                 'price': '25.00',
                 'promoPrice': '20.00',
                 'available': True,
-                'startDate': '2026-11-06',
+                'startDate': future_day(3),
             },
-            '2026-11-06',
+            future_day(3),
         ),
         (
             'EXCURSION',
@@ -102,9 +106,9 @@ def test_create_reservation_uses_the_admin_actor(client, auth_for, catalog):
                 'price': '25.00',
                 'availableSeats': 5,
                 'available': True,
-                'date': '2026-11-07',
+                'date': future_day(4),
             },
-            '2026-11-07',
+            future_day(4),
         ),
     ],
 )
