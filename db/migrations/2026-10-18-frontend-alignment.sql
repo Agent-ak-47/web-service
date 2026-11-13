@@ -7,10 +7,13 @@
 --
 -- WHEN: `db/init/*.sql` only runs on an EMPTY volume. If your database was
 --       created before this file existed, run this script once:
---           docker compose exec -T mysql mysql -u root -p"$MYSQL_ROOT_PASSWORD" travel_agency < db/migrations/2026-10-18-frontend-alignment.sql
+--           docker compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" travel_agency' < db/migrations/2026-10-18-frontend-alignment.sql
 --       On a fresh `docker compose down -v && docker compose up -d` these columns
 --       are already created by the init scripts, and every statement below is a
---       no-op (IF NOT EXISTS).
+--       no-op.
+--
+-- NOTE: MySQL (unlike MariaDB) does not support `ADD COLUMN IF NOT EXISTS`,
+--       so each change is guarded by an information_schema check.
 --
 -- OWNERSHIP: one statement per owner, matching db/init.
 --   G1 flights.image_url   -> Mohammed (db/init/20-flight.sql)
@@ -22,24 +25,39 @@ USE travel_agency;
 
 -- G1 - Mohammed -----------------------------------------------------------
 -- The admin flight form sends `imageUrl` and the card / detail page display it.
-ALTER TABLE flights
-    ADD COLUMN IF NOT EXISTS image_url VARCHAR(255) NULL
-    COMMENT 'cover path returned by the media endpoint'
-    AFTER active;
+SET @sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'flights' AND COLUMN_NAME = 'image_url') = 0,
+    'ALTER TABLE flights ADD COLUMN image_url VARCHAR(255) NULL COMMENT ''cover path returned by the media endpoint'' AFTER active',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- G2 - Marwan -------------------------------------------------------------
-ALTER TABLE excursions
-    ADD COLUMN IF NOT EXISTS image_url VARCHAR(255) NULL
-    COMMENT 'cover path returned by the media endpoint'
-    AFTER active;
+SET @sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'excursions' AND COLUMN_NAME = 'image_url') = 0,
+    'ALTER TABLE excursions ADD COLUMN image_url VARCHAR(255) NULL COMMENT ''cover path returned by the media endpoint'' AFTER active',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- G3 - Kamal --------------------------------------------------------------
 -- Captured at creation time like unit_price: the Reservation service must not
 -- read the catalogue tables, so the label is stored with the reservation.
-ALTER TABLE reservations
-    ADD COLUMN IF NOT EXISTS item_label VARCHAR(160) NULL
-    COMMENT 'product label captured at creation, like unit_price'
-    AFTER item_id;
+SET @sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'reservations' AND COLUMN_NAME = 'item_label') = 0,
+    'ALTER TABLE reservations ADD COLUMN item_label VARCHAR(160) NULL COMMENT ''product label captured at creation, like unit_price'' AFTER item_id',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- Backfill for the rows already present: the label is only knowable from the
 -- owning service, so until it is filled by the API the admin table shows the
