@@ -41,6 +41,27 @@ describe('KzField', () => {
     });
 
 
+    it('should toggle the password visibility', () => {
+        const fixture = TestBed.createComponent(KzField);
+        fixture.componentRef.setInput('type', KzFieldType.PASSWORD);
+        fixture.detectChanges();
+        const input = fixture.nativeElement.querySelector('input');
+        const button = fixture.nativeElement.querySelector('.kz-reveal');
+
+        expect(input.type).toBe('password');
+
+        button.click();
+        fixture.detectChanges();
+        expect(input.type).toBe('text');
+        expect(button.getAttribute('aria-label')).toBe('Hide password');
+
+        button.click();
+        fixture.detectChanges();
+        expect(input.type).toBe('password');
+        expect(button.getAttribute('aria-label')).toBe('Show password');
+    });
+
+
     it('should emit the typed value', () => {
         const fixture = TestBed.createComponent(KzField);
         fixture.detectChanges();

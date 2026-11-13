@@ -20,9 +20,18 @@
                 [placeholder]="placeholder()" [disabled]="disabled()" (input)="onInput($event)"></textarea>
         }
         @default {
-            <input [class]="controlClasses" [type]="htmlType" [name]="name()" [value]="value()"
-                [placeholder]="placeholder()" [disabled]="disabled()" [attr.min]="min()" [attr.max]="max()"
-                [attr.step]="step()" (input)="onInput($event)" />
+            <div class="kz-control-wrap" [class.has-reveal]="isPassword">
+                <input [class]="controlClasses" [type]="htmlType" [name]="name()" [value]="value()"
+                    [placeholder]="placeholder()" [disabled]="disabled()" [attr.min]="min()" [attr.max]="max()"
+                    [attr.step]="step()" (input)="onInput($event)" />
+
+                @if (isPassword) {
+                    <button type="button" class="kz-reveal" [attr.aria-label]="passwordIcon().alt"
+                        [attr.aria-pressed]="passwordVisible()" [disabled]="disabled()" (click)="togglePassword()">
+                        <kz-icon [img]="passwordIcon()" [size]="ICON_SIZE" [tone]="ICON_TONE" />
+                    </button>
+                }
+            </div>
         }
     }
 
