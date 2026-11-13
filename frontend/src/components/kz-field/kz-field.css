@@ -19,6 +19,12 @@
     color: var(--danger);
 }
 
+.kz-control-wrap {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
 .kz-control {
     width: 100%;
     padding: var(--space-3) var(--space-4);
@@ -45,6 +51,27 @@ textarea.kz-control {
 
 .kz-control.has-error {
     border-color: var(--danger);
+}
+
+.kz-control-wrap.has-reveal .kz-control {
+    padding-right: calc(var(--space-4) + var(--size-icon-sm) + var(--space-2));
+}
+
+.kz-reveal {
+    position: absolute;
+    top: 50%;
+    right: var(--space-2);
+    display: inline-flex;
+    padding: var(--space-1);
+    cursor: pointer;
+    background: none;
+    border: none;
+    transform: translateY(-50%);
+}
+
+.kz-reveal:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .kz-field-error {

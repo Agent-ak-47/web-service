@@ -4,6 +4,7 @@ import express from 'express';
 import { config } from './config.js';
 import excursionsRouter from './routes/excursions.js';
 import internalRouter from './routes/internal.js';
+import { UPLOADS_DIR } from './utils/imageStore.js';
 import { fail, ok } from './utils/response.js';
 
 export function createApp() {
@@ -21,12 +22,13 @@ export function createApp() {
     }),
   );
 
-  app.use(express.json({ limit: '1mb' }));
+  app.use(express.json({ limit: '5mb' }));
 
   app.get('/health', (_req, res) =>
     ok(res, { service: 'excursion', status: 'ok', port: config.port }),
   );
 
+  app.use('/uploads', express.static(UPLOADS_DIR, { maxAge: '7d' }));
   app.use('/api/excursions', excursionsRouter);
   app.use('/api/internal/excursions', internalRouter);
 

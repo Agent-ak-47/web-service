@@ -21,6 +21,8 @@ export enum KzIconName {
     PIN = 'pin',
     ARROW_RIGHT = 'arrow-right',
     STAR = 'star',
+    EYE = 'eye',
+    EYE_OFF = 'eye-off',
 }
 
 

@@ -5,6 +5,7 @@ import { KzDatePipe } from '../pipes/kz-date.pipe';
 import { KzMoneyPipe } from '../pipes/kz-money.pipe';
 import { GlobalService } from '../services/global.service';
 import { MockBackendService } from '../services/mock-backend.service';
+import { UnauthorizedRedirectService } from '../services/unauthorized-redirect.service';
 import { routes } from './app.routes';
 
 
@@ -20,11 +21,13 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() => {
             const globalService = inject(GlobalService);
 
-            if (!globalService.MOCK_MODE) {
-                return Promise.resolve();
+            if (globalService.MOCK_MODE) {
+                return inject(MockBackendService).install();
             }
 
-            return inject(MockBackendService).install();
+            inject(UnauthorizedRedirectService).install();
+
+            return Promise.resolve();
         }),
     ],
 };

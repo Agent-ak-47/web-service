@@ -44,3 +44,6 @@ dist/
 /kamal/mock/excursion/excursions.json
 /kamal/mock/flight/flights.json
 /kamal/mock/package/packages.json
+
+# User-uploaded catalogue images
+uploads/

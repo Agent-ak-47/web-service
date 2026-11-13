@@ -159,3 +159,11 @@
 .is-star {
     --icon-src: url('/assets/icons/star.svg');
 }
+
+.is-eye {
+    --icon-src: url('/assets/icons/eye.svg');
+}
+
+.is-eye-off {
+    --icon-src: url('/assets/icons/eye-off.svg');
+}

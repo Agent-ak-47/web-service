@@ -1,0 +1,11 @@
+<section class="kz-page">
+    <header class="kz-page-head">
+        <h1>{{ PAGE_TITLE }}</h1>
+        <p>{{ PAGE_SUBTITLE }}</p>
+    </header>
+
+    <kz-filter-bar [fields]="filters" [loading]="isLoading" (changed)="onSearchChanged($event)"
+        (submitted)="onSearchSubmitted()" (reseted)="onSearchReset()" />
+
+    <kz-btn [label]="BACK_LABEL" [kind]="BACK_KIND" (clicked)="onBack()" />
+</section>

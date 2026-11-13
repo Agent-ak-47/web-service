@@ -84,6 +84,10 @@ export const routes: Routes = [
                         loadComponent: () => import('../pages/admin/flights-admin-page/flights-admin-page').then((module) => module.FlightsAdminPage),
                     },
                     {
+                        path: 'search',
+                        loadComponent: () => import('../pages/admin/flights-search-page/flights-search-page').then((module) => module.FlightsSearchPage),
+                    },
+                    {
                         path: 'form',
                         canDeactivate: [unsavedChangesGuard],
                         loadComponent: () => import('../pages/admin/flight-form-page/flight-form-page').then((module) => module.FlightFormPage),
@@ -103,6 +107,10 @@ export const routes: Routes = [
                         loadComponent: () => import('../pages/admin/packages-admin-page/packages-admin-page').then((module) => module.PackagesAdminPage),
                     },
                     {
+                        path: 'search',
+                        loadComponent: () => import('../pages/admin/packages-search-page/packages-search-page').then((module) => module.PackagesSearchPage),
+                    },
+                    {
                         path: 'form',
                         canDeactivate: [unsavedChangesGuard],
                         loadComponent: () => import('../pages/admin/package-form-page/package-form-page').then((module) => module.PackageFormPage),
@@ -120,6 +128,10 @@ export const routes: Routes = [
                     {
                         path: '',
                         loadComponent: () => import('../pages/admin/excursions-admin-page/excursions-admin-page').then((module) => module.ExcursionsAdminPage),
+                    },
+                    {
+                        path: 'search',
+                        loadComponent: () => import('../pages/admin/excursions-search-page/excursions-search-page').then((module) => module.ExcursionsSearchPage),
                     },
                     {
                         path: 'form',

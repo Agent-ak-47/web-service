@@ -13,7 +13,9 @@ import com.travelagency.package_service.dto.PackageResponse;
 import com.travelagency.package_service.exception.ApiException;
 import com.travelagency.package_service.exception.ErrorCode;
 import com.travelagency.package_service.mapper.PackageFormParser;
+import com.travelagency.package_service.media.ImageStorage;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Map;
 
@@ -30,19 +32,21 @@ public class PackageAdminService {
     private final PackageQueryService queries;
     private final FlightClient flightClient;
     private final ExcursionClient excursionClient;
+    private final ImageStorage imageStorage;
 
     public PackageAdminService(PackageFormParser formParser, PackageCommandService commands,
                                PackageQueryService queries, FlightClient flightClient,
-                               ExcursionClient excursionClient) {
+                               ExcursionClient excursionClient, ImageStorage imageStorage) {
         this.formParser = formParser;
         this.commands = commands;
         this.queries = queries;
         this.flightClient = flightClient;
         this.excursionClient = excursionClient;
+        this.imageStorage = imageStorage;
     }
 
     public PackageResponse create(PackageFormRequest form) {
-        PackageData data = formParser.parse(form);
+        PackageData data = formParser.parse(withStoredImage(form));
         long id = commands.create(data);
 
         return queries.getById(id);
@@ -50,7 +54,7 @@ public class PackageAdminService {
 
     public PackageResponse update(long id, PackageFormRequest form) {
         queries.findEntity(id);
-        PackageData data = formParser.parse(form);
+        PackageData data = formParser.parse(withStoredImage(form));
         commands.update(id, data);
 
         return queries.getById(id);
@@ -88,6 +92,17 @@ public class PackageAdminService {
         commands.unlinkExcursion(packageId, excursionId);
 
         return queries.getById(packageId);
+    }
+
+    private PackageFormRequest withStoredImage(PackageFormRequest form) {
+        if (form == null) {
+            return null;
+        }
+
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        Object imageUrl = imageStorage.storeIfDataUrl(form.imageUrl(), baseUrl);
+
+        return form.withImageUrl(imageUrl);
     }
 
     private static void requireCatalogItem(CatalogClient client, String label, String field, long id) {

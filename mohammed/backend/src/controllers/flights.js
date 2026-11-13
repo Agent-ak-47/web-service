@@ -1,5 +1,6 @@
 import { asBoolean, asPositiveInt, asPrice } from '../utils/validate.js';
 import { fail, ok } from '../utils/response.js';
+import { persistImage } from '../utils/imageStore.js';
 import { availabilityJson, flightJson } from '../utils/serialize.js';
 import { validateFlight } from '../domain/flight.js';
 import * as service from '../services/flights.js';
@@ -18,6 +19,25 @@ function parseId(raw) {
   const id = Number(raw);
 
   return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+// The admin form sends the image as a data URL: store it under uploads/ and
+// replace it with the public URL before validation.
+async function storeImage(req) {
+  if (!req.body || typeof req.body !== 'object') {
+    return null;
+  }
+
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const result = await persistImage(req.body.imageUrl, baseUrl);
+
+  if (result.error) {
+    return result.error;
+  }
+
+  req.body.imageUrl = result.url;
+
+  return null;
 }
 
 function parseFilters(query) {
@@ -64,6 +84,12 @@ export async function getFlight(req, res) {
 }
 
 export async function createFlight(req, res) {
+  const imageError = await storeImage(req);
+
+  if (imageError) {
+    return fail(res, imageError.code, imageError.message, 400);
+  }
+
   const parsed = validateFlight(req.body);
 
   if (parsed.error) {
@@ -95,6 +121,12 @@ export async function updateFlight(req, res) {
 
   if (id === null) {
     return fail(res, 'NOT_FOUND', 'Flight not found.', 404);
+  }
+
+  const imageError = await storeImage(req);
+
+  if (imageError) {
+    return fail(res, imageError.code, imageError.message, 400);
   }
 
   const parsed = validateFlight(req.body);

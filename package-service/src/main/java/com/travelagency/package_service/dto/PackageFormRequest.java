@@ -16,4 +16,9 @@ public record PackageFormRequest(
         Object discountPercentage,
         Object imageUrl,
         Object active) {
+
+    public PackageFormRequest withImageUrl(Object newImageUrl) {
+        return new PackageFormRequest(name, description, destination, durationNights, price,
+                startDate, endDate, discountPercentage, newImageUrl, active);
+    }
 }
