@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthService } from './auth.service';
 import { GlobalService } from './global.service';
+import { NavigationService } from './navigation.service';
 import { UnauthorizedRedirectService } from './unauthorized-redirect.service';
 
 
@@ -28,6 +29,7 @@ function response(status: number): { status: number } {
 
 describe('UnauthorizedRedirectService', () => {
     let service: UnauthorizedRedirectService;
+    let navigationService: NavigationService;
 
     beforeEach(() => {
         auth.clearSession.mockReset();
@@ -43,6 +45,7 @@ describe('UnauthorizedRedirectService', () => {
             ],
         });
         service = TestBed.inject(UnauthorizedRedirectService);
+        navigationService = TestBed.inject(NavigationService);
     });
 
     afterEach(() => {
@@ -58,6 +61,7 @@ describe('UnauthorizedRedirectService', () => {
 
         expect(auth.clearSession).toHaveBeenCalledOnce();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/sign-in');
+        expect(navigationService.consumeForcedNavigation()).toBe(true);
     });
 
 

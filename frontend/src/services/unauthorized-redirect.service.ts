@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from './auth.service';
 import { GlobalService } from './global.service';
+import { NavigationService } from './navigation.service';
 
 
 @Injectable({ providedIn: 'root' })
@@ -13,6 +14,7 @@ export class UnauthorizedRedirectService {
     private readonly router = inject(Router);
     private readonly authService = inject(AuthService);
     private readonly globalService = inject(GlobalService);
+    private readonly navigationService = inject(NavigationService);
     private installed = false;
 
 
@@ -31,6 +33,7 @@ export class UnauthorizedRedirectService {
                 this.authService.clearSession();
 
                 if (this.router.url !== this.globalService.pages.signIn) {
+                    this.navigationService.forceNextNavigation();
                     await this.router.navigateByUrl(this.globalService.pages.signIn);
                 }
             }
