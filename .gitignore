@@ -26,6 +26,9 @@ md/
 !/frontend/README.md
 !/package-service/README.md
 !/marwan/README.md
+!/mohammed/README.md
+!/mohammed/DOSSIER_TESTS_UNITAIRES.md
+!/mohammed/DOSSIER_SPECIFICATIONS_FONCTIONNELLES.md
 
 node_modules/
 # Angular static assets live in frontend/src/public (source), so ignore only a

@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------------------
+# Flight service (Mohammed).
+#
+#   flight-service  8081   flights + seat movements
+#
+# The database is NOT defined here: it is the shared infrastructure at the
+# repository root (docker-compose.yml, see md/06-docker-architecture.md).
+# Start it first, then this stack:
+#
+#   docker compose up -d                                          # at repo root
+#   docker compose -f mohammed/docker-compose.yml up -d --build   # this service
+#
+# Values (secrets, database account) come from mohammed/.env:
+#   cp mohammed/.env.example mohammed/.env
+# ---------------------------------------------------------------------------
+
+name: travel-agency-mohammed
+
+services:
+  flight-service:
+    restart: unless-stopped
+    build: ./backend
+    image: flight-service
+    networks:
+      - travel_agency
+    environment:
+      PORT: "8081"
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-travel_agency}
+      DB_USER: ${DB_USER:-app_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is missing from mohammed/.env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is missing from mohammed/.env}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
+    ports:
+      - "8081:8081"
+
+networks:
+  # Created by `docker compose up -d` at the repository root.
+  travel_agency:
+    name: travel_agency_net
+    external: true
