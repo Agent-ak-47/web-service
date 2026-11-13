@@ -3,8 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
-import { KzFieldType } from '../../../models/kz_field_type.enum';
-import { KzFilterField } from '../../../models/kz_filter_field.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { KzPackage } from '../../../models/kz_package.interface';
 import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
@@ -22,22 +20,20 @@ import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
 import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
-import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 
 
 @Component({
     selector: 'kz-packages-admin-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup, KzFilterBar],
+    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup],
     templateUrl: './packages-admin-page.html',
     styleUrl: './packages-admin-page.css',
 })
 export class PackagesAdminPage implements OnInit {
     readonly PAGE_TITLE = 'Packages';
     readonly PAGE_SUBTITLE = 'Create, edit and delete the catalog packages.';
-    readonly SEARCH_LABEL = 'Search';
-    readonly SEARCH_PLACEHOLDER = 'Name, destination';
     readonly SEARCH_KEY = 'search';
+    readonly SEARCH_PAGE_LABEL = 'Search packages';
     readonly NEW_LABEL = 'New package';
     readonly ACTIVE_LABEL = 'Active';
     readonly NAME_LABEL = 'Name';
@@ -75,20 +71,6 @@ export class PackagesAdminPage implements OnInit {
     isDeleting = false;
     isDialogOpen = false;
     errorMessage = '';
-
-
-    get filters(): KzFilterField[] {
-        return [
-            {
-                name: this.SEARCH_KEY,
-                label: this.SEARCH_LABEL,
-                type: KzFieldType.TEXT,
-                value: this.search,
-                placeholder: this.SEARCH_PLACEHOLDER,
-                options: [],
-            },
-        ];
-    }
 
 
     get columns(): KzTableColumn[] {
@@ -153,6 +135,11 @@ export class PackagesAdminPage implements OnInit {
 
     onNewPackage(): void {
         this.router.navigateByUrl(this.globalService.pages.adminPackageForm);
+    }
+
+
+    onSearch(): void {
+        this.router.navigateByUrl(this.globalService.pages.adminPackagesSearch);
     }
 
 

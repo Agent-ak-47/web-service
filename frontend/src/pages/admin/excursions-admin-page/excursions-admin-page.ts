@@ -4,8 +4,6 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
 import { KzExcursion } from '../../../models/kz_excursion.interface';
-import { KzFieldType } from '../../../models/kz_field_type.enum';
-import { KzFilterField } from '../../../models/kz_filter_field.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
 import { parseList, parseResponse } from '../../../models/kz_response';
@@ -22,22 +20,20 @@ import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
 import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
-import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 
 
 @Component({
     selector: 'kz-excursions-admin-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup, KzFilterBar],
+    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup],
     templateUrl: './excursions-admin-page.html',
     styleUrl: './excursions-admin-page.css',
 })
 export class ExcursionsAdminPage implements OnInit {
     readonly PAGE_TITLE = 'Excursions';
     readonly PAGE_SUBTITLE = 'Create, edit and delete the catalog excursions.';
-    readonly SEARCH_LABEL = 'Search';
-    readonly SEARCH_PLACEHOLDER = 'Title, location, guide';
     readonly SEARCH_KEY = 'search';
+    readonly SEARCH_PAGE_LABEL = 'Search excursions';
     readonly NEW_LABEL = 'New excursion';
     readonly ACTIVE_LABEL = 'Active';
     readonly TITLE_LABEL = 'Title';
@@ -79,20 +75,6 @@ export class ExcursionsAdminPage implements OnInit {
     isDeleting = false;
     isDialogOpen = false;
     errorMessage = '';
-
-
-    get filters(): KzFilterField[] {
-        return [
-            {
-                name: this.SEARCH_KEY,
-                label: this.SEARCH_LABEL,
-                type: KzFieldType.TEXT,
-                value: this.search,
-                placeholder: this.SEARCH_PLACEHOLDER,
-                options: [],
-            },
-        ];
-    }
 
 
     get columns(): KzTableColumn[] {
@@ -167,6 +149,11 @@ export class ExcursionsAdminPage implements OnInit {
 
     onNewExcursion(): void {
         this.router.navigateByUrl(this.globalService.pages.adminExcursionForm);
+    }
+
+
+    onSearch(): void {
+        this.router.navigateByUrl(this.globalService.pages.adminExcursionsSearch);
     }
 
 

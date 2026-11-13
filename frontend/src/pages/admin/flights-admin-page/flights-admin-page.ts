@@ -3,8 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { KzBtnKind } from '../../../models/kz_btn_kind.enum';
-import { KzFieldType } from '../../../models/kz_field_type.enum';
-import { KzFilterField } from '../../../models/kz_filter_field.interface';
 import { KzFlight } from '../../../models/kz_flight.interface';
 import { KZ_LABELS } from '../../../models/kz_labels.interface';
 import { addQuery, cleanQueryParams, KzQueryParams } from '../../../models/kz_query';
@@ -22,22 +20,20 @@ import { KzBtn } from '../../../components/kz-btn/kz-btn';
 import { KzDataTable } from '../../../components/kz-data-table/kz-data-table';
 import { KzDialog } from '../../../components/kz-dialog/kz-dialog';
 import { KzErrorPopup } from '../../../components/kz-error-popup/kz-error-popup';
-import { KzFilterBar } from '../../../components/kz-filter-bar/kz-filter-bar';
 
 
 @Component({
     selector: 'kz-flights-admin-page',
     standalone: true,
-    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup, KzFilterBar],
+    imports: [KzBtn, KzDataTable, KzDialog, KzErrorPopup],
     templateUrl: './flights-admin-page.html',
     styleUrl: './flights-admin-page.css',
 })
 export class FlightsAdminPage implements OnInit {
     readonly PAGE_TITLE = 'Flights';
     readonly PAGE_SUBTITLE = 'Create, edit and delete the catalog flights.';
-    readonly SEARCH_LABEL = 'Search';
-    readonly SEARCH_PLACEHOLDER = 'Airline, number, city';
     readonly SEARCH_KEY = 'search';
+    readonly SEARCH_PAGE_LABEL = 'Search flights';
     readonly NEW_LABEL = 'New flight';
     readonly ACTIVE_LABEL = 'Active';
     readonly AIRLINE_LABEL = 'Airline';
@@ -77,20 +73,6 @@ export class FlightsAdminPage implements OnInit {
     isDeleting = false;
     isDialogOpen = false;
     errorMessage = '';
-
-
-    get filters(): KzFilterField[] {
-        return [
-            {
-                name: this.SEARCH_KEY,
-                label: this.SEARCH_LABEL,
-                type: KzFieldType.TEXT,
-                value: this.search,
-                placeholder: this.SEARCH_PLACEHOLDER,
-                options: [],
-            },
-        ];
-    }
 
 
     get columns(): KzTableColumn[] {
@@ -160,6 +142,11 @@ export class FlightsAdminPage implements OnInit {
 
     onNewFlight(): void {
         this.router.navigateByUrl(this.globalService.pages.adminFlightForm);
+    }
+
+
+    onSearch(): void {
+        this.router.navigateByUrl(this.globalService.pages.adminFlightsSearch);
     }
 
 

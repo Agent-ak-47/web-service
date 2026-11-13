@@ -13,7 +13,7 @@ export class GlobalService {
     readonly IMGS_FOLDER = 'imgs/';
     readonly DATA_URL_PREFIX = 'data:';
     readonly MOCK_DATA_FOLDER = 'data/';
-    readonly MOCK_MODE = false;
+    readonly MOCK_MODE = true;
     readonly BACKEND_URL = 'http://localhost:8083';
     readonly RESERVATION_SERVICE_URL = 'http://localhost:8085';
     readonly PAYMENT_SERVICE_URL = 'http://localhost:8086';
@@ -39,12 +39,15 @@ export class GlobalService {
         profile: '/profile',
         adminDashboard: '/admin',
         adminFlights: '/admin/flights',
+        adminFlightsSearch: '/admin/flights/search',
         adminFlightForm: '/admin/flights/form',
         adminFlightFormEdit: (id: number): string => `/admin/flights/form/${id}`,
         adminPackages: '/admin/packages',
+        adminPackagesSearch: '/admin/packages/search',
         adminPackageForm: '/admin/packages/form',
         adminPackageFormEdit: (id: number): string => `/admin/packages/form/${id}`,
         adminExcursions: '/admin/excursions',
+        adminExcursionsSearch: '/admin/excursions/search',
         adminExcursionForm: '/admin/excursions/form',
         adminExcursionFormEdit: (id: number): string => `/admin/excursions/form/${id}`,
         adminReservations: '/admin/reservations',
