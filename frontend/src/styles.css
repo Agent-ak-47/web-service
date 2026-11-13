@@ -234,6 +234,7 @@ textarea {
 .kz-empty {
     display: flex;
     flex-direction: column;
+    width: 100%;
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-7) var(--space-5);
