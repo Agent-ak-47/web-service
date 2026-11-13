@@ -32,6 +32,7 @@ x-app-env: &app-env
   CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
 
 services:
+
   mysql:
     image: ${MYSQL_IMAGE:-mysql:8.4}
     container_name: travel_agency_mysql

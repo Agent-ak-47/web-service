@@ -33,9 +33,11 @@ public class ImageStorage {
     private final Path directory;
 
     public ImageStorage() {
-        this.directory = Paths.get(System.getenv().getOrDefault("UPLOADS_DIR", "uploads"))
-                .toAbsolutePath()
-                .normalize();
+        this(Paths.get(System.getenv().getOrDefault("UPLOADS_DIR", "uploads")));
+    }
+
+    ImageStorage(Path directory) {
+        this.directory = directory.toAbsolutePath().normalize();
     }
 
     public Path directory() {
