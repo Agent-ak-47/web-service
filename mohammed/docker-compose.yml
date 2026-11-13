@@ -34,6 +34,11 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
     ports:
       - "8081:8081"
+    volumes:
+      - flight_uploads:/app/uploads
+
+volumes:
+  flight_uploads:
 
 networks:
   # Created by `docker compose up -d` at the repository root.

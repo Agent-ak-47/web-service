@@ -47,6 +47,11 @@ services:
       FLIGHT_SERVICE_URL: ${DOCKER_FLIGHT_SERVICE_URL:-http://host.docker.internal:8081}
       EXCURSION_SERVICE_URL: ${DOCKER_EXCURSION_SERVICE_URL:-http://host.docker.internal:8084}
       SERVICE_TIMEOUT: ${SERVICE_TIMEOUT:-5}
+    volumes:
+      - package_uploads:/app/uploads
+
+volumes:
+  package_uploads:
 
 networks:
   # Created by `docker compose up -d` at the repository root.

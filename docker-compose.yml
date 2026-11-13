@@ -91,6 +91,8 @@ services:
       PORT: "8081"
     ports:
       - "8081:8081"
+    volumes:
+      - flight_uploads:/app/uploads
     networks:
       - travel_agency
 
@@ -113,6 +115,8 @@ services:
       SERVICE_TIMEOUT: ${SERVICE_TIMEOUT:-3}
     ports:
       - "8082:8082"
+    volumes:
+      - package_uploads:/app/uploads
     networks:
       - travel_agency
 
@@ -153,6 +157,8 @@ services:
       PORT: "8084"
     ports:
       - "8084:8084"
+    volumes:
+      - excursion_uploads:/app/uploads
     networks:
       - travel_agency
 
@@ -224,6 +230,12 @@ services:
 volumes:
   mysql_data:
     name: travel_agency_mysql_data
+  flight_uploads:
+    name: travel_agency_flight_uploads
+  excursion_uploads:
+    name: travel_agency_excursion_uploads
+  package_uploads:
+    name: travel_agency_package_uploads
 
 networks:
   travel_agency:

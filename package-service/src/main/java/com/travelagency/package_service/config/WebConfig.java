@@ -1,9 +1,11 @@
 package com.travelagency.package_service.config;
 
+import com.travelagency.package_service.media.ImageStorage;
 import com.travelagency.package_service.security.AuthInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -16,10 +18,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final AppProperties properties;
     private final AuthInterceptor authInterceptor;
+    private final ImageStorage imageStorage;
 
-    public WebConfig(AppProperties properties, AuthInterceptor authInterceptor) {
+    public WebConfig(AppProperties properties, AuthInterceptor authInterceptor, ImageStorage imageStorage) {
         this.properties = properties;
         this.authInterceptor = authInterceptor;
+        this.imageStorage = imageStorage;
     }
 
     @Override
@@ -35,6 +39,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor).addPathPatterns("/api/**");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String location = imageStorage.directory().toUri().toString();
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(location.endsWith("/") ? location : location + "/")
+                .setCachePeriod(604_800);
     }
 
     private List<String> origins() {

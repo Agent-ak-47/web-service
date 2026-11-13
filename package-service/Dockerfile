@@ -44,6 +44,9 @@ COPY --from=build --chown=appuser:appuser /build/extracted/spring-boot-loader/ .
 COPY --from=build --chown=appuser:appuser /build/extracted/snapshot-dependencies/ ./
 COPY --from=build --chown=appuser:appuser /build/extracted/application/ ./
 
+# Uploaded covers are written here; a compose volume keeps them across restarts.
+RUN mkdir -p /app/uploads && chown appuser:appuser /app/uploads
+
 USER appuser
 
 # PORT is read by application.properties (server.port=${PORT:8082}).

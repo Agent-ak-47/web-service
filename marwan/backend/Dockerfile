@@ -14,6 +14,9 @@ RUN npm install --omit=dev
 
 COPY src ./src
 
+# Uploaded covers are written here; a compose volume keeps them across restarts.
+RUN mkdir -p /app/uploads && chown node:node /app/uploads
+
 # The process never runs as root.
 USER node
 
