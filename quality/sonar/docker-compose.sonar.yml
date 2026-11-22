@@ -1,0 +1,41 @@
+services:
+  sonar-db:
+    image: postgres:16-alpine
+    container_name: atlas-sonar-db
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - sonar-db-data:/var/lib/postgresql/data
+    networks:
+      - atlas-sonar
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: atlas-sonarqube
+    depends_on:
+      - sonar-db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonar-data:/opt/sonarqube/data
+      - sonar-extensions:/opt/sonarqube/extensions
+      - sonar-logs:/opt/sonarqube/logs
+    networks:
+      - atlas-sonar
+
+volumes:
+  sonar-db-data:
+  sonar-data:
+  sonar-extensions:
+  sonar-logs:
+
+networks:
+  atlas-sonar:
+    name: atlas-sonar

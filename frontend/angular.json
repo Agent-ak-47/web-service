@@ -76,7 +76,11 @@
                         "buildTarget": "frontend:build:development",
                         "tsConfig": "tsconfig.spec.json",
                         "include": ["src/**/*.spec.ts"],
-                        "providersFile": "src/test-providers.ts"
+                        "providersFile": "src/test-providers.ts",
+                        "runnerConfig": "vitest.config.ts",
+                        "coverageReporters": ["text-summary", "lcov", "html"],
+                        "coverageInclude": ["src/**/*.ts"],
+                        "coverageExclude": ["src/**/*.spec.ts", "src/test-providers.ts", "src/main.ts"]
                     }
                 }
             }
