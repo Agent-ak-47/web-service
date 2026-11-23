@@ -1,0 +1,1077 @@
+{
+  "info": {
+    "name": "ATLAS TRIPS - API tests",
+    "description": "Postman/Newman API campaign for the six ATLAS TRIPS services. Run it against the Docker stack (or the local services) with the matching environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "reservationId", "value": "" },
+    { "key": "reservationToCancelId", "value": "" },
+    { "key": "reservationPaidId", "value": "" },
+    { "key": "reservationDeclinedId", "value": "" },
+    { "key": "paymentId", "value": "" },
+    { "key": "flightId", "value": "" },
+    { "key": "packageId", "value": "" },
+    { "key": "excursionId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "item": [
+        {
+          "name": "Register a client",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('qaEmail', 'qa-' + Date.now() + '@agency.travel');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('registration accepted or email already used', () => pm.expect([201, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"QA Client\",\n  \"email\": \"{{qaEmail}}\",\n  \"password\": \"Password123!\",\n  \"phone\": \"+212600000000\",\n  \"address\": \"Casablanca\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{userUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('client login succeeds', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('token is returned', () => pm.expect(body.data.jeton).to.be.a('string').and.not.empty);",
+                  "pm.collectionVariables.set('token', body.data.jeton);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{clientEmail}}\",\n  \"password\": \"{{clientPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{userUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('admin login succeeds', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('admin role is returned', () => pm.expect(body.data.user.role).to.eql('ADMIN'));",
+                  "pm.collectionVariables.set('adminToken', body.data.jeton);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{userUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Get current profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('profile is returned', () => pm.response.to.have.status(200));",
+                  "pm.test('profile contains an email', () => pm.expect(pm.response.json().data.email).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{userUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Update current profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('profile update succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Customer\",\n  \"phone\": \"+212522000000\",\n  \"address\": \"Casablanca\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{userUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Flights",
+      "item": [
+        {
+          "name": "List flights",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('flight list succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('flight list is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{flightUrl}}/api/flights" }
+        },
+        {
+          "name": "Get flight 5",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('flight detail succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('flight has an id', () => pm.expect(pm.response.json().data.id).to.eql(5));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{flightUrl}}/api/flights/5" }
+        },
+        {
+          "name": "Get flight availability",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('flight availability succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('availability exposes availableSeats', () => pm.expect(pm.response.json().data.availableSeats).to.be.a('number'));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{flightUrl}}/api/flights/5/availability" }
+        },
+        {
+          "name": "Create a flight",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('qaFlightNumber', 'QA' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('flight creation succeeds', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('created flight has an id', () => pm.expect(body.data.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('flightId', body.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"airline\": \"QA Airline\",\n  \"flightNumber\": \"{{qaFlightNumber}}\",\n  \"departureCity\": \"Casablanca\",\n  \"arrivalCity\": \"Marrakech\",\n  \"departureTime\": \"2027-06-10T08:00:00\",\n  \"arrivalTime\": \"2027-06-10T09:00:00\",\n  \"price\": 900,\n  \"totalSeats\": 120,\n  \"availableSeats\": 120,\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{flightUrl}}/api/flights"
+          }
+        },
+        {
+          "name": "Update the created flight",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('flight update succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('price was updated', () => pm.expect(pm.response.json().data.price).to.eql(950));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"airline\": \"QA Airline\",\n  \"flightNumber\": \"{{qaFlightNumber}}\",\n  \"departureCity\": \"Casablanca\",\n  \"arrivalCity\": \"Marrakech\",\n  \"departureTime\": \"2027-06-10T08:00:00\",\n  \"arrivalTime\": \"2027-06-10T09:00:00\",\n  \"price\": 950,\n  \"totalSeats\": 120,\n  \"availableSeats\": 120,\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{flightUrl}}/api/flights/{{flightId}}"
+          }
+        },
+        {
+          "name": "Reserve and release flight seats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('internal reserve succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 1,\n  \"reservationId\": 999999\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{flightUrl}}/api/internal/flights/{{flightId}}/reserve"
+          }
+        },
+        {
+          "name": "Release the reserved flight seats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('internal release succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 1,\n  \"reservationId\": 999999\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{flightUrl}}/api/internal/flights/{{flightId}}/release"
+          }
+        },
+        {
+          "name": "Delete the created flight",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('flight deletion succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{flightUrl}}/api/flights/{{flightId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Packages",
+      "item": [
+        {
+          "name": "List packages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('package list succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('page envelope is returned', () => pm.expect(pm.response.json().data.data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{packageUrl}}/api/packages?page=1&size=20" }
+        },
+        {
+          "name": "Get package 3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('package detail succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('package has a composition', () => pm.expect(pm.response.json().data.composition).to.be.an('object'));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{packageUrl}}/api/packages/3" }
+        },
+        {
+          "name": "Get package availability",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('package availability succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{packageUrl}}/api/packages/3/availability" }
+        },
+        {
+          "name": "Create a package",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('qaPackageName', 'QA package ' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('package creation succeeds', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('packageId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{qaPackageName}}\",\n  \"destination\": \"QA destination\",\n  \"durationNights\": 3,\n  \"price\": 2000,\n  \"discountPercentage\": 10,\n  \"startDate\": \"2027-07-01\",\n  \"endDate\": \"2027-07-04\",\n  \"description\": \"Postman QA package\",\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{packageUrl}}/api/packages"
+          }
+        },
+        {
+          "name": "Update the created package",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('package update succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{qaPackageName}}\",\n  \"destination\": \"QA destination\",\n  \"durationNights\": 4,\n  \"price\": 2100,\n  \"discountPercentage\": 10,\n  \"startDate\": \"2027-07-01\",\n  \"endDate\": \"2027-07-05\",\n  \"description\": \"Postman QA package updated\",\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{packageUrl}}/api/packages/{{packageId}}"
+          }
+        },
+        {
+          "name": "Delete the created package",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('package deletion succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{packageUrl}}/api/packages/{{packageId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Excursions",
+      "item": [
+        {
+          "name": "List excursions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('excursion list succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('excursion list is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{excursionUrl}}/api/excursions" }
+        },
+        {
+          "name": "Get excursion 4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('excursion detail succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{excursionUrl}}/api/excursions/4" }
+        },
+        {
+          "name": "Get excursion availability",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('excursion availability succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{excursionUrl}}/api/excursions/4/availability" }
+        },
+        {
+          "name": "Create an excursion",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('qaExcursionTitle', 'QA excursion ' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('excursion creation succeeds', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('excursionId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{qaExcursionTitle}}\",\n  \"location\": \"QA location\",\n  \"date\": \"2027-08-10\",\n  \"startTime\": \"09:00\",\n  \"dureeMinutes\": 120,\n  \"capacity\": 20,\n  \"availableSeats\": 20,\n  \"price\": 300,\n  \"guide\": \"QA guide\",\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{excursionUrl}}/api/excursions"
+          }
+        },
+        {
+          "name": "Update the created excursion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('excursion update succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{qaExcursionTitle}}\",\n  \"location\": \"QA location\",\n  \"date\": \"2027-08-10\",\n  \"startTime\": \"10:00\",\n  \"dureeMinutes\": 150,\n  \"capacity\": 20,\n  \"availableSeats\": 20,\n  \"price\": 350,\n  \"guide\": \"QA guide\",\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{excursionUrl}}/api/excursions/{{excursionId}}"
+          }
+        },
+        {
+          "name": "Delete the created excursion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('excursion deletion succeeds', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{excursionUrl}}/api/excursions/{{excursionId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Reservations",
+      "item": [
+        {
+          "name": "Create a reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('reservation creation succeeds', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('reservation is PENDING', () => pm.expect(body.data.status).to.eql('PENDING'));",
+                  "pm.collectionVariables.set('reservationId', body.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeItem\": \"FLIGHT\",\n  \"itemId\": 5,\n  \"quantity\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{reservationUrl}}/api/reservations"
+          }
+        },
+        {
+          "name": "List reservations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('reservation list succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('reservation list is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{reservationUrl}}/api/reservations"
+          }
+        },
+        {
+          "name": "Get the reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('reservation detail succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('reservation id matches', () => pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('reservationId')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{reservationUrl}}/api/reservations/{{reservationId}}"
+          }
+        },
+        {
+          "name": "Update the reservation quantity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('reservation update succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('quantity is updated', () => pm.expect(pm.response.json().data.quantity).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{reservationUrl}}/api/reservations/{{reservationId}}"
+          }
+        },
+        {
+          "name": "Get reservation history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('history succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('history is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{reservationUrl}}/api/reservations/{{reservationId}}/history"
+          }
+        },
+        {
+          "name": "Validate the reservation (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('reservation validation succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('reservation is CONFIRMED', () => pm.expect(pm.response.json().data.status).to.eql('CONFIRMED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{reservationUrl}}/api/reservations/{{reservationId}}/validation"
+          }
+        },
+        {
+          "name": "Create a reservation to cancel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('second reservation is created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('reservationToCancelId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeItem\": \"FLIGHT\",\n  \"itemId\": 7,\n  \"quantity\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{reservationUrl}}/api/reservations"
+          }
+        },
+        {
+          "name": "Cancel the reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('cancellation succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('reservation is CANCELLED', () => pm.expect(pm.response.json().data.status).to.eql('CANCELLED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Postman QA cancellation\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{reservationUrl}}/api/reservations/{{reservationToCancelId}}/cancellation"
+          }
+        },
+        {
+          "name": "Create a reservation to pay",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('payable reservation is created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('reservationPaidId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeItem\": \"FLIGHT\",\n  \"itemId\": 8,\n  \"quantity\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{reservationUrl}}/api/reservations"
+          }
+        },
+        {
+          "name": "Create a reservation for the declined card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('declined-test reservation is created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('reservationDeclinedId', pm.response.json().data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeItem\": \"FLIGHT\",\n  \"itemId\": 11,\n  \"quantity\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{reservationUrl}}/api/reservations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Payments",
+      "item": [
+        {
+          "name": "Pay the confirmed reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('payment succeeds', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('reservation is PAID', () => pm.expect(body.data.reservation.status).to.eql('PAID'));",
+                  "pm.test('payment is SUCCEEDED', () => pm.expect(body.data.payment.status).to.eql('SUCCEEDED'));",
+                  "pm.collectionVariables.set('paymentId', body.data.payment.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"CARD\",\n  \"cardNumber\": \"4242 4242 4242 4242\",\n  \"expiration\": \"12/28\",\n  \"cvv\": \"123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{paymentUrl}}/api/reservations/{{reservationId}}/payment"
+          }
+        },
+        {
+          "name": "Refund the paid reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('refund succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('reservation is REFUNDED', () => pm.expect(pm.response.json().data.reservation.status).to.eql('REFUNDED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{paymentUrl}}/api/reservations/{{reservationId}}/refund"
+          }
+        },
+        {
+          "name": "Pay the second reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('second payment succeeds', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('paymentId', pm.response.json().data.payment.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"CARD\",\n  \"cardNumber\": \"4242424242424242\",\n  \"expiration\": \"12/28\",\n  \"cvv\": \"123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{paymentUrl}}/api/reservations/{{reservationPaidId}}/payment"
+          }
+        },
+        {
+          "name": "Refund the payment by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('refund by payment id succeeds', () => pm.response.to.have.status(200));",
+                  "pm.test('payment is REFUNDED', () => pm.expect(pm.response.json().data.payment.status).to.eql('REFUNDED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{paymentUrl}}/api/payments/{{paymentId}}/refund"
+          }
+        },
+        {
+          "name": "Declined card is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('declined card returns 402', () => pm.response.to.have.status(402));",
+                  "pm.test('error code is PAYMENT_DECLINED', () => pm.expect(pm.response.json().error.code).to.eql('PAYMENT_DECLINED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"CARD\",\n  \"cardNumber\": \"4000 0000 0000 0002\",\n  \"expiration\": \"12/28\",\n  \"cvv\": \"123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{paymentUrl}}/api/reservations/{{reservationDeclinedId}}/payment"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Health",
+      "item": [
+        {
+          "name": "User health",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('user health is ok', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{userUrl}}/health" }
+        },
+        {
+          "name": "Flight health",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('flight health is ok', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{flightUrl}}/health" }
+        },
+        {
+          "name": "Package health",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('package API answers', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{packageUrl}}/api/packages?size=1" }
+        },
+        {
+          "name": "Excursion health",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('excursion health is ok', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{excursionUrl}}/health" }
+        },
+        {
+          "name": "Reservation health",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('reservation health is ok', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{reservationUrl}}/health" }
+        },
+        {
+          "name": "Payment health",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('payment health is ok', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": { "method": "GET", "header": [], "url": "{{paymentUrl}}/health" }
+        }
+      ]
+    },
+    {
+      "name": "99 - Cleanup",
+      "item": [
+        {
+          "name": "Logout client",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('client logout succeeds', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{userUrl}}/api/auth/logout"
+          }
+        },
+        {
+          "name": "Logout admin",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('admin logout succeeds', () => pm.response.to.have.status(200));"] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{userUrl}}/api/auth/logout"
+          }
+        }
+      ]
+    }
+  ]
+}

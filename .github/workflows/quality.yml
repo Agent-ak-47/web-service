@@ -1,0 +1,129 @@
+name: Quality
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-coverage:
+    name: Pytest + Coverage.py (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [user, reservation, payment]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r kamal/requirements-dev.txt -r kamal/${{ matrix.service }}/requirements.txt
+      - name: Run tests with coverage
+        working-directory: kamal/${{ matrix.service }}
+        run: |
+          mkdir -p ../../quality/reports/coverage
+          python -m pytest \
+            --cov=controls --cov=helpers --cov=models --cov=config --cov=index \
+            --cov-report=term-missing \
+            --cov-report=xml:../../quality/reports/coverage/python-${{ matrix.service }}.xml \
+            -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-python-${{ matrix.service }}
+          path: quality/reports/coverage/python-${{ matrix.service }}.xml
+
+  node-coverage:
+    name: Istanbul / c8 (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: excursion
+            path: marwan/backend
+          - service: flight
+            path: mohammed/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ matrix.path }}
+      - run: npm run test:coverage
+        working-directory: ${{ matrix.path }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-node-${{ matrix.service }}
+          path: quality/reports/coverage/node-${{ matrix.service }}
+
+  frontend-coverage:
+    name: Istanbul / Vitest (frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run test:coverage
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-frontend
+          path: frontend/coverage
+
+  java:
+    name: JUnit + JaCoCo + Checkstyle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Verify
+        working-directory: package-service
+        run: |
+          chmod +x mvnw
+          ./mvnw -B verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: java-reports
+          path: |
+            package-service/target/site/jacoco
+            package-service/target/checkstyle-result.xml
+            package-service/target/surefire-reports
+
+  snyk:
+    name: Snyk
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g snyk
+      - run: snyk test --all-projects --severity-threshold=high
+      - run: snyk code test --all-projects --severity-threshold=high
+
+  # Postman, JMeter, Selenium and ZAP need the running Docker stack. Run them
+  # locally with quality/run_all.py --dynamic and quality/zap/run_zap.py.
