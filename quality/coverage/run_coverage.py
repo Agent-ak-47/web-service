@@ -2,13 +2,14 @@
 
 Python      : Coverage.py through pytest-cov
 JavaScript  : Istanbul through @vitest/coverage-istanbul (frontend) and c8 (Node services)
-Java        : JaCoCo through Maven
+Java        : JaCoCo through Maven (supports local JDK or Docker eclipse-temurin:25-jdk)
 
 Every report is written under quality/reports/coverage/.
 """
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -115,7 +116,42 @@ def frontend_coverage():
     return status
 
 
-def java_coverage():
+def check_local_java_version():
+    java = shutil.which('java')
+    if not java:
+        return 0
+    try:
+        output = subprocess.check_output([java, '-version'], stderr=subprocess.STDOUT, text=True)
+        match = re.search(r'version\s+"(\d+)', output)
+        if match:
+            return int(match.group(1))
+    except Exception:
+        pass
+    return 0
+
+
+def java_coverage_docker():
+    docker = shutil.which('docker')
+    if not docker:
+        print('[FAIL] Docker is required to run package-service tests under JDK 25.')
+        return 2
+
+    m2_cache = Path.home() / '.m2'
+    m2_cache.mkdir(parents=True, exist_ok=True)
+    pkg_dir = (ROOT / 'package-service').resolve()
+
+    command = [
+        docker, 'run', '--rm',
+        '-v', f'{pkg_dir}:/workspace',
+        '-v', f'{m2_cache}:/root/.m2',
+        '-w', '/workspace',
+        'eclipse-temurin:25-jdk',
+        'sh', '-c', "sed -i 's/\r$//' mvnw && chmod +x mvnw && ./mvnw -B -q verify"
+    ]
+    return run(command, ROOT / 'package-service', 'JaCoCo + Checkstyle + JUnit (Docker JDK 25) - package-service')
+
+
+def java_coverage_local():
     wrapper = 'mvnw.cmd' if os.name == 'nt' else 'mvnw'
     maven = ROOT / 'package-service' / wrapper
     command = [str(maven), '-q', 'verify']
@@ -123,7 +159,21 @@ def java_coverage():
     if not maven.exists():
         command = ['mvn.cmd' if os.name == 'nt' else 'mvn', '-q', 'verify']
 
-    return run(command, ROOT / 'package-service', 'JaCoCo + Checkstyle + JUnit - package-service')
+    return run(command, ROOT / 'package-service', 'JaCoCo + Checkstyle + JUnit (Local) - package-service')
+
+
+def java_coverage(use_docker=False):
+    local_version = check_local_java_version()
+
+    if use_docker or local_version != 25:
+        if shutil.which('docker'):
+            print(f'Local Java version is {local_version} (package-service requires JDK 25).')
+            print('Executing Maven verify inside Docker (eclipse-temurin:25-jdk)...')
+            return java_coverage_docker()
+        elif local_version != 25:
+            print(f'[WARN] Local Java version is {local_version}, but JDK 25 is required and Docker is not available.')
+
+    return java_coverage_local()
 
 
 def main():
@@ -132,6 +182,7 @@ def main():
     parser.add_argument('--node', action='store_true', help='Istanbul (c8) on the Node services.')
     parser.add_argument('--frontend', action='store_true', help='Istanbul on the Angular app.')
     parser.add_argument('--java', action='store_true', help='JaCoCo, Checkstyle and JUnit on package-service.')
+    parser.add_argument('--docker', action='store_true', help='Force Docker execution for Java (JDK 25).')
     parser.add_argument('--all', action='store_true', help='Run every language.')
     args = parser.parse_args()
 
@@ -153,7 +204,7 @@ def main():
         status |= frontend_coverage()
 
     if args.all or args.java:
-        status |= java_coverage()
+        status |= java_coverage(use_docker=args.docker)
 
     print(f'\nReports: {REPORTS}')
     print('Coverage campaign finished.' if status == 0 else 'Coverage campaign finished with failures.')

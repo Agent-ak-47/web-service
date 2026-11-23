@@ -1,41 +1,45 @@
 # OWASP ZAP — dynamic security scan
 
-The baseline scan spiders the Angular frontend and runs ZAP's passive rules:
-security headers, cookie flags, information disclosure, exposed files and
-similar issues. It does not perform destructive active attacks.
+The security campaign supports both passive baseline spidering and full active/intrusive penetration scanning with fuzzing:
 
-## Run
+1. **Baseline scan (passive)**: Spiders the Angular frontend and analyzes passive rules (security headers, cookie flags, information disclosure, exposed assets).
+2. **Active / Intrusive scan**: Performs intrusive attack payloads, SQLi/XSS/CSRF fuzzing, input validation attacks, and penetration testing rules against frontend and backend endpoints.
+3. **API scan**: Runs active security assessments against RESTful endpoints.
 
-Start the frontend (and the API stack if the scanned pages call it), then:
+## Run via Docker
+
+Start the Docker stack first, then run:
 
 ```powershell
-py -3.11 quality/zap/run_zap.py
+# Passive baseline scan
+py quality/zap/run_zap.py
+
+# Active / intrusive penetration scan (against frontend and services)
+py quality/zap/run_zap.py --active
+
+# Active scan with Ajax spider for Angular SPA
+py quality/zap/run_zap.py --active --ajax --minutes 5
+
+# Target specific backend API service directly
+py quality/zap/run_zap.py --active --target http://host.docker.internal:8085
 ```
 
-Docker is required; the image `ghcr.io/zaproxy/zaproxy:stable` is pulled on
-first run. Reports are written to:
+Docker is required; the image `ghcr.io/zaproxy/zaproxy:stable` is pulled automatically by Docker.
 
-- `quality/reports/zap/zap-report.html`
-- `quality/reports/zap/zap-report.json`
-- `quality/reports/zap/zap-report.md`
+Reports are written to:
+
+- `quality/reports/zap/zap-report.html` (baseline)
+- `quality/reports/zap/zap-active-report.html` (active / intrusive)
+- `quality/reports/zap/*.json` and `*.md`
 
 ## Options
 
 | Option | Default | Purpose |
 |--------|---------|---------|
-| `--target` | `http://host.docker.internal:4200` | URL as seen from the container |
+| `--target` | `http://host.docker.internal:4200` | Target URL as seen from the ZAP container |
+| `--mode` | `baseline` | `baseline` (passive), `active` (full attack), or `api` |
+| `--active` | off | Shortcut for active / intrusive penetration scan |
+| `--ajax` | off | Enables Ajax Spider for modern SPA navigation |
 | `--minutes` | `2` | Spider time limit |
 | `--fail-on-warn` | off | Fail the run on warnings (CI gate) |
 | `--image` | `ghcr.io/zaproxy/zaproxy:stable` | ZAP image |
-
-`host.docker.internal` resolves to the host from Docker Desktop. On Linux use
-`--target http://localhost:4200 --add-host` or run with `--network host`.
-
-## Scope and limits
-
-- The baseline scan is unauthenticated: it sees public pages only. Authenticated
-  booking/admin screens are covered by the Selenium suite.
-- `zap-baseline.conf` tunes rule actions; keep findings visible unless a rule is
-  a documented false positive.
-- Do not point the active scan at production. This campaign targets the local
-  Docker stack.
